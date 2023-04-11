@@ -1,4 +1,6 @@
 from selenium.webdriver.remote.webdriver import WebDriver
+
+from core.assertion import StringAssertion, Format
 from core.by import By
 
 
@@ -13,14 +15,54 @@ class Page:
         from core.uielement import UiElement
         return UiElement(self._webdriver, by, self)
 
-    @property
-    def webdriver(self):
-        return self._webdriver
-
     def open(self, url: str):
         self._webdriver.get(url)
         self._url = self._webdriver.current_url
         self._title = self._webdriver.title
+        return self
 
     def __str__(self):
-        return f"Page({self._title, self._url})"
+        return self.name
+
+    @property
+    def name(self):
+        return self.__class__.__name__
+
+    @property
+    def expect(self):
+        return PageAssertion(self, self._webdriver, raise_exceptions=True)
+
+    @property
+    def wait_for(self):
+        return PageAssertion(self, self._webdriver, raise_exceptions=False)
+
+
+class PageAssertion:
+
+    def __init__(
+        self,
+        page: Page,
+        webdriver: WebDriver,
+        raise_exceptions: bool = False
+    ):
+        self._page = page
+        self._webdriver = webdriver
+        self._raise = raise_exceptions
+
+    @property
+    def title(self):
+        return StringAssertion(
+            parent=None,
+            actual=lambda: self._webdriver.title,
+            subject=lambda: f"{self._page.name}.title {Format.param(self._webdriver.title)}",
+            raise_exceptions=self._raise,
+        )
+
+    @property
+    def url(self):
+        return StringAssertion(
+            parent=None,
+            actual=lambda: self._webdriver.current_url,
+            subject=lambda: f"{self._page.name}.url {Format.param(self._webdriver.current_url)}",
+            raise_exceptions=self._raise,
+        )

@@ -16,9 +16,10 @@ def test_yahoo():
     webdriver = manager.get_webdriver()
     page = Page(webdriver)
 
-    page.webdriver.get('http://www.yahoo.com')
-    assert 'Yahoo' in page.webdriver.title
+    page.open('http://www.yahoo.com')
+    page.expect.title.contains("Yahoo").be(True)
     cookie_btn = page.find(By.name("agree"))
+    cookie_btn.expect.text.contains("akzeptieren").be(True)
     cookie_btn.click()
 
     search_box = page.find(By.name("p"))
