@@ -28,3 +28,11 @@ element.expect.text.be("Clicked")
 # Shutdown all sessions
 manager.shutdown_all()
 ```
+
+
+## Missing features (todos)
+
+- list support
+- components support
+- full assertions support
+- full actions support
