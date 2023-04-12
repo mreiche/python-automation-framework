@@ -3,9 +3,9 @@ from typing import Callable
 
 
 class Sequence:
-    def __init__(self, retry_count: int = 3, wait_ms: float = 0.2):
+    def __init__(self, retry_count: int = 3, wait_after_fail: float = 0.2):
         self._max = retry_count
-        self._wait_ms = wait_ms
+        self._wait_ms = wait_after_fail
         self._count = 0
         self._start_time = 0
 

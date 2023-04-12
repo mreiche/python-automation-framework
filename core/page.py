@@ -43,7 +43,7 @@ class PageAssertion:
     ):
         self._page = page
         self._webdriver = webdriver
-        self._raise = config.raise_exception
+        self._config = config
 
     @property
     def title(self):
@@ -51,7 +51,7 @@ class PageAssertion:
             parent=None,
             actual=lambda: self._webdriver.title,
             subject=lambda: f"{self._page.name}.title {Format.param(self._webdriver.title)}",
-            raise_exceptions=self._raise,
+            config=self._config,
         )
 
     @property
@@ -60,5 +60,5 @@ class PageAssertion:
             parent=None,
             actual=lambda: self._webdriver.current_url,
             subject=lambda: f"{self._page.name}.url {Format.param(self._webdriver.current_url)}",
-            raise_exceptions=self._raise,
+            config=self._config,
         )

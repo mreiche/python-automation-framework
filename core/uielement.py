@@ -5,6 +5,7 @@ from selenium.webdriver.remote.webelement import WebElement
 
 from core.assertion import StringAssertion, Format, BinaryAssertion
 from core.by import By
+from core.config import TestConfig
 from core.retry import Sequence
 from core.types import Mapper
 
@@ -106,11 +107,11 @@ class UiElement:
 
     @property
     def expect(self):
-        return UiElementAssertion(self._core, self, raise_exceptions=True)
+        return UiElementAssertion(self._core, self)
 
     @property
     def wait_for(self):
-        return UiElementAssertion(self._core, self, raise_exceptions=False)
+        return UiElementAssertion(self._core, self, TestConfig(raise_exception=False))
 
     def clear(self) -> "UiElement":
         self._action_sequence(lambda: self._core.find_web_element().clear())
@@ -140,11 +141,11 @@ class UiElementAssertion:
         self,
         core: UiElementCore,
         ui_element: UiElement,
-        raise_exceptions: bool = False
+        config: TestConfig = TestConfig(),
     ):
         self._core = core
         self._ui_element = ui_element
-        self._raise = raise_exceptions
+        self._config = config
 
     def _map_find(self, mapper: Callable[[WebElement], any]):
         web_element = self._core.find_web_element()
@@ -163,7 +164,7 @@ class UiElementAssertion:
             parent=None,
             actual=lambda: self._map_find(mapper),
             subject=lambda: f"{self._ui_element.name}.{property_name} {Format.param(self._map_find(mapper))}",
-            raise_exceptions=self._raise,
+            config=self._config,
         )
 
     @property
@@ -175,7 +176,7 @@ class UiElementAssertion:
             parent=None,
             actual=lambda: self._map_find(_map),
             subject=lambda: f"{self._ui_element.name}.text {Format.param(self._map_find(_map))}",
-            raise_exceptions=self._raise,
+            config=self._config,
         )
 
     @property
