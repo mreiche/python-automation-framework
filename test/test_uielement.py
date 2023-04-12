@@ -24,12 +24,24 @@ def test_yahoo():
     page.expect.title.contains("Yahoo").be(True)
     page.expect.title.length.greater_than(10).be(True)
     cookie_btn = page.find(By.name("agree").displayed)
+    cookie_btn.expect.count.be(1)
     cookie_btn.expect.text.contains("akzeptieren").be(True)
     cookie_btn.click()
 
     search_box = page.find(By.name("p"))
     search_box.input("seleniumhq")
     search_box.send_keys(Keys.ENTER)
+
+
+def test_oka():
+    class OkaPage(Page):
+        pass
+
+    webdriver = manager.get_webdriver()
+    page = OkaPage(webdriver)
+    page.open("https://objektkleina.com")
+    articles = page.find(By.tag_name("article"))
+    articles.expect.count.be(4)
 
 
 def teardown_module():

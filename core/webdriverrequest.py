@@ -18,7 +18,7 @@ class WebDriverRequest:
 
     @property
     def browser(self):
-        return os.getenv("TT_BROWSER_SETTING")
+        return os.getenv("PAF_BROWSER_SETTING")
 
     @property
     def browser_version(self):

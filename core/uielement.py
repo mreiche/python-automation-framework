@@ -1,9 +1,9 @@
-from typing import Callable, Type, TypeVar
+from typing import Callable, Type, TypeVar, List
 
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 
-from core.assertion import StringAssertion, Format, BinaryAssertion
+from core.assertion import StringAssertion, Format, BinaryAssertion, QuantityAssertion
 from core.by import By
 from core.config import TestConfig
 from core.retry import Sequence
@@ -16,31 +16,50 @@ class UiElementCore:
     def __init__(
         self,
         finder: WebElement | WebDriver,
-        by: By
+        by: By,
+        index: int
     ):
         self._finder = finder
         self._by = by
+        self._index = index
 
-    def find_web_element(self) -> WebElement:
+    def find_web_elements(self) -> List[WebElement]:
         web_elements = self._finder.find_elements(self._by.by, self._by.value)
 
         if self._by.get_filter():
             web_elements = list(filter(self._by.get_filter(), web_elements))
 
+        return web_elements
+
+    def find_web_element(self) -> WebElement:
+        web_elements = self.find_web_elements()
         count = len(web_elements)
+
         if self._by.is_unique and count != 1:
             raise Exception(f"{self}: Element not unique")
-        elif count > 0:
-            return web_elements[0]
+        elif count > self._index:
+            return web_elements[self._index]
         else:
-            raise Exception(f"{self}: Element not found")
+            raise Exception(f"{self}: Element[{self._index}] not found")
+
+    @property
+    def finder(self) -> WebElement|WebDriver:
+        return self._finder
+
+    @property
+    def by(self):
+        return self._by
+
+    @property
+    def index(self):
+        return self._index
 
     def __str__(self):
         return self.name
 
     @property
     def name(self):
-        return f"UiElement({self._by.__str__()})"
+        return f"UiElement({self._by.__str__()})[{self._index}]"
 
 
 class UiElement:
@@ -51,9 +70,10 @@ class UiElement:
         self,
         finder: WebElement | WebDriver,
         by: By,
-        parent: object = None
+        parent: object = None,
+        index: int = 0,
     ):
-        self._core = UiElementCore(finder, by)
+        self._core = UiElementCore(finder, by, index)
         self._parent = parent
 
     def find(self, by: By) -> "UiElement":
@@ -90,10 +110,6 @@ class UiElement:
     def send_keys(self, value: str) -> "UiElement":
         self._action_sequence(lambda: self._core.find_web_element().send_keys(value))
         return self
-
-    def test(self):
-        # self._core.find_web_element().
-        pass
 
     def input(self, value: str) -> "UiElement":
         def _input():
@@ -133,6 +149,33 @@ class UiElement:
             inst = inst._parent
 
         return " > ".join(map(str, reversed(path)))
+
+    @property
+    def list(self):
+        return UiElementList(self._core, self._parent)
+
+
+class UiElementList:
+
+    def __init__(self, core: UiElementCore, parent: object = None):
+        self._core = core
+        self._parent = parent
+
+    def __getitem__(self, index: int) -> UiElement:
+        return UiElement(
+            finder=self._core.finder,
+            by=self._core.by,
+            parent=self._parent,
+            index=index
+        )
+
+    @property
+    def first(self):
+        return self.__getitem__(0)
+
+    @property
+    def last(self):
+        return self.__getitem__(-1)
 
 
 class UiElementAssertion:
@@ -215,3 +258,12 @@ class UiElementAssertion:
     @property
     def value(self):
         return self.attribute("value")
+
+    @property
+    def count(self):
+        return QuantityAssertion(
+            parent=None,
+            actual=lambda: len(self._core.find_web_elements()),
+            subject=lambda: f"{self._ui_element.name} count",
+            config=self._config
+        )

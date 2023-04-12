@@ -35,7 +35,6 @@ manager.shutdown_all()
 
 ## Missing features (todos)
 
-- list support
-- components support
+- XPath support
 - full assertions support
 - full actions support

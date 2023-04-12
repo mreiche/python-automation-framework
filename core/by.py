@@ -19,19 +19,19 @@ class By:
     def value(self):
         return self._value
 
-    def _copy(self) -> "By":
+    def _copy(self):
         by = By(self._by, self._value)
         by._unique = self._unique
         by._filter = self._filter
         return by
 
     @property
-    def unique(self) -> "By":
+    def unique(self):
         by = self._copy()
         by._unique = True
         return by
 
-    def filter(self, filter: Predicate[WebElement]) -> "By":
+    def filter(self, filter: Predicate[WebElement]):
         by = self._copy()
         by._filter = filter
         return by
@@ -51,20 +51,28 @@ class By:
         return self._unique
 
     @staticmethod
-    def id(id: str) -> "By":
+    def id(id: str):
         return By(SeleniumBy.ID, id)
 
     @staticmethod
-    def xpath(xpath: str) -> "By":
+    def xpath(xpath: str):
         return By(SeleniumBy.XPATH, xpath)
 
     @staticmethod
-    def name(name: str) -> "By":
+    def name(name: str):
         return By(SeleniumBy.NAME, name)
 
     @staticmethod
-    def class_name(class_name: str) -> "By":
+    def class_name(class_name: str):
         return By(SeleniumBy.CLASS_NAME, class_name)
+
+    @staticmethod
+    def tag_name(tag_name: str):
+        return By(SeleniumBy.TAG_NAME, tag_name)
+
+    @staticmethod
+    def css_selector(selector: str):
+        return By(SeleniumBy.CSS_SELECTOR, selector)
 
     def __str__(self) -> str:
         id = f"By.{self._by}({self._value})"
