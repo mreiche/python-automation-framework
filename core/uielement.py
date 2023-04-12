@@ -1,30 +1,36 @@
-from typing import Callable
+from typing import Callable, Type, TypeVar
 
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 
-from core.assertion import StringAssertion, Supplier, Format
+from core.assertion import StringAssertion, Format, BinaryAssertion
 from core.by import By
-from core.page import Page
 from core.retry import Sequence
+from core.types import Mapper
+
+T = TypeVar('T')
 
 
 class UiElementCore:
     def __init__(
         self,
-        finder: WebElement|WebDriver,
+        finder: WebElement | WebDriver,
         by: By
     ):
         self._finder = finder
         self._by = by
 
     def find_web_element(self) -> WebElement:
-        elements = self._finder.find_elements(self._by.by, self._by.value)
-        count = len(elements)
+        web_elements = self._finder.find_elements(self._by.by, self._by.value)
+
+        if self._by.get_filter():
+            web_elements = list(filter(self._by.get_filter(), web_elements))
+
+        count = len(web_elements)
         if self._by.is_unique and count != 1:
             raise Exception(f"{self}: Element not unique")
         elif count > 0:
-            return elements[0]
+            return web_elements[0]
         else:
             raise Exception(f"{self}: Element not found")
 
@@ -36,14 +42,13 @@ class UiElementCore:
         return f"UiElement({self._by.__str__()})"
 
 
-
 class UiElement:
 
     _core: UiElementCore
 
     def __init__(
         self,
-        finder: WebElement|WebDriver,
+        finder: WebElement | WebDriver,
         by: By,
         parent: object = None
     ):
@@ -85,12 +90,16 @@ class UiElement:
         self._action_sequence(lambda: self._core.find_web_element().send_keys(value))
         return self
 
+    def test(self):
+        # self._core.find_web_element().
+        pass
+
     def input(self, value: str) -> "UiElement":
         def _input():
-            webelement = self._core.find_web_element()
-            webelement.clear()
-            webelement.send_keys(value)
-            assert webelement.get_attribute("value") == value
+            web_element = self._core.find_web_element()
+            web_element.clear()
+            web_element.send_keys(value)
+            assert web_element.get_attribute("value") == value
 
         self._action_sequence(_input)
         return self
@@ -127,30 +136,81 @@ class UiElement:
 
 class UiElementAssertion:
 
-    def __init__(self,
-                 core: UiElementCore,
-                 ui_element: UiElement,
-                 raise_exceptions: bool = False
-                 ):
+    def __init__(
+        self,
+        core: UiElementCore,
+        ui_element: UiElement,
+        raise_exceptions: bool = False
+    ):
         self._core = core
         self._ui_element = ui_element
         self._raise = raise_exceptions
 
     def _map_find(self, mapper: Callable[[WebElement], any]):
+        web_element = self._core.find_web_element()
         try:
-            web_element = self._core.find_web_element()
             return mapper(web_element)
         except Exception as e:
             return None
 
+    def _create_property_assertion(
+        self,
+        assertion_class: Type[T],
+        mapper: Mapper[WebElement, any],
+        property_name: str
+    ) -> T:
+        return assertion_class(
+            parent=None,
+            actual=lambda: self._map_find(mapper),
+            subject=lambda: f"{self._ui_element.name}.{property_name} {Format.param(self._map_find(mapper))}",
+            raise_exceptions=self._raise,
+        )
+
     @property
     def text(self):
-        def map(web_element: WebElement):
+        def _map(web_element: WebElement):
             return web_element.text
 
         return StringAssertion(
             parent=None,
-            actual=lambda: self._map_find(map),
-            subject=lambda: f"{self._ui_element.name}.text {Format.param(self._map_find(map))}",
+            actual=lambda: self._map_find(_map),
+            subject=lambda: f"{self._ui_element.name}.text {Format.param(self._map_find(_map))}",
             raise_exceptions=self._raise,
         )
+
+    @property
+    def displayed(self):
+        def _map(web_element: WebElement):
+            return web_element.is_displayed()
+
+        return self._create_property_assertion(BinaryAssertion, _map, "displayed")
+
+    @property
+    def enabled(self):
+        def _map(web_element: WebElement):
+            return web_element.is_enabled()
+
+        return self._create_property_assertion(BinaryAssertion, _map, "enabled")
+
+    @property
+    def selected(self):
+        def _map(web_element: WebElement):
+            return web_element.is_selected()
+
+        return self._create_property_assertion(BinaryAssertion, _map, "selected")
+
+    def attribute(self, attribute: str):
+        def _map(web_element: WebElement):
+            return web_element.get_attribute(attribute)
+
+        return self._create_property_assertion(StringAssertion, _map, f"attribute({attribute}")
+
+    def css(self, property: str):
+        def _map(web_element: WebElement):
+            return web_element.value_of_css_property(property)
+
+        return self._create_property_assertion(StringAssertion, _map, f"css({property}")
+
+    @property
+    def value(self):
+        return self.attribute("value")

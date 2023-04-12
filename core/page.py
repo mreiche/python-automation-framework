@@ -2,12 +2,10 @@ from selenium.webdriver.remote.webdriver import WebDriver
 
 from core.assertion import StringAssertion, Format
 from core.by import By
+from core.config import TestConfig
 
 
 class Page:
-    _title: str
-    _url: str
-
     def __init__(self, webdriver: WebDriver):
         self._webdriver = webdriver
 
@@ -17,8 +15,6 @@ class Page:
 
     def open(self, url: str):
         self._webdriver.get(url)
-        self._url = self._webdriver.current_url
-        self._title = self._webdriver.title
         return self
 
     def __str__(self):
@@ -30,11 +26,11 @@ class Page:
 
     @property
     def expect(self):
-        return PageAssertion(self, self._webdriver, raise_exceptions=True)
+        return PageAssertion(self, self._webdriver)
 
     @property
     def wait_for(self):
-        return PageAssertion(self, self._webdriver, raise_exceptions=False)
+        return PageAssertion(self, self._webdriver, TestConfig(raise_exception=False))
 
 
 class PageAssertion:
@@ -43,11 +39,11 @@ class PageAssertion:
         self,
         page: Page,
         webdriver: WebDriver,
-        raise_exceptions: bool = False
+        config: TestConfig = TestConfig(),
     ):
         self._page = page
         self._webdriver = webdriver
-        self._raise = raise_exceptions
+        self._raise = config.raise_exception
 
     @property
     def title(self):

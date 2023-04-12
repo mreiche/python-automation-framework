@@ -3,6 +3,7 @@ from selenium.webdriver import Chrome, Firefox, Edge, Safari
 from selenium.webdriver.remote.webdriver import WebDriver
 from is_empty import empty
 
+
 class WebDriverManager:
 
     _driver_map: dict[str, WebDriver] = {}

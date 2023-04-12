@@ -12,13 +12,18 @@ def setup_module():
     manager = WebDriverManager()
 
 
+class YahooStartPage(Page):
+    pass
+
+
 def test_yahoo():
     webdriver = manager.get_webdriver()
-    page = Page(webdriver)
+    page = YahooStartPage(webdriver)
 
     page.open('http://www.yahoo.com')
     page.expect.title.contains("Yahoo").be(True)
-    cookie_btn = page.find(By.name("agree"))
+    page.expect.title.length.greater_than(10).be(True)
+    cookie_btn = page.find(By.name("agree").displayed)
     cookie_btn.expect.text.contains("akzeptieren").be(True)
     cookie_btn.click()
 

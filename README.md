@@ -16,7 +16,10 @@ webdriver = manager.get_webdriver()
 # Create a page
 page = Page(webdriver)
 
-# Find elements
+# Visit URL
+page.open("http://google.com")
+
+# Find element
 element = page.find(By.id("q"))
 
 # Perform actions

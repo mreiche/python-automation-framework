@@ -1,10 +1,9 @@
 from typing import Callable
 
 from core.retry import Sequence
+from core.types import Supplier, Predicate, Number
+import re
 
-#T = TypeVar()
-Predicate = Callable[[any], bool]
-Supplier = Callable[[], any]
 
 class Format:
     @staticmethod
@@ -19,12 +18,13 @@ class Format:
     def separate(*args):
         return " ".join(map(str, args))
 
+
 class AbstractPropertyAssertion:
     def __init__(
         self,
         parent: None | object,
-        actual: Supplier,
-        subject: Callable[[], str],
+        actual: Supplier[any],
+        subject: Supplier[str],
         raise_exceptions: bool = False,
         failed: Callable = None,
         passed: Callable = None,
@@ -43,7 +43,7 @@ class AbstractPropertyAssertion:
 
     def _test_sequence(
         self,
-        test: Predicate,
+        test: Predicate[any],
         additional_subject: Supplier = None,
     ):
 
@@ -80,7 +80,7 @@ class AbstractPropertyAssertion:
                 if additional_subject:
                     subject += additional_subject()
 
-                raise AssertionError(f"{subject} after {sequence.count} retries ({round(sequence.duration, 2)} seconds)")
+                raise AssertionError(f"Expected {subject} after {sequence.count} retries ({round(sequence.duration, 2)} seconds)")
 
         return passed
 
@@ -93,33 +93,79 @@ class AbstractPropertyAssertion:
 
         return " ".join(map(lambda x: x._subject(), reversed(path)))
 
+    @property
+    def actual(self):
+        return self._actual()
+
 
 class BinaryAssertion(AbstractPropertyAssertion):
     def be(self, expected: any) -> bool:
-        return self._test_sequence(lambda actual: actual == expected, lambda: f" expected {expected}")
+        return self._test_sequence(lambda actual: actual == expected, lambda: f" to be {expected}")
 
     def not_be(self, expected: any) -> bool:
-        return self._test_sequence(lambda actual: actual != expected, lambda: f" expected not {expected}")
+        return self._test_sequence(lambda actual: actual != expected, lambda: f" not to be {expected}")
 
 
-class StringAssertion(BinaryAssertion):
-    def startswith(self, expected: str) -> BinaryAssertion:
+class QuantityAssertion(BinaryAssertion):
+    def between(self, lower: Number, higher: Number):
+        return BinaryAssertion(
+            parent=self,
+            actual=lambda: lower <= self._actual() <= higher,
+            subject=lambda: f"between {Format.param(lower)} and {Format.param(higher)}",
+            raise_exceptions=self._raise,
+        )
+
+    def greater_than(self, expected: Number) -> BinaryAssertion:
+        return BinaryAssertion(
+            parent=self,
+            actual=lambda: self._actual() > expected,
+            subject=lambda: f"greater than {Format.param(expected)}",
+            raise_exceptions=self._raise,
+        )
+
+    def lower_than(self, expected: Number) -> BinaryAssertion:
+        return BinaryAssertion(
+            parent=self,
+            actual=lambda: self._actual() < expected,
+            subject=lambda: f"lower than {Format.param(expected)}",
+            raise_exceptions=self._raise,
+        )
+
+    def greater_equal_than(self, expected: Number) -> BinaryAssertion:
+        return BinaryAssertion(
+            parent=self,
+            actual=lambda: self._actual() >= expected,
+            subject=lambda: f"greater equal than {Format.param(expected)}",
+            raise_exceptions=self._raise,
+        )
+
+    def lower_equal_than(self, expected: Number) -> BinaryAssertion:
+        return BinaryAssertion(
+            parent=self,
+            actual=lambda: self._actual() <= expected,
+            subject=lambda: f"lower equal than {Format.param(expected)}",
+            raise_exceptions=self._raise,
+        )
+
+
+class StringAssertion(QuantityAssertion):
+    def starts_with(self, expected: str) -> BinaryAssertion:
         return BinaryAssertion(
             parent=self,
             actual=lambda: str(self._actual()).startswith(expected),
-            subject=lambda: f"startswith {Format.param(expected)}",
+            subject=lambda: f"starts with {Format.param(expected)}",
             raise_exceptions=self._raise,
         )
 
-    def endswith(self, expected: str):
+    def ends_with(self, expected: str) -> BinaryAssertion:
         return BinaryAssertion(
             parent=self,
             actual=lambda: str(self._actual()).endswith(expected),
-            subject=lambda: f"endswith {Format.param(expected)}",
+            subject=lambda: f"ends with {Format.param(expected)}",
             raise_exceptions=self._raise,
         )
 
-    def contains(self, expected: str):
+    def contains(self, expected: str) -> BinaryAssertion:
         return BinaryAssertion(
             parent=self,
             actual=lambda: str(self._actual()).index(expected) != -1,
@@ -127,5 +173,22 @@ class StringAssertion(BinaryAssertion):
             raise_exceptions=self._raise,
         )
 
-    def matches(self, expected: str):
-        pass
+    def matches(self, expected: str|re.Pattern) -> BinaryAssertion:
+        if not isinstance(expected, re.Pattern):
+            expected = re.compile(expected, re.MULTILINE|re.IGNORECASE|re.UNICODE)
+
+        return BinaryAssertion(
+            parent=self,
+            actual=lambda: expected.match(self._actual()),
+            subject=lambda: f"matches {Format.param(expected)}",
+            raise_exceptions=self._raise,
+        )
+
+    @property
+    def length(self) -> QuantityAssertion:
+        return QuantityAssertion(
+            parent=self,
+            actual=lambda: len(self._actual()),
+            subject=lambda: f"length {Format.param(len(self._actual()))}",
+            raise_exceptions=self._raise,
+        )
