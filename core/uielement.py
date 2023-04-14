@@ -13,53 +13,6 @@ from core.types import Mapper
 from core.xpath import XPath
 
 
-# class UiElementCore:
-#     def __init__(
-#         self,
-#         by: By,
-#         index: int
-#     ):
-#         self._by = by
-#         self._index = index
-#
-#     def find_web_elements(self) -> List[WebElement]:
-#         web_elements = self._finder.find_elements(self._by.by, self._by.value)
-#
-#         if self._by.get_filter():
-#             web_elements = list(filter(self._by.get_filter(), web_elements))
-#
-#         return web_elements
-#
-#     def find_web_element(self) -> WebElement:
-#         web_elements = self.find_web_elements()
-#         count = len(web_elements)
-#
-#         if self._by.is_unique and count != 1:
-#             raise Exception(f"{self}: Element not unique")
-#         elif count > self._index:
-#             return web_elements[self._index]
-#         else:
-#             raise Exception(f"{self}: Element[{self._index}] not found")
-#
-#     @property
-#     def finder(self) -> WebElement|WebDriver:
-#         return self._finder
-#
-#     @property
-#     def by(self):
-#         return self._by
-#
-#     @property
-#     def index(self):
-#         return self._index
-#
-#     def __str__(self):
-#         return self.name
-#
-#     @property
-#     def name(self):
-#         return f"UiElement({self._by.__str__()})[{self._index}]"
-
 class UiElementActions:
 
     @abstractmethod
@@ -100,6 +53,16 @@ class PageObject:
     def list(self):
         pass
 
+class PageObjectList:
+    @property
+    @abstractmethod
+    def first(self):
+        pass
+
+    @property
+    @abstractmethod
+    def last(self):
+        pass
 
 class UiElement(HasParent, UiElementActions, PageObject, TestableUiElement):
 
@@ -140,11 +103,11 @@ class UiElement(HasParent, UiElementActions, PageObject, TestableUiElement):
         count = len(web_elements)
 
         if self._by.is_unique and count != 1:
-            raise Exception(f"{self}: Element not unique")
+            raise Exception(f"{self.name_path}: not unique")
         elif count > self._index:
             return web_elements[self._index]
         else:
-            raise Exception(f"{self}: Element[{self._index}] not found")
+            raise Exception(f"{self.name_path}: not found")
 
     def _action_sequence(self, cb: Callable):
         sequence = Sequence()
@@ -209,25 +172,26 @@ class UiElement(HasParent, UiElementActions, PageObject, TestableUiElement):
 
     @property
     def list(self):
-        return UiElementList(self._ui_element, self._parent)
+        return UiElementList(self)
 
 
-class UiElementList:
+class UiElementList(PageObjectList):
 
-    def __init__(
-        self,
-        ui_element: UiElement,
-        parent: HasParent = None
-    ):
+    def __init__(self, ui_element: UiElement):
         self._ui_element = ui_element
-        self._parent = parent
+
+    def __iter__(self):
+        i = 0
+        for _ in self._ui_element._find_web_elements():
+            yield self.__getitem__(i)
+            i += 1
 
     def __getitem__(self, index: int) -> UiElement:
         return UiElement(
             ui_element=self._ui_element._ui_element,
             webdriver=self._ui_element._webdriver,
             by=self._ui_element._by,
-            parent=self._parent,
+            parent=self._ui_element._parent,
             index=index
         )
 

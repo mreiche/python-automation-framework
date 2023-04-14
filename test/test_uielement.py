@@ -43,6 +43,9 @@ def test_oka():
     articles = page.find(By.tag_name("article"))
     articles.expect.count.be(4)
 
+    for item in articles.list:
+        print(item.expect.text.actual)
+
 
 def teardown_module():
     global manager

@@ -2,7 +2,7 @@ from typing import TypeVar, List, Generic
 
 from core.by import By
 from core.page import HasParent
-from core.uielement import UiElement, UiElementActions, PageObject, TestableUiElement
+from core.uielement import UiElement, UiElementActions, PageObject, TestableUiElement, PageObjectList
 from core.xpath import XPath
 
 T = TypeVar("T")
@@ -53,7 +53,7 @@ class Component(Generic[T], HasParent, UiElementActions, PageObject, TestableUiE
         return self._ui_element.wait_for
 
 
-class ComponentList(Generic[T]):
+class ComponentList(Generic[T], PageObjectList):
 
     def __init__(
         self,
@@ -64,13 +64,14 @@ class ComponentList(Generic[T]):
         self._parent = parent
 
     def __getitem__(self, index: int) -> T:
-        return UiElement(
+        ui_element = UiElement(
             ui_element=self._ui_element._ui_element,
             webdriver=self._ui_element._webdriver,
             by=self._ui_element._by,
             parent=self._parent,
             index=index
         )
+        return T(ui_element)
 
     @property
     def first(self):
