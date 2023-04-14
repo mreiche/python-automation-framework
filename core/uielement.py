@@ -39,12 +39,12 @@ class UiElementActions:
 class TestableUiElement:
     @property
     @abstractmethod
-    def expect(self):
+    def expect(self) -> "UiElementAssertion":
         pass
 
     @property
     @abstractmethod
-    def wait_for(self):
+    def wait_for(self) -> "UiElementAssertion":
         pass
 
 

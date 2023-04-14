@@ -43,6 +43,7 @@ P = TypeVar("P")
 class Page(HasName):
     def __init__(self, webdriver: WebDriver):
         self._webdriver = webdriver
+        self.init()
 
     def find(self, by: By | XPath) -> "UiElement":
         from core.uielement import UiElement
@@ -50,6 +51,9 @@ class Page(HasName):
             by = By.xpath(str(by))
 
         return UiElement(by, webdriver=self._webdriver, parent=self)
+
+    def init(self):
+        pass
 
     def create_component(self, component_class: Type[C], ui_element: "UiElement") -> C:
         component = component_class(ui_element)

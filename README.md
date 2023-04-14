@@ -2,6 +2,7 @@
 
 Python implementation of [Testerra](https://github.com/telekom/testerra) API.
 
+## Usage
 ```python
 from core.by import By
 from core.page import Page
@@ -32,9 +33,51 @@ element.expect.text.be("Clicked")
 manager.shutdown_all()
 ```
 
+## Page Objects
+```python
+from core.page import Page
+from core.by import By
+from core.uielement import TestableUiElement
+from selenium.webdriver.remote.webdriver import WebDriver
+from core.webdrivermanager import WebDriverManager
+
+class StartPage(Page):
+    def __init__(self, webdriver: WebDriver):
+        super().__init__(webdriver)
+        self._greeter = self.find(By.id("greeter"))
+    
+    @property
+    def greeter(self) -> TestableUiElement:
+        return self._greeter
+
+class LoginPage(Page):
+    def __init__(self, webdriver: WebDriver):
+        super().__init__(webdriver)
+        self._login_btn = self.find(By.id("login"))
+        
+    def login(self):
+        self._login_btn.click()
+        return self.create_page(StartPage)
+
+manager = WebDriverManager()
+webdriver = manager.get_webdriver()
+login_page = LoginPage(webdriver)
+start_page = login_page.login()
+start_page.greeter.expect.text.be("Welcome")
+```
+## Components
+*tbd*
 
 ## Missing features (todos)
 
-- XPath support
-- full assertions support
-- full actions support
+### WebDriver
+- Configuration hooks
+
+### Assertions
+- Screenshots
+- Rect
+
+### Actions
+- Scroll To
+- Highlight
+- ContextClick/DoubleClick
