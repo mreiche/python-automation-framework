@@ -1,8 +1,8 @@
 from selenium.webdriver.common.by import By as SeleniumBy
 from selenium.webdriver.remote.webelement import WebElement
 
+from core.dom import Attribute
 from core.types import Predicate
-
 
 class By:
     def __init__(self, by: SeleniumBy, value: str):
@@ -79,3 +79,19 @@ class By:
         if self._filter:
             id += " filtered"
         return id
+
+    def to_xpath(self):
+        from core.xpath import XPath
+
+        if self._by.XPATH:
+            return XPath.at(self._value)
+        elif self._by.NAME:
+            return XPath.at("//*").attribute(Attribute.NAME).be(self._value)
+        elif self._by.CLASS_NAME:
+            return XPath.at("//*").attribute(Attribute.CLASS).be(self._value)
+        elif self._by.ID:
+            return XPath.at("//*").attribute(Attribute.ID).be(self._value)
+        elif self._by.CLASS_NAME:
+            return XPath.at(self._value)
+        else:
+            raise Exception(f"By type '{self.by}' not supported (yet)")
