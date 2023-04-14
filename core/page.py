@@ -1,17 +1,63 @@
+from typing import Type, TypeVar
+
 from selenium.webdriver.remote.webdriver import WebDriver
 
 from core.assertion import StringAssertion, Format
 from core.by import By
 from core.config import TestConfig
+from core.xpath import XPath
+from abc import ABC, abstractmethod
 
 
-class Page:
+class HasName(ABC):
+    @property
+    @abstractmethod
+    def name(self):
+        pass
+
+
+class HasParent(HasName, ABC):
+    @property
+    def _parent(self):
+        return self.__parent
+
+    @_parent.setter
+    def _parent(self, parent: "HasParent"):
+        self.__parent = parent
+
+    @property
+    def name_path(self):
+        path = [self]
+        inst = self
+        while hasattr(inst, "_parent") and inst._parent:
+            path.append(inst._parent)
+            inst = inst._parent
+
+        return " > ".join(map(str, reversed(path)))
+
+
+C = TypeVar("C")
+P = TypeVar("P")
+
+
+class Page(HasName):
     def __init__(self, webdriver: WebDriver):
         self._webdriver = webdriver
 
-    def find(self, by: By) -> "UiElement":
+    def find(self, by: By | XPath) -> "UiElement":
         from core.uielement import UiElement
-        return UiElement(self._webdriver, by, self)
+        if isinstance(by, XPath):
+            by = By.xpath(str(by))
+
+        return UiElement(by, webdriver=self._webdriver, parent=self)
+
+    def create_component(self, component_class: Type[C], ui_element: "UiElement") -> C:
+        component = component_class(ui_element)
+        component._parent = self
+        return component
+
+    def create_page(self, page_class: Type[P]) -> P:
+        return page_class(self._webdriver)
 
     def open(self, url: str):
         self._webdriver.get(url)
