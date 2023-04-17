@@ -1,52 +1,23 @@
 from selenium.webdriver.common.keys import Keys
 
-from core.by import By
-from core.page import Page
-from core.webdrivermanager import WebDriverManager
+from core.locator import By
+from core.page import PageFactory, FinderPage
+import core.config
+import inject
 
-manager: WebDriverManager = None
+from core.webdrivermanager import WebDriverManager
 
 
 def setup_module():
-    global manager
-    manager = WebDriverManager()
+    inject.configure(core.config.inject)
 
 
-class YahooStartPage(Page):
-    pass
-
-
-def test_yahoo():
-    webdriver = manager.get_webdriver()
-    page = YahooStartPage(webdriver)
-
-    page.open('http://www.yahoo.com')
-    page.expect.title.contains("Yahoo").be(True)
-    page.expect.title.length.greater_than(10).be(True)
-    cookie_btn = page.find(By.name("agree").displayed)
-    cookie_btn.expect.count.be(1)
-    cookie_btn.expect.text.contains("akzeptieren").be(True)
-    cookie_btn.click()
-
-    search_box = page.find(By.name("p"))
-    search_box.input("seleniumhq")
-    search_box.send_keys(Keys.ENTER)
-
-
-def test_oka():
-    class OkaPage(Page):
-        pass
-
-    webdriver = manager.get_webdriver()
-    page = OkaPage(webdriver)
-    page.open("https://objektkleina.com")
-    articles = page.find(By.tag_name("article"))
-    articles.expect.count.be(4)
-
-    for item in articles.list:
-        print(item.expect.text.actual)
+def test_finder_page():
+    page_factory = inject.instance(PageFactory)
+    finder = page_factory.create_page(FinderPage)
+    element = finder.find(By.id("id"))
+    assert element.name_path == 'UiElement(By.id(id))[0]'
 
 
 def teardown_module():
-    global manager
-    manager.shutdown_all()
+    inject.instance(WebDriverManager).shutdown_all()

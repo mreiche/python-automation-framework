@@ -2,6 +2,7 @@ from core.webdriverrequest import WebDriverRequest
 from selenium.webdriver import Chrome, Firefox, Edge, Safari
 from selenium.webdriver.remote.webdriver import WebDriver
 from is_empty import empty
+import inject
 
 
 class WebDriverManager:
@@ -49,3 +50,7 @@ class WebDriverManager:
     def shutdown_all(self):
         for webdriver in list(self._driver_map.values()):
             self.shutdown(webdriver)
+
+
+def inject_config(binder: inject.Binder):
+    binder.bind(WebDriverManager, WebDriverManager())

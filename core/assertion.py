@@ -1,6 +1,6 @@
 from typing import Callable
 
-from core.config import TestConfig
+from core.common import TestConfig
 from core.retry import Sequence
 from core.types import Supplier, Predicate, Number
 import re

@@ -1,13 +1,12 @@
-from abc import ABC, abstractmethod
-from typing import Callable, Type, TypeVar, List
+from abc import abstractmethod, ABC
+from typing import Callable, Type, TypeVar, List, Generic, Iterable
 
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 
 from core.assertion import StringAssertion, Format, BinaryAssertion, QuantityAssertion
-from core.by import By
-from core.config import TestConfig
-from core.page import HasParent
+from core.common import HasParent, TestConfig, Locator
+from core.locator import By
 from core.retry import Sequence
 from core.types import Mapper
 from core.xpath import XPath
@@ -24,19 +23,39 @@ class UiElementActions:
         pass
 
     @abstractmethod
-    def input(self, value: str):
+    def type(self, value: str):
         pass
 
     @abstractmethod
     def clear(self):
         pass
 
+
+T = TypeVar('T')
+
+
+class PageObjectList(Generic[T], Iterable):
     @abstractmethod
-    def find(self, by: By | XPath):
+    def __getitem__(self, index: int) -> T:
+        pass
+
+    @property
+    def first(self):
+        return self.__getitem__(0)
+
+    @property
+    def last(self):
+        return self.__getitem__(-1)
+
+
+class PageObject(Generic[T]):
+    @property
+    @abstractmethod
+    def list(self) -> PageObjectList[T]:
         pass
 
 
-class TestableUiElement:
+class TestableUiElement(PageObject["TestableUiElement"]):
     @property
     @abstractmethod
     def expect(self) -> "UiElementAssertion":
@@ -48,41 +67,31 @@ class TestableUiElement:
         pass
 
 
-class PageObject:
-    @abstractmethod
-    def list(self):
-        pass
+class InteractiveUiElement(TestableUiElement, UiElementActions, PageObject["InteractiveUiElement"], ABC):
+    pass
 
-class PageObjectList:
-    @property
-    @abstractmethod
-    def first(self):
-        pass
 
-    @property
-    @abstractmethod
-    def last(self):
-        pass
-
-class UiElement(HasParent, UiElementActions, PageObject, TestableUiElement):
+class UiElement(InteractiveUiElement, HasParent):
 
     def __init__(
         self,
-        by: By,
+        by: Locator,
         ui_element: "UiElement" = None,
         webdriver: WebDriver = None,
         parent: object = None,
         index: int = 0,
     ):
+
+        if isinstance(by, XPath):
+            by = By.xpath(str(by))
+
         self._webdriver = webdriver
         self._ui_element = ui_element
         self._by = by
         self._index = index
         self._parent = parent
 
-    def find(self, by: By):
-        if isinstance(by, XPath):
-            by = By.xpath(str(by))
+    def find(self, by: Locator):
         return UiElement(by, ui_element=self, parent=self)
 
     def _find_web_elements(self) -> List[WebElement]:
@@ -131,7 +140,7 @@ class UiElement(HasParent, UiElementActions, PageObject, TestableUiElement):
         sequence.run(perform_action)
 
         if not passed:
-            raise Exception(f"{self.name_path} {exception} after {sequence.count} retries ({round(sequence.duration, 2)} seconds)")
+            raise Exception(f"{exception} after {sequence.count} retries ({round(sequence.duration, 2)} seconds)")
 
     def click(self):
         self._action_sequence(lambda: self._find_web_element().click())
@@ -141,7 +150,7 @@ class UiElement(HasParent, UiElementActions, PageObject, TestableUiElement):
         self._action_sequence(lambda: self._find_web_element().send_keys(value))
         return self
 
-    def input(self, value: str):
+    def type(self, value: str):
         def _input():
             web_element = self._find_web_element()
             web_element.clear()
@@ -175,7 +184,7 @@ class UiElement(HasParent, UiElementActions, PageObject, TestableUiElement):
         return UiElementList(self)
 
 
-class UiElementList(PageObjectList):
+class UiElementList(PageObjectList[UiElement]):
 
     def __init__(self, ui_element: UiElement):
         self._ui_element = ui_element
@@ -195,13 +204,6 @@ class UiElementList(PageObjectList):
             index=index
         )
 
-    @property
-    def first(self):
-        return self.__getitem__(0)
-
-    @property
-    def last(self):
-        return self.__getitem__(-1)
 
 
 A = TypeVar('A')

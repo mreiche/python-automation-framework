@@ -1,21 +1,23 @@
 # Python automation framework
 
 Python implementation of [Testerra](https://github.com/telekom/testerra) API.
+This is not a test framework but it implements some assertion features anyway.
 
 ## Usage
 ```python
-from core.by import By
-from core.page import Page
+import inject
+
+from core.locator import By
+from core.page import FinderPage, PageFactory
 from core.webdrivermanager import WebDriverManager
+import core.config
 
-# Create WebDriverManager
-manager = WebDriverManager()
+inject.configure(core.config.inject)
 
-# Get the WebDriver
-webdriver = manager.get_webdriver()
+page_factory = inject.instance(PageFactory)
 
-# Create a page
-page = Page(webdriver)
+# Create a simple finder page
+page = page_factory.create_page(FinderPage)
 
 # Visit URL
 page.open("http://google.com")
@@ -29,49 +31,79 @@ element.click()
 # Perform assertions
 element.expect.text.be("Clicked")
 
+manager = inject.instance(WebDriverManager)
+
 # Shutdown all sessions
 manager.shutdown_all()
 ```
 
 ## Page Objects
+
+More detailed page objects.
+
 ```python
-from core.page import Page
-from core.by import By
+import inject
+import core.config
+from core.page import Page, PageFactory
+from core.locator import By
 from core.uielement import TestableUiElement
-from selenium.webdriver.remote.webdriver import WebDriver
-from core.webdrivermanager import WebDriverManager
+
+inject.configure(core.config.inject)
 
 class StartPage(Page):
-    def __init__(self, webdriver: WebDriver):
-        super().__init__(webdriver)
-        self._greeter = self.find(By.id("greeter"))
-    
     @property
     def greeter(self) -> TestableUiElement:
-        return self._greeter
+        return self._find(By.id("greeter"))
 
-class LoginPage(Page):
-    def __init__(self, webdriver: WebDriver):
-        super().__init__(webdriver)
-        self._login_btn = self.find(By.id("login"))
-        
+class LoginPage(Page):    
+    @property
+    def _login_btn(self):
+        return self._find(By.id("login"))
+    
     def login(self):
         self._login_btn.click()
-        return self.create_page(StartPage)
+        return self._create_page(StartPage)
 
-manager = WebDriverManager()
-webdriver = manager.get_webdriver()
-login_page = LoginPage(webdriver)
+page_factory = inject.instance(PageFactory)
+login_page = page_factory.create_page(LoginPage)
 start_page = login_page.login()
 start_page.greeter.expect.text.be("Welcome")
 ```
+
 ## Components
-*tbd*
+
+Components are custom element containers. 
+
+```python
+import inject
+import core.config
+from core.locator import By
+from core.component import Component
+from core.page import Page, PageFactory
+
+class MyComponent(Component["MyComponent"]):
+    @property
+    def input(self):
+        return self._find(By.id("input"))
+
+class MyPage(Page):
+    @property
+    def custom_component(self):
+        return self._create_component(MyComponent, self._find(By.tag_name("body")))
+
+inject.configure(core.config.inject)
+page_factory = inject.instance(PageFactory)
+page = page_factory.create_page(MyPage)
+page.custom_component.input.type("Hello World")
+```
 
 ## Missing features (todos)
 
 ### WebDriver
 - Configuration hooks
+
+### UiElement
+- Frames support
 
 ### Assertions
 - Screenshots

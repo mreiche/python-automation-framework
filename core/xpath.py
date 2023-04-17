@@ -1,7 +1,7 @@
 import re
 from typing import List, Iterable
 
-from core.by import By
+from core.locator import By
 
 
 class XPath:
@@ -103,7 +103,7 @@ class XPath:
 
         return XPath.Test(self, attribute)
 
-    def classes(self, *classes: any):
+    def with_classes(self, *classes: any):
         if not isinstance(classes, Iterable):
             classes = [classes]
 

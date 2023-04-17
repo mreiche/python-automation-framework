@@ -1,3 +1,4 @@
 selenium
 pytest
 is_empty
+inject==4.3.1

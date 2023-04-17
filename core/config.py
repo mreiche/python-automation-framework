@@ -1,8 +1,9 @@
-from dataclasses import dataclass
+from inject import Binder
+
+import core.webdrivermanager
+import core.page
 
 
-@dataclass()
-class TestConfig:
-    raise_exception: bool = False
-    retry_count: int = 3
-    wait_after_fail: float = 0.2
+def inject(binder: Binder):
+    binder.install(core.webdrivermanager.inject_config)
+    binder.install(core.page.inject_config)

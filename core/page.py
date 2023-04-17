@@ -1,67 +1,34 @@
+from abc import abstractmethod, ABC
 from typing import Type, TypeVar
 
+import inject
 from selenium.webdriver.remote.webdriver import WebDriver
 
 from core.assertion import StringAssertion, Format
-from core.by import By
-from core.config import TestConfig
-from core.xpath import XPath
-from abc import ABC, abstractmethod
-
-
-class HasName(ABC):
-    @property
-    @abstractmethod
-    def name(self):
-        pass
-
-
-class HasParent(HasName, ABC):
-    @property
-    def _parent(self):
-        return self.__parent
-
-    @_parent.setter
-    def _parent(self, parent: "HasParent"):
-        self.__parent = parent
-
-    @property
-    def name_path(self):
-        path = [self]
-        inst = self
-        while hasattr(inst, "_parent") and inst._parent:
-            path.append(inst._parent)
-            inst = inst._parent
-
-        return " > ".join(map(str, reversed(path)))
-
+from core.common import HasName, TestConfig, Locator
+from core.webdrivermanager import WebDriverManager
 
 C = TypeVar("C")
 P = TypeVar("P")
 
 
-class Page(HasName):
+class PageFactory:
+    def create_page(self, page_class: Type[P], webdriver: WebDriver = None) -> P:
+        if not webdriver:
+            webdriver = inject.instance(WebDriverManager).get_webdriver()
+
+        return page_class(webdriver)
+
+
+# class PageCreator:
+#     @abstractmethod
+#     def _create_page(self, page_class: Type[P]) -> P:
+#         pass
+
+
+class BasePage(HasName):
     def __init__(self, webdriver: WebDriver):
         self._webdriver = webdriver
-        self.init()
-
-    def find(self, by: By | XPath) -> "UiElement":
-        from core.uielement import UiElement
-        if isinstance(by, XPath):
-            by = By.xpath(str(by))
-
-        return UiElement(by, webdriver=self._webdriver, parent=self)
-
-    def init(self):
-        pass
-
-    def create_component(self, component_class: Type[C], ui_element: "UiElement") -> C:
-        component = component_class(ui_element)
-        component._parent = self
-        return component
-
-    def create_page(self, page_class: Type[P]) -> P:
-        return page_class(self._webdriver)
 
     def open(self, url: str):
         self._webdriver.get(url)
@@ -70,9 +37,33 @@ class Page(HasName):
     def __str__(self):
         return self.name
 
+    def _find(self, by: Locator):
+        from core.uielement import UiElement
+        return UiElement(by, webdriver=self._webdriver, parent=self)
+
     @property
     def name(self):
         return self.__class__.__name__
+
+
+class FinderPage(BasePage):
+    def find(self, by: Locator):
+        ui_element = self._find(by)
+        ui_element._parent = None
+        return ui_element
+
+
+class Page(BasePage):
+    def __init__(self, webdriver: WebDriver):
+        super().__init__(webdriver)
+
+    def _create_component(self, component_class: Type[C], ui_element: "UiElement") -> C:
+        component = component_class(ui_element)
+        component._parent = self
+        return component
+
+    def _create_page(self, page_class: Type[P]) -> P:
+        return page_class(self._webdriver)
 
     @property
     def expect(self):
@@ -112,3 +103,7 @@ class PageAssertion:
             subject=lambda: f"{self._page.name}.url {Format.param(self._webdriver.current_url)}",
             config=self._config,
         )
+
+
+def inject_config(binder: inject.Binder):
+    binder.bind(PageFactory, PageFactory())

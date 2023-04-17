@@ -4,6 +4,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from core.dom import Attribute
 from core.types import Predicate
 
+
 class By:
     def __init__(self, by: SeleniumBy, value: str):
         self._by = by
