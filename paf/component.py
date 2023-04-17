@@ -1,7 +1,7 @@
 from typing import TypeVar, Generic, Type
 
-from core.common import HasParent, Locator
-from core.uielement import UiElement, UiElementActions, PageObject, TestableUiElement, PageObjectList
+from paf.common import HasParent, Locator
+from paf.uielement import UiElement, UiElementActions, PageObject, TestableUiElement, PageObjectList
 
 T = TypeVar("T")
 

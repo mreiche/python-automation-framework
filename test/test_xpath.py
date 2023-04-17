@@ -1,4 +1,4 @@
-from core.xpath import XPath
+from paf.xpath import XPath
 
 
 def test_text_functions():

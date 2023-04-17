@@ -1,15 +1,15 @@
 import inject
 from selenium.webdriver.common.keys import Keys
 
-import core.config
-from core.locator import By
-from core.page import PageFactory, Page
-from core.uielement import TestableUiElement, InteractiveUiElement
-from core.webdrivermanager import WebDriverManager
+import paf.config
+from paf.locator import By
+from paf.page import PageFactory, Page
+from paf.uielement import TestableUiElement, InteractiveUiElement
+from paf.webdrivermanager import WebDriverManager
 
 
 def setup_module():
-    inject.configure(core.config.inject)
+    inject.configure(paf.config.inject)
 
 
 def test_yahoo():

@@ -1,8 +1,8 @@
 from typing import Callable
 
-from core.common import TestConfig
-from core.retry import Sequence
-from core.types import Supplier, Predicate, Number
+from paf.common import TestConfig
+from paf.retry import Sequence
+from paf.types import Supplier, Predicate, Number
 import re
 
 

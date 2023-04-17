@@ -2,11 +2,11 @@ from functools import cache
 
 import inject
 
-import core.config
-from core.component import Component
-from core.locator import By
-from core.page import Page, PageFactory
-from core.webdrivermanager import WebDriverManager
+import paf.config
+from paf.component import Component
+from paf.locator import By
+from paf.page import Page, PageFactory
+from paf.webdrivermanager import WebDriverManager
 
 
 class MyPage(Page):
@@ -23,7 +23,7 @@ class MyComponent(Component["MyComponent"]):
 
 
 def setup_module():
-    inject.configure(core.config.inject)
+    inject.configure(paf.config.inject)
 
 
 def test_component_name_path():

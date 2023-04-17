@@ -1,15 +1,15 @@
 from selenium.webdriver.common.keys import Keys
 
-from core.locator import By
-from core.page import PageFactory, FinderPage
-import core.config
+from paf.locator import By
+from paf.page import PageFactory, FinderPage
+import paf.config
 import inject
 
-from core.webdrivermanager import WebDriverManager
+from paf.webdrivermanager import WebDriverManager
 
 
 def setup_module():
-    inject.configure(core.config.inject)
+    inject.configure(paf.config.inject)
 
 
 def test_finder_page():

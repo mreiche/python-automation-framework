@@ -2,13 +2,13 @@ from functools import cache
 
 from selenium.webdriver import Keys
 
-from core.locator import By
-from core.component import Component
-from core.page import Page, PageFactory
+from paf.locator import By
+from paf.component import Component
+from paf.page import Page, PageFactory
 import inject
-import core.config
-from core.webdrivermanager import WebDriverManager
-from core.xpath import XPath
+import paf.config
+from paf.webdrivermanager import WebDriverManager
+from paf.xpath import XPath
 
 
 class ResultItem(Component["ResultItem"]):
@@ -58,7 +58,7 @@ class StartPage(Page):
 
 
 def setup_module():
-    inject.configure(core.config.inject)
+    inject.configure(paf.config.inject)
 
 
 def test_search():

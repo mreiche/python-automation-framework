@@ -1,4 +1,4 @@
-from core.webdriverrequest import WebDriverRequest
+from paf.webdriverrequest import WebDriverRequest
 from selenium.webdriver import Chrome, Firefox, Edge, Safari
 from selenium.webdriver.remote.webdriver import WebDriver
 from is_empty import empty

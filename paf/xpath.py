@@ -1,7 +1,7 @@
 import re
 from typing import List, Iterable
 
-from core.locator import By
+from paf.locator import By
 
 
 class XPath:

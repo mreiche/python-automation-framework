@@ -1,8 +1,8 @@
 from selenium.webdriver.common.by import By as SeleniumBy
 from selenium.webdriver.remote.webelement import WebElement
 
-from core.dom import Attribute
-from core.types import Predicate
+from paf.dom import Attribute
+from paf.types import Predicate
 
 
 class By:
@@ -82,7 +82,7 @@ class By:
         return id
 
     def to_xpath(self):
-        from core.xpath import XPath
+        from paf.xpath import XPath
 
         if self._by.XPATH:
             return XPath.at(self._value)

@@ -4,12 +4,12 @@ from typing import Callable, Type, TypeVar, List, Generic, Iterable
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 
-from core.assertion import StringAssertion, Format, BinaryAssertion, QuantityAssertion
-from core.common import HasParent, TestConfig, Locator
-from core.locator import By
-from core.retry import Sequence
-from core.types import Mapper
-from core.xpath import XPath
+from paf.assertion import StringAssertion, Format, BinaryAssertion, QuantityAssertion
+from paf.common import HasParent, TestConfig, Locator
+from paf.locator import By
+from paf.retry import Sequence
+from paf.types import Mapper
+from paf.xpath import XPath
 
 
 class UiElementActions:

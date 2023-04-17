@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-from core.locator import By
-from core.xpath import XPath
+from paf.locator import By
+from paf.xpath import XPath
 
 Locator = By | XPath
 

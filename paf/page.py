@@ -4,9 +4,9 @@ from typing import Type, TypeVar
 import inject
 from selenium.webdriver.remote.webdriver import WebDriver
 
-from core.assertion import StringAssertion, Format
-from core.common import HasName, TestConfig, Locator
-from core.webdrivermanager import WebDriverManager
+from paf.assertion import StringAssertion, Format
+from paf.common import HasName, TestConfig, Locator
+from paf.webdrivermanager import WebDriverManager
 
 C = TypeVar("C")
 P = TypeVar("P")
@@ -38,7 +38,7 @@ class BasePage(HasName):
         return self.name
 
     def _find(self, by: Locator):
-        from core.uielement import UiElement
+        from paf.uielement import UiElement
         return UiElement(by, webdriver=self._webdriver, parent=self)
 
     @property
