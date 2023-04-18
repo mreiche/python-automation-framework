@@ -22,7 +22,7 @@ class ResultPage(Page):
     @property
     @cache
     def _result_container(self):
-        return self._find(XPath.at("div").attribute("id").be("search").encloses("div").with_classes("g"))
+        return self._find(XPath.at("div").attribute("id").be("search").encloses("div").classes("g"))
 
     @property
     @cache

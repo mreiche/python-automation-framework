@@ -103,7 +103,7 @@ class XPath:
 
         return XPath.Test(self, attribute)
 
-    def with_classes(self, *classes: any):
+    def classes(self, *classes: any):
         if not isinstance(classes, Iterable):
             classes = [classes]
 
