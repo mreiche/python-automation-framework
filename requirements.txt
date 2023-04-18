@@ -1,4 +1,4 @@
-selenium
-pytest
-is_empty
+selenium==4.8.3
+pytest==7.3.1
+is_empty==1.0.1
 inject==4.3.1

@@ -109,14 +109,18 @@ page.custom_component.input.type("Hello World")
 ### WebDriver
 - Configuration hooks
 
-### UiElement
-- Frames support
-
 ### Assertions
 - Screenshots
 - Rect
 
 ### Actions
-- Scroll To
 - Highlight
 - ContextClick/DoubleClick
+
+## Utils
+
+```javascript
+xpath = "//dt[.//text()='Title:']/following-sibling::dd[1]"
+snapshot = document.evaluate(xpath, document.body, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE)
+snapshot.snapshotItem(0).textContent
+```

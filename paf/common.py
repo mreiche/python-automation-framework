@@ -33,15 +33,15 @@ class HasParent(HasName, ABC):
 
         return " > ".join(map(str, reversed(path)))
 
-#
-# class UiElementFinder:
-#     @abstractmethod
-#     def find(self, by: Locator) -> "UiElement":
-#         pass
-
 
 @dataclass()
 class TestConfig:
-    raise_exception: bool = False
+    raise_exception: bool = True
     retry_count: int = 3
     wait_after_fail: float = 0.3
+
+
+@dataclass()
+class Location:
+    x: int = 0
+    y: int = 0

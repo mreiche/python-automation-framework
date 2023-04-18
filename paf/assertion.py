@@ -167,7 +167,7 @@ class StringAssertion(QuantityAssertion):
     def contains(self, expected: str) -> BinaryAssertion:
         return BinaryAssertion(
             parent=self,
-            actual=lambda: str(self._actual()).index(expected) != -1,
+            actual=lambda: str(self._actual()).find(expected) >= 0,
             subject=lambda: f"contains {Format.param(expected)}",
         )
 

@@ -1,10 +1,12 @@
+from functools import cache
+
 import inject
 from selenium.webdriver.common.keys import Keys
 
 import paf.config
 from paf.locator import By
 from paf.page import PageFactory, Page
-from paf.uielement import TestableUiElement, InteractiveUiElement
+from paf.uielement import InteractiveUiElement
 from paf.webdrivermanager import WebDriverManager
 from paf.xpath import XPath
 
@@ -39,24 +41,19 @@ def test_yahoo():
 def test_oka():
     class OkaPage(Page):
         @property
+        @cache
         def articles(self):
             return self._find(By.tag_name("article"))
 
     page_factory = inject.instance(PageFactory)
     page = page_factory.create_page(OkaPage)
     page.open("https://objektkleina.com")
-    page.articles.expect.count.be(4)
 
-    item = page.articles.list.first
-    xpath = str(XPath.at("dt").text.be("Title:"))
-    title = item.find(By.xpath(xpath))
-    title.expect.text.actual
-
-    #for item in page.articles.list:
-
-        #title.expect.text.actual
-        #pass
-        #print(item.expect.text.actual)
+    for item in page.articles.list:
+        xpath = XPath.at("dt").text.be("Title:").following_sibling("dd", 1)
+        title = item.find(xpath)
+        title.scroll_into_view()
+        print(title.expect.text.actual)
 
 
 def teardown_module():

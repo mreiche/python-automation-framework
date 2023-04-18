@@ -1,4 +1,3 @@
-from abc import abstractmethod, ABC
 from typing import Type, TypeVar
 
 import inject
@@ -18,12 +17,6 @@ class PageFactory:
             webdriver = inject.instance(WebDriverManager).get_webdriver()
 
         return page_class(webdriver)
-
-
-# class PageCreator:
-#     @abstractmethod
-#     def _create_page(self, page_class: Type[P]) -> P:
-#         pass
 
 
 class BasePage(HasName):

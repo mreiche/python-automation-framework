@@ -70,14 +70,14 @@ class XPath:
         return selector
 
     @staticmethod
-    def at(selector: str, position: int = None):
+    def at(selector: any, position: int = None):
         selector = XPath._normalize_selector(selector)
         xpath = XPath(XPath._translate_sub_selection(selector), position)
         xpath._root = xpath
         xpath._parent = xpath
         return xpath
 
-    def select(self, selector: str, position: int = None):
+    def select(self, selector: any, position: int = None):
         selector = XPath._normalize_selector(selector)
         xpath = XPath(XPath._translate_sub_selection(selector), position)
         xpath._root = self._root
@@ -85,7 +85,10 @@ class XPath:
         xpath._parent = xpath
         return xpath
 
-    def encloses(self, selector: str, position: int = None):
+    def following_sibling(self, selector: any, position: int = None):
+        return self.select(f"/following-sibling::{XPath._normalize_selector(selector)}", position)
+
+    def encloses(self, selector: any, position: int = None):
         selector = XPath._normalize_selector(selector)
         xpath = XPath(XPath._translate_inner_selection(selector), position)
         xpath._root = self._root
@@ -104,10 +107,7 @@ class XPath:
         return XPath.Test(self, attribute)
 
     def classes(self, *classes: any):
-        if not isinstance(classes, Iterable):
-            classes = [classes]
-
-        return self.attribute("class").has_words(classes)
+        return self.attribute("class").has_words(*classes)
 
     @property
     def text(self):

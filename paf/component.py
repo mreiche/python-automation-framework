@@ -1,4 +1,6 @@
-from typing import TypeVar, Generic, Type
+from typing import TypeVar, Generic, List
+
+from selenium.webdriver.remote.webelement import WebElement
 
 from paf.common import HasParent, Locator
 from paf.uielement import UiElement, UiElementActions, PageObject, TestableUiElement, PageObjectList
@@ -53,23 +55,22 @@ class Component(Generic[T], HasParent, UiElementActions, TestableUiElement, Page
         return self._ui_element.wait_for
 
 
-#C = TypeVar("C")
-
-# class ComponentCreator:
-#     def _create_component(self, component_class: Type[C], ui_element: UiElement) -> C:
-#         pass
-
-
 class ComponentList(PageObjectList[T]):
 
     def __init__(self, component: Component[T]):
         self._component = component
 
     def __iter__(self):
-        i = 0
-        for _ in self._component._ui_element._find_web_elements():
+        count = 0
+
+        def _count(web_elements: List[WebElement]):
+            nonlocal count
+            count = len(web_elements)
+
+        self._component._ui_element._find_web_elements(_count)
+
+        for i in range(count):
             yield self.__getitem__(i)
-            i += 1
 
     def __getitem__(self, index: int) -> T:
         ui_element = UiElement(
