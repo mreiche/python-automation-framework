@@ -1,5 +1,5 @@
 from abc import abstractmethod, ABC
-from typing import Callable, Type, TypeVar, List, Generic, Iterable
+from typing import Callable, Type, TypeVar, List, Generic, Iterable, Iterator
 
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
@@ -39,12 +39,16 @@ class PageObjectList(Generic[T], Iterable):
     def __getitem__(self, index: int) -> T:
         pass
 
+    @abstractmethod
+    def __iter__(self) -> Iterator[T]:
+        pass
+
     @property
-    def first(self):
+    def first(self) -> T:
         return self.__getitem__(0)
 
     @property
-    def last(self):
+    def last(self) -> T:
         return self.__getitem__(-1)
 
 
@@ -95,13 +99,15 @@ class UiElement(InteractiveUiElement, HasParent):
         return UiElement(by, ui_element=self, parent=self)
 
     def _find_web_elements(self) -> List[WebElement]:
+        finder: WebElement | WebDriver
         if self._ui_element:
-            web_elements = self._ui_element._find_web_elements()
+            finder = self._ui_element._find_web_element()
         elif self._webdriver:
-            web_elements = self._webdriver.find_elements(self._by.by, self._by.value)
+            finder = self._webdriver
         else:
             raise Exception("UiElement initialized without WebDriver nor UiElement")
 
+        web_elements = finder.find_elements(self._by.by, self._by.value)
         if self._by.get_filter():
             web_elements = list(filter(self._by.get_filter(), web_elements))
 
@@ -180,7 +186,7 @@ class UiElement(InteractiveUiElement, HasParent):
         return f"UiElement({self._by.__str__()})[{self._index}]"
 
     @property
-    def list(self):
+    def list(self) -> "UiElementList":
         return UiElementList(self)
 
 
@@ -195,7 +201,7 @@ class UiElementList(PageObjectList[UiElement]):
             yield self.__getitem__(i)
             i += 1
 
-    def __getitem__(self, index: int) -> UiElement:
+    def __getitem__(self, index: int):
         return UiElement(
             ui_element=self._ui_element._ui_element,
             webdriver=self._ui_element._webdriver,
