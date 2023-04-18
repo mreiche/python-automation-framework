@@ -29,18 +29,20 @@ class Component(Generic[T], HasParent, UiElementActions, TestableUiElement, Page
         return self
 
     def _find(self, by: Locator):
-        return self._ui_element.find(by)
+        ui_element = self._ui_element.find(by)
+        ui_element._parent = self
+        return ui_element
 
     @property
     def name(self):
-        return f"{self.__class__.__name__}"
+        return f"{self.__class__.__name__}({self._ui_element.name})"
 
     def __str__(self):
         return self.name
 
     @property
     def list(self):
-        return ComponentList[T](self.__class__, self._ui_element)
+        return ComponentList[T](self)
 
     @property
     def expect(self):
@@ -60,26 +62,22 @@ class Component(Generic[T], HasParent, UiElementActions, TestableUiElement, Page
 
 class ComponentList(PageObjectList[T]):
 
-    def __init__(
-        self,
-        component_class: Type[T],
-        ui_element: UiElement
-    ):
-        self._ui_element = ui_element
-        self._component_class = component_class
+    def __init__(self, component: Component[T]):
+        self._component = component
 
     def __iter__(self):
         i = 0
-        for _ in self._ui_element._find_web_elements():
+        for _ in self._component._ui_element._find_web_elements():
             yield self.__getitem__(i)
             i += 1
 
     def __getitem__(self, index: int) -> T:
         ui_element = UiElement(
-            ui_element=self._ui_element._ui_element,
-            webdriver=self._ui_element._webdriver,
-            by=self._ui_element._by,
-            parent=self._ui_element._parent,
+            ui_element=self._component._ui_element._ui_element,
+            webdriver=self._component._ui_element._webdriver,
+            by=self._component._ui_element._by,
             index=index
         )
-        return self._component_class(ui_element)
+        component = self._component.__class__(ui_element)
+        component._parent = self._component._parent
+        return component

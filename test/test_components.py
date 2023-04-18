@@ -29,13 +29,13 @@ def setup_module():
 def test_component_name_path():
     page_factory = inject.instance(PageFactory)
     page = page_factory.create_page(MyPage)
-    assert page.custom_component.type.name_path == "MyPage > MyComponent > UiElement(By.tag name(body))[0] > UiElement(By.id(input))[0]"
+    assert page.custom_component.type.name_path == "MyPage > MyComponent(UiElement(By.tag name(body))[0]) > UiElement(By.id(input))[0]"
 
 
 def test_component_list():
     page_factory = inject.instance(PageFactory)
     page = page_factory.create_page(MyPage)
-    page.custom_component.list.first.name
+    assert page.custom_component.list.last.name_path == "MyPage > MyComponent(UiElement(By.tag name(body))[-1])"
 
 
 def teardown_module():
