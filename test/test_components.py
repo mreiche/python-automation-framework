@@ -6,7 +6,7 @@ import paf.config
 from paf.component import Component
 from paf.locator import By
 from paf.page import Page, PageFactory
-from paf.webdrivermanager import WebDriverManager
+from paf.manager import WebDriverManager
 
 
 class MyPage(Page):

@@ -7,7 +7,7 @@ from paf.component import Component
 from paf.page import Page, PageFactory
 import inject
 import paf.config
-from paf.webdrivermanager import WebDriverManager
+from paf.manager import WebDriverManager
 from paf.xpath import XPath
 
 

@@ -13,6 +13,7 @@ from paf.xpath import XPath
 from selenium.webdriver.common.by import By as SeleniumBy
 import paf.javascript as script
 
+
 class UiElementActions:
 
     @abstractmethod
@@ -124,6 +125,7 @@ class UiElement(InteractiveUiElement, HasParent):
                 value = self._relative_selector(self._by)
                 web_elements = web_element.find_elements(self._by.by, value)
                 consumer(web_elements)
+
             self._ui_element._find_web_element(_handle)
         elif self._webdriver:
             # Switch to default content
@@ -220,24 +222,25 @@ class UiElement(InteractiveUiElement, HasParent):
     def scroll_to_top(self, offset: Location = Location()):
         self._action_sequence(lambda web_element: script.scroll_to_top(self._webdriver, web_element, offset))
 
-class UiElementList(PageObjectList[UiElement]):
-
-    def __init__(self, ui_element: UiElement):
-        self._ui_element = ui_element
-
-    def __iter__(self):
+    def _count_elements(self):
         count = 0
 
         def _count(web_elements: List[WebElement]):
             nonlocal count
             count = len(web_elements)
 
-        self._ui_element._find_web_elements(_count)
+        self._find_web_elements(_count)
+        return count
 
-        for i in range(count):
+
+class UiElementList(PageObjectList[UiElement]):
+
+    def __init__(self, ui_element: UiElement):
+        self._ui_element = ui_element
+
+    def __iter__(self):
+        for i in range(self._ui_element._count_elements()):
             yield self.__getitem__(i)
-
-
 
     def __getitem__(self, index: int):
         return UiElement(
@@ -247,7 +250,6 @@ class UiElementList(PageObjectList[UiElement]):
             parent=self._ui_element._parent,
             index=index
         )
-
 
 
 A = TypeVar('A')
@@ -343,7 +345,7 @@ class UiElementAssertion:
     def count(self):
         return QuantityAssertion(
             parent=None,
-            actual=lambda: len(self._ui_element._find_web_elements()),
-            subject=lambda: f"{self._ui_element.name} count",
+            actual=lambda: self._ui_element._count_elements(),
+            subject=lambda: f"element count {Format.param(self._ui_element._count_elements())}",
             config=self._config
         )

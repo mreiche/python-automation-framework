@@ -2,7 +2,7 @@ from typing import TypeVar, Generic, List
 
 from selenium.webdriver.remote.webelement import WebElement
 
-from paf.common import HasParent, Locator
+from paf.common import HasParent, Locator, Location
 from paf.uielement import UiElement, UiElementActions, PageObject, TestableUiElement, PageObjectList
 
 T = TypeVar("T")
@@ -54,6 +54,12 @@ class Component(Generic[T], HasParent, UiElementActions, TestableUiElement, Page
     def wait_for(self):
         return self._ui_element.wait_for
 
+    def scroll_into_view(self, offset: Location = Location()):
+        self._ui_element.scroll_into_view(offset)
+
+    def scroll_to_top(self, offset: Location = Location()):
+        self._ui_element.scroll_to_top(offset)
+
 
 class ComponentList(PageObjectList[T]):
 
@@ -61,15 +67,7 @@ class ComponentList(PageObjectList[T]):
         self._component = component
 
     def __iter__(self):
-        count = 0
-
-        def _count(web_elements: List[WebElement]):
-            nonlocal count
-            count = len(web_elements)
-
-        self._component._ui_element._find_web_elements(_count)
-
-        for i in range(count):
+        for i in range(self._component._ui_element._count_elements()):
             yield self.__getitem__(i)
 
     def __getitem__(self, index: int) -> T:

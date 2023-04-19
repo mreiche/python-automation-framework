@@ -45,3 +45,9 @@ class TestConfig:
 class Location:
     x: int = 0
     y: int = 0
+
+
+@dataclass()
+class Size:
+    width: int = 0
+    height: int = 0

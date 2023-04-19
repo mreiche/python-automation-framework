@@ -5,7 +5,7 @@ from selenium.webdriver.remote.webdriver import WebDriver
 
 from paf.assertion import StringAssertion, Format
 from paf.common import HasName, TestConfig, Locator
-from paf.webdrivermanager import WebDriverManager
+from paf.manager import WebDriverManager
 
 C = TypeVar("C")
 P = TypeVar("P")

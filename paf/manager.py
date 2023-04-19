@@ -1,4 +1,9 @@
-from paf.webdriverrequest import WebDriverRequest
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from selenium.webdriver.common.options import BaseOptions
+
+from paf.types import Consumer
+from paf.request import WebDriverRequest
 from selenium.webdriver import Chrome, Firefox, Edge, Safari
 from selenium.webdriver.remote.webdriver import WebDriver
 from is_empty import empty
@@ -6,8 +11,14 @@ import inject
 
 
 class WebDriverManager:
+    def __init__(self):
+        self._driver_map: dict[str, WebDriver] = {}
+        self._user_agent_config: dict[str, Consumer[BaseOptions]] = {}
 
-    _driver_map: dict[str, WebDriver] = {}
+    def _configure_options(self, request: WebDriverRequest, options: BaseOptions):
+        if request.browser in self._user_agent_config:
+            self._user_agent_config[request.browser](options)
+        return options
 
     def get_webdriver(self, request: WebDriverRequest = None) -> WebDriver:
         if not request:
@@ -20,9 +31,11 @@ class WebDriverManager:
         webdriver = None
 
         if empty(request.browser) or request.browser in ["chrome", "chromium"]:
-            webdriver = Chrome()
+            options = self._configure_options(request, ChromeOptions())
+            webdriver = Chrome(chrome_options=options)
         elif request.browser in ["firefox"]:
-            webdriver = Firefox()
+            options = self._configure_options(request, FirefoxOptions())
+            webdriver = Firefox(options=options)
         elif request.browser in ["edge"]:
             webdriver = Edge()
         elif request.browser in ["safari"]:

@@ -1,11 +1,9 @@
-from selenium.webdriver.common.keys import Keys
-
-from paf.locator import By
-from paf.page import PageFactory, FinderPage
-import paf.config
 import inject
 
-from paf.webdrivermanager import WebDriverManager
+import paf.config
+from paf.locator import By
+from paf.manager import WebDriverManager
+from paf.page import PageFactory, FinderPage
 
 
 def setup_module():

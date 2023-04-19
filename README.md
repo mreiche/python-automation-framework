@@ -1,17 +1,33 @@
 # Python automation framework
 
 Python implementation of [Testerra](https://github.com/telekom/testerra) API.
+
 This is not a test framework, but it implements some assertion features anyway.
+
+## Prerequisites
+
+**MacOS**
+```shell
+brew install chromedriver
+```
+
+**Windows**
+```shell
+choco install chromedriver
+```
+**Linux**
+```shell
+apt install chromedriver
+```
 
 ## Usage
 
 ```python
 import inject
-
+import paf.config
 from paf.locator import By
 from paf.page import FinderPage, PageFactory
-from paf.webdrivermanager import WebDriverManager
-import paf.config
+from paf.manager import WebDriverManager
 
 # Configure dependency injection
 inject.configure(paf.config.inject)
@@ -29,16 +45,13 @@ page.open("https://google.com")
 element = page.find(By.id("q"))
 
 # Perform actions
-element.click()
+element.type("Search")
 
 # Perform assertions
-element.expect.text.be("Clicked")
-
-# Get the WebDriverManager instance
-manager = inject.instance(WebDriverManager)
+element.expect.text.be("Search")
 
 # Shutdown all sessions
-manager.shutdown_all()
+inject.instance(WebDriverManager).shutdown_all()
 ```
 
 ## Page Objects
@@ -69,6 +82,7 @@ class LoginPage(Page):
 
 inject.configure(paf.config.inject)
 page_factory = inject.instance(PageFactory)
+
 login_page = page_factory.create_page(LoginPage)
 start_page = login_page.login()
 start_page.greeter.expect.text.be("Welcome")
@@ -100,6 +114,7 @@ class MyPage(Page):
 
 inject.configure(paf.config.inject)
 page_factory = inject.instance(PageFactory)
+
 page = page_factory.create_page(MyPage)
 page.custom_component.input.type("Hello World")
 ```
