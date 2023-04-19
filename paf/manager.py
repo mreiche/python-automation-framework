@@ -1,13 +1,12 @@
-from selenium.webdriver.chrome.options import Options as ChromeOptions
-from selenium.webdriver.firefox.options import Options as FirefoxOptions
-from selenium.webdriver.common.options import BaseOptions
-
-from paf.types import Consumer
-from paf.request import WebDriverRequest
-from selenium.webdriver import Chrome, Firefox, Edge, Safari
-from selenium.webdriver.remote.webdriver import WebDriver
-from is_empty import empty
 import inject
+from selenium.webdriver import Chrome, Firefox, Edge, Safari
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.common.options import BaseOptions
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from selenium.webdriver.remote.webdriver import WebDriver
+
+from paf.request import WebDriverRequest
+from paf.types import Consumer
 
 
 class WebDriverManager:
@@ -30,7 +29,7 @@ class WebDriverManager:
 
         webdriver = None
 
-        if empty(request.browser) or request.browser in ["chrome", "chromium"]:
+        if request.browser in ["chrome", "chromium"]:
             options = self._configure_options(request, ChromeOptions())
             webdriver = Chrome(chrome_options=options)
         elif request.browser in ["firefox"]:
@@ -45,6 +44,9 @@ class WebDriverManager:
             raise Exception("No browser specified")
 
         self._driver_map[session_key] = webdriver
+
+        if request.window_size:
+            webdriver.set_window_rect(0, 0, request.window_size.width, request.window_size.height)
 
         return webdriver
 

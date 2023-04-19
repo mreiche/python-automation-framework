@@ -119,10 +119,12 @@ page = page_factory.create_page(MyPage)
 page.custom_component.input.type("Hello World")
 ```
 
-## Missing features (todos)
+## Environment variables
 
-### WebDriver
-- Configuration hooks
+* `PAF_BROWSER_SETTING=chrome:90`: Sets the requested browser name and it's version.
+* `PAF_WINDOW_SIZE=1920x1080`: Sets the browsers default window size.
+
+## Missing features (todos)
 
 ### Assertions
 - Screenshots
