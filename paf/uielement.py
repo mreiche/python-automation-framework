@@ -1,11 +1,13 @@
+import math
 from abc import abstractmethod, ABC
 from typing import Callable, Type, TypeVar, List, Generic, Iterable, Iterator
 
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.support.color import Color
 
 from paf.assertion import StringAssertion, Format, BinaryAssertion, QuantityAssertion
-from paf.common import HasParent, TestConfig, Locator, Location
+from paf.common import HasParent, TestConfig, Locator, Point, Rect
 from paf.locator import By
 from paf.retry import Sequence
 from paf.types import Mapper, Consumer
@@ -61,11 +63,15 @@ class PageObject(Generic[T]):
         pass
 
     @abstractmethod
-    def scroll_into_view(self, offset: Location = Location()):
+    def scroll_into_view(self, offset: Point = Point()):
         pass
 
     @abstractmethod
-    def scroll_to_top(self, offset: Location = Location()):
+    def scroll_to_top(self, offset: Point = Point()):
+        pass
+
+    @abstractmethod
+    def highlight(self, color: Color, seconds: float):
         pass
 
 
@@ -113,7 +119,7 @@ class UiElement(InteractiveUiElement, HasParent):
             parent=self
         )
 
-    def _relative_selector(self, by: By):
+    def __relative_selector(self, by: By):
         if by.by == SeleniumBy.XPATH:
             return by.value.replace("/", "./", 1)
         else:
@@ -122,11 +128,11 @@ class UiElement(InteractiveUiElement, HasParent):
     def _find_web_elements(self, consumer: Consumer[List[WebElement]]):
         if self._ui_element:
             def _handle(web_element: WebElement):
-                value = self._relative_selector(self._by)
+                value = self.__relative_selector(self._by)
                 web_elements = web_element.find_elements(self._by.by, value)
                 consumer(web_elements)
 
-            self._ui_element._find_web_element(_handle)
+            self._ui_element.find_web_element(_handle)
         elif self._webdriver:
             # Switch to default content
             web_elements = self._webdriver.find_elements(self._by.by, self._by.value)
@@ -134,7 +140,7 @@ class UiElement(InteractiveUiElement, HasParent):
         else:
             raise Exception("UiElement initialized without WebDriver nor UiElement")
 
-    def _find_web_element(self, consumer: Consumer[WebElement]):
+    def find_web_element(self, consumer: Consumer[WebElement]):
         def _handle(web_elements: List[WebElement]):
             if self._by.get_filter():
                 web_elements = list(filter(self._by.get_filter(), web_elements))
@@ -152,6 +158,17 @@ class UiElement(InteractiveUiElement, HasParent):
 
         self._find_web_elements(_handle)
 
+    def _get_bounds(self):
+        rect = None
+
+        def _handle(web_element: WebElement):
+            nonlocal rect
+            rect = web_element.rect
+
+        self.find_web_element(_handle)
+        assert isinstance(rect, dict)
+        return Rect(rect["x"], rect["y"], rect["width"], rect["height"])
+
     def _action_sequence(self, consumer: Consumer[WebElement]):
         sequence = Sequence()
 
@@ -163,7 +180,7 @@ class UiElement(InteractiveUiElement, HasParent):
             nonlocal passed
 
             try:
-                self._find_web_element(consumer)
+                self.find_web_element(consumer)
                 passed = True
             except Exception as e:
                 exception = e
@@ -216,10 +233,10 @@ class UiElement(InteractiveUiElement, HasParent):
     def list(self) -> "UiElementList":
         return UiElementList(self)
 
-    def scroll_into_view(self, offset: Location = Location()):
+    def scroll_into_view(self, offset: Point = Point()):
         self._action_sequence(lambda web_element: script.scroll_to_center(self._webdriver, web_element, offset))
 
-    def scroll_to_top(self, offset: Location = Location()):
+    def scroll_to_top(self, offset: Point = Point()):
         self._action_sequence(lambda web_element: script.scroll_to_top(self._webdriver, web_element, offset))
 
     def _count_elements(self):
@@ -231,6 +248,12 @@ class UiElement(InteractiveUiElement, HasParent):
 
         self._find_web_elements(_count)
         return count
+
+    def highlight(self, color: Color = Color.from_string("#0f0"), seconds: float = 2):
+        def _handle(web_element: WebElement):
+            script.highlight(self._webdriver, web_element, color, math.floor(seconds*1000))
+
+        self.find_web_element(_handle)
 
 
 class UiElementList(PageObjectList[UiElement]):
@@ -272,7 +295,7 @@ class UiElementAssertion:
                 nonlocal value
                 value = mapper(web_element)
 
-            self._ui_element._find_web_element(_map_value)
+            self._ui_element.find_web_element(_map_value)
 
         except Exception as e:
             pass

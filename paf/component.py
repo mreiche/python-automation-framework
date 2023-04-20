@@ -2,7 +2,7 @@ from typing import TypeVar, Generic, List
 
 from selenium.webdriver.remote.webelement import WebElement
 
-from paf.common import HasParent, Locator, Location
+from paf.common import HasParent, Locator, Point
 from paf.uielement import UiElement, UiElementActions, PageObject, TestableUiElement, PageObjectList
 
 T = TypeVar("T")
@@ -54,10 +54,10 @@ class Component(Generic[T], HasParent, UiElementActions, TestableUiElement, Page
     def wait_for(self):
         return self._ui_element.wait_for
 
-    def scroll_into_view(self, offset: Location = Location()):
+    def scroll_into_view(self, offset: Point = Point()):
         self._ui_element.scroll_into_view(offset)
 
-    def scroll_to_top(self, offset: Location = Location()):
+    def scroll_to_top(self, offset: Point = Point()):
         self._ui_element.scroll_to_top(offset)
 
 

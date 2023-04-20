@@ -42,7 +42,7 @@ class TestConfig:
 
 
 @dataclass()
-class Location:
+class Point:
     x: int = 0
     y: int = 0
 
@@ -51,3 +51,40 @@ class Location:
 class Size:
     width: int = 0
     height: int = 0
+
+
+class Rect(Point, Size):
+
+    def __init__(self, x: int = 0, y:int = 0, width: int = 0, height: int = 0):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+
+    @property
+    def left(self):
+        return self.x
+
+    @property
+    def top(self):
+        return self.y
+
+    @property
+    def right(self):
+        return self.left + self.width
+
+    @property
+    def bottom(self):
+        return self.top + self.height
+
+    def contains(self, rect: "Rect"):
+        return rect.left >= self.left \
+            and rect.right <= self.right \
+            and rect.top >= self.top \
+            and rect.bottom <= self.bottom
+
+    def intersects(self, rect: "Rect"):
+        return rect.left >= self.right \
+               or rect.right <= self.left \
+               or rect.top >= self.bottom \
+               or rect.bottom <= self.top

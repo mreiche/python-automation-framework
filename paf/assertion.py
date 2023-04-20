@@ -177,7 +177,7 @@ class StringAssertion(QuantityAssertion):
 
         return BinaryAssertion(
             parent=self,
-            actual=lambda: expected.match(self._actual()),
+            actual=lambda: expected.match(self._actual()) is not None,
             subject=lambda: f"matches {Format.param(expected)}",
         )
 

@@ -1,4 +1,6 @@
+from paf.manager import WebDriverManager
 from paf.request import WebDriverRequest
+from selenium.webdriver import ChromeOptions
 
 
 def test_browser(monkeypatch):
@@ -19,3 +21,12 @@ def test_window_size(monkeypatch):
     request = WebDriverRequest()
     assert request.window_size.width == 1024
     assert request.window_size.height == 768
+
+
+def test_chrome_options():
+    request = WebDriverRequest()
+    request.browser = "chrome"
+    request.options = ChromeOptions()
+    manager = WebDriverManager()
+    webdriver = manager.get_webdriver(request)
+    assert webdriver.name == request.browser

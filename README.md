@@ -20,7 +20,7 @@ choco install chromedriver
 apt install chromedriver
 ```
 
-## Usage
+## Quick start
 
 ```python
 import inject
@@ -49,90 +49,32 @@ element.type("Search")
 
 # Perform assertions
 element.expect.text.be("Search")
-
-# Shutdown all sessions
-inject.instance(WebDriverManager).shutdown_all()
 ```
 
-## Page Objects
-
-More detailed page objects.
-
-```python
-import inject
-import paf.config
-from paf.page import Page, PageFactory
-from paf.locator import By
-from paf.uielement import TestableUiElement
-
-class StartPage(Page):
-    @property
-    def greeter(self) -> TestableUiElement:
-        return self._find(By.id("greeter"))
 
 
-class LoginPage(Page):
-    @property
-    def _login_btn(self):
-        return self._find(By.id("login"))
-
-    def login(self):
-        self._login_btn.click()
-        return self._create_page(StartPage)
-
-inject.configure(paf.config.inject)
-page_factory = inject.instance(PageFactory)
-
-login_page = page_factory.create_page(LoginPage)
-start_page = login_page.login()
-start_page.greeter.expect.text.be("Welcome")
-```
-
-## Components
-
-Components are custom element containers.
-
-```python
-import inject
-import paf.config
-from paf.locator import By
-from paf.component import Component
-from paf.page import Page, PageFactory
 
 
-class MyComponent(Component["MyComponent"]):
-    @property
-    def input(self):
-        return self._find(By.id("input"))
+## Feature list
 
+- [UiElement features](doc/uielement.md)
+- [Page objects](doc/page_objects.md)
+- [Components](doc/components.md)
 
-class MyPage(Page):
-    @property
-    def custom_component(self):
-        return self._create_component(MyComponent, self._find(By.tag_name("body")))
+### Missing features (todos)
 
+#### Assertions
+- Screenshots
+- Rect
 
-inject.configure(paf.config.inject)
-page_factory = inject.instance(PageFactory)
-
-page = page_factory.create_page(MyPage)
-page.custom_component.input.type("Hello World")
-```
+#### Actions
+- ContextClick/DoubleClick
 
 ## Environment variables
 
 * `PAF_BROWSER_SETTING=chrome:90`: Sets the requested browser name and it's version.
 * `PAF_WINDOW_SIZE=1920x1080`: Sets the browsers default window size.
 
-## Missing features (todos)
-
-### Assertions
-- Screenshots
-- Rect
-
-### Actions
-- Highlight
-- ContextClick/DoubleClick
 
 ## Utils
 

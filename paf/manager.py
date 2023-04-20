@@ -1,3 +1,6 @@
+import logging
+from typing import Type, TypeVar
+
 import inject
 from selenium.webdriver import Chrome, Firefox, Edge, Safari
 from selenium.webdriver.chrome.options import Options as ChromeOptions
@@ -8,15 +11,22 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from paf.request import WebDriverRequest
 from paf.types import Consumer
 
+OPTION = TypeVar("OPTION")
+
+LOG = logging.getLogger(__name__)
+
 
 class WebDriverManager:
     def __init__(self):
         self._driver_map: dict[str, WebDriver] = {}
         self._user_agent_config: dict[str, Consumer[BaseOptions]] = {}
 
-    def _configure_options(self, request: WebDriverRequest, options: BaseOptions):
-        if request.browser in self._user_agent_config:
-            self._user_agent_config[request.browser](options)
+    def _get_options(self, request: WebDriverRequest, options_class: Type[OPTION]) -> OPTION:
+        options = request.options
+        if not options:
+            options = options_class()
+        else:
+            assert isinstance(options, options_class)
         return options
 
     def get_webdriver(self, request: WebDriverRequest = None) -> WebDriver:
@@ -30,10 +40,10 @@ class WebDriverManager:
         webdriver = None
 
         if request.browser in ["chrome", "chromium"]:
-            options = self._configure_options(request, ChromeOptions())
+            options = self._get_options(request, ChromeOptions)
             webdriver = Chrome(chrome_options=options)
         elif request.browser in ["firefox"]:
-            options = self._configure_options(request, FirefoxOptions())
+            options = self._get_options(request, FirefoxOptions)
             webdriver = Firefox(options=options)
         elif request.browser in ["edge"]:
             webdriver = Edge()
@@ -46,6 +56,7 @@ class WebDriverManager:
         self._driver_map[session_key] = webdriver
 
         if request.window_size:
+            LOG.info(f"Set window size: {request.window_size}")
             webdriver.set_window_rect(0, 0, request.window_size.width, request.window_size.height)
 
         return webdriver
