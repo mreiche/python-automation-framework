@@ -1,15 +1,10 @@
-import threading
-
 import inject
-import pytest
 from selenium.webdriver.support.color import Color
 
-from paf.common import Size, Rect
 from paf.locator import By
 from paf.manager import WebDriverManager
 from paf.page import PageFactory, FinderPage
-from paf.request import WebDriverRequest
-
+from test import create_webdriver
 
 page_factory: PageFactory = None
 
@@ -17,14 +12,6 @@ page_factory: PageFactory = None
 def setup_module():
     global page_factory
     page_factory = inject.instance(PageFactory)
-
-
-def create_webdriver():
-    manager = inject.instance(WebDriverManager)
-    request = WebDriverRequest(f"{__name__}{threading.get_ident()}")
-    request.browser = "chrome"
-    request.window_size = Size(1920, 1080)
-    return manager.get_webdriver(request)
 
 
 def test_finder_page():

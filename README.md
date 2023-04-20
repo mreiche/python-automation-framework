@@ -79,7 +79,7 @@ element.expect.text.be("Search")
 
 ## Run the tests
 ```shell
-PYTHONPATH="." pytest tests
+PYTHONPATH="." pytest --numprocesses=4 test
 ```
 
 ## Utils

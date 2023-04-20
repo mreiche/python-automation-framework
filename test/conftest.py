@@ -1,5 +1,6 @@
 import inject
 import pytest
+
 import paf.config
 
 
