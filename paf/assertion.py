@@ -108,8 +108,8 @@ class BinaryAssertion(AbstractPropertyAssertion):
     def be(self, expected: any) -> bool:
         return self._test_sequence(lambda actual: actual == expected, lambda: f" to be {Format.param(expected)}")
 
-    def not_be(self, expected: any) -> bool:
-        return self._test_sequence(lambda actual: actual != expected, lambda: f" not to be {Format.param(expected)}")
+    # def not_be(self, expected: any) -> bool:
+    #     return self._test_sequence(lambda actual: actual != expected, lambda: f" not to be {Format.param(expected)}")
 
 
 class QuantityAssertion(BinaryAssertion):

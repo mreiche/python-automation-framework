@@ -41,7 +41,7 @@ class WebDriverManager:
 
         if request.browser in ["chrome", "chromium"]:
             options = self._get_options(request, ChromeOptions)
-            webdriver = Chrome(chrome_options=options)
+            webdriver = Chrome(options=options)
         elif request.browser in ["firefox"]:
             options = self._get_options(request, FirefoxOptions)
             webdriver = Firefox(options=options)

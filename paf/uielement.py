@@ -158,19 +158,12 @@ class UiElement(InteractiveUiElement, HasParent):
 
         self._find_web_elements(_handle)
 
-    def _get_bounds(self):
-        rect = None
-
-        def _handle(web_element: WebElement):
-            nonlocal rect
-            rect = web_element.rect
-
-        self.find_web_element(_handle)
-        assert isinstance(rect, dict)
-        return Rect(rect["x"], rect["y"], rect["width"], rect["height"])
-
     def _action_sequence(self, consumer: Consumer[WebElement]):
-        sequence = Sequence()
+        config = TestConfig()
+        sequence = Sequence(
+            retry_count=config.retry_count,
+            wait_after_fail=config.wait_after_fail
+        )
 
         exception = None
         passed = False
@@ -191,7 +184,7 @@ class UiElement(InteractiveUiElement, HasParent):
         sequence.run(perform_action)
 
         if not passed:
-            raise Exception(f"{exception} after {sequence.count} retries ({round(sequence.duration, 2)} seconds)")
+            raise Exception(f"{self.name_path}: {exception} after {sequence.count} retries ({round(sequence.duration, 2)} seconds)")
 
     def click(self):
         self._action_sequence(lambda web_element: web_element.click())
@@ -359,6 +352,29 @@ class UiElementAssertion:
             return web_element.value_of_css_property(property)
 
         return self._create_property_assertion(StringAssertion, _map, f"css({property}")
+
+    @property
+    def visible(self):
+        return self._visible(False)
+
+    @property
+    def fully_visible(self):
+        return self._visible(True)
+
+    def _visible(self, fully: bool = False):
+        def _map(web_element: WebElement):
+            viewport = script.get_viewport(self._ui_element._webdriver)
+            bounds = Rect.from_web_element(web_element)
+            if fully:
+                return viewport.contains(bounds)
+            else:
+                return viewport.intersects(bounds)
+
+        name = "visible"
+        if fully:
+            name = f"fully {name}"
+
+        return self._create_property_assertion(BinaryAssertion, _map, name)
 
     @property
     def value(self):

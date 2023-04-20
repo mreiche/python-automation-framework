@@ -60,6 +60,7 @@ element.expect.text.be("Search")
 - [UiElement features](doc/uielement.md)
 - [Page objects](doc/page_objects.md)
 - [Components](doc/components.md)
+- [Managing WebDrivers](doc/webdriver.md)
 
 ### Missing features (todos)
 
@@ -75,6 +76,11 @@ element.expect.text.be("Search")
 * `PAF_BROWSER_SETTING=chrome:90`: Sets the requested browser name and it's version.
 * `PAF_WINDOW_SIZE=1920x1080`: Sets the browsers default window size.
 
+
+## Run the tests
+```shell
+PYTHONPATH="." pytest tests
+```
 
 ## Utils
 

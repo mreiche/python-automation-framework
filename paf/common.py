@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
+from selenium.webdriver.remote.webelement import WebElement
+
 from paf.locator import By
 from paf.xpath import XPath
 
@@ -55,6 +57,11 @@ class Size:
 
 class Rect(Point, Size):
 
+    @staticmethod
+    def from_web_element(web_element: WebElement):
+        rect = web_element.rect
+        return Rect(rect["x"], rect["y"], rect["width"], rect["height"])
+
     def __init__(self, x: int = 0, y:int = 0, width: int = 0, height: int = 0):
         self.x = x
         self.y = y
@@ -84,7 +91,7 @@ class Rect(Point, Size):
             and rect.bottom <= self.bottom
 
     def intersects(self, rect: "Rect"):
-        return rect.left >= self.right \
-               or rect.right <= self.left \
-               or rect.top >= self.bottom \
-               or rect.bottom <= self.top
+        return rect.left <= self.right \
+               and rect.right >= self.left \
+               and rect.top <= self.bottom \
+               and rect.bottom >= self.top

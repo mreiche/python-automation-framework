@@ -22,10 +22,6 @@ class MyComponent(Component["MyComponent"]):
         return self._find(By.id("input"))
 
 
-def setup_module():
-    inject.configure(paf.config.inject)
-
-
 def test_component_name_path():
     page_factory = inject.instance(PageFactory)
     page = page_factory.create_page(MyPage)

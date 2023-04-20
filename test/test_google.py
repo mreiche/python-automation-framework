@@ -1,13 +1,12 @@
 from functools import cache
 
+import inject
 from selenium.webdriver import Keys
 
-from paf.locator import By
 from paf.component import Component
-from paf.page import Page, PageFactory
-import inject
-import paf.config
+from paf.locator import By
 from paf.manager import WebDriverManager
+from paf.page import Page, PageFactory
 from paf.xpath import XPath
 
 
@@ -53,12 +52,8 @@ class StartPage(Page):
 
     def search(self, search: str):
         self._search_field.type(search)
-        self._search_btn.send_keys(Keys.ENTER)
+        self._search_field.send_keys(Keys.ENTER)
         return self._create_page(ResultPage)
-
-
-def setup_module():
-    inject.configure(paf.config.inject)
 
 
 def test_search():

@@ -8,10 +8,6 @@ from paf.page import PageFactory, Page
 from paf.uielement import InteractiveUiElement
 
 
-def setup_module():
-    inject.configure(paf.config.inject)
-
-
 def test_yahoo():
     class YahooStartPage(Page):
         @property
