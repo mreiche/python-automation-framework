@@ -72,6 +72,9 @@ ui_element.expect.visible.be(True)
 
 # Element bounds are inside the browsers viewport
 ui_element.expect.fully_visible.be(True)
+
+# Take screenshot
+path = ui_element.take_screenshot()
 ```
 
 ## Waiting for conditions

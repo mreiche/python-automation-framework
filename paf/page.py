@@ -27,6 +27,10 @@ class BasePage(HasName):
         self._webdriver.get(url)
         return self
 
+    @property
+    def webdriver(self):
+        return self._webdriver
+
     def __str__(self):
         return self.name
 

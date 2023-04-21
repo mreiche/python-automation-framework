@@ -1,5 +1,7 @@
 import math
+import os
 from abc import abstractmethod, ABC
+from pathlib import Path
 from typing import Callable, Type, TypeVar, List, Generic, Iterable, Iterator
 
 from selenium.webdriver.remote.webdriver import WebDriver
@@ -7,13 +9,14 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.color import Color
 
 from paf.assertion import StringAssertion, Format, BinaryAssertion, QuantityAssertion
-from paf.common import HasParent, TestConfig, Locator, Point, Rect
+from paf.common import HasParent, TestConfig, Locator, Point, Rect, Properties
 from paf.locator import By
 from paf.retry import Sequence
-from paf.types import Mapper, Consumer
+from paf.types import Mapper, Consumer, R
 from paf.xpath import XPath
 from selenium.webdriver.common.by import By as SeleniumBy
 import paf.javascript as script
+from datetime import datetime
 
 
 class UiElementActions:
@@ -111,6 +114,10 @@ class UiElement(InteractiveUiElement, HasParent):
         self._index = index
         self._parent = parent
 
+    @property
+    def webdriver(self):
+        return self._webdriver
+
     def find(self, by: Locator):
         return UiElement(
             by=by,
@@ -125,22 +132,22 @@ class UiElement(InteractiveUiElement, HasParent):
         else:
             return by.value
 
-    def _find_web_elements(self, consumer: Consumer[List[WebElement]]):
+    def _find_web_elements(self, consumer: Mapper[List[WebElement], R]) -> R:
         if self._ui_element:
             def _handle(web_element: WebElement):
                 value = self.__relative_selector(self._by)
                 web_elements = web_element.find_elements(self._by.by, value)
-                consumer(web_elements)
+                return consumer(web_elements)
 
-            self._ui_element.find_web_element(_handle)
+            return self._ui_element.find_web_element(_handle)
         elif self._webdriver:
             # Switch to default content
             web_elements = self._webdriver.find_elements(self._by.by, self._by.value)
-            consumer(web_elements)
+            return consumer(web_elements)
         else:
             raise Exception("UiElement initialized without WebDriver nor UiElement")
 
-    def find_web_element(self, consumer: Consumer[WebElement]):
+    def find_web_element(self, mapper: Mapper[WebElement, R]) -> R:
         def _handle(web_elements: List[WebElement]):
             if self._by.get_filter():
                 web_elements = list(filter(self._by.get_filter(), web_elements))
@@ -151,12 +158,12 @@ class UiElement(InteractiveUiElement, HasParent):
                 raise Exception(f"{self.name_path}: not unique")
             elif count > self._index:
                 # Switch to frame
-                consumer(web_elements[self._index])
+                return mapper(web_elements[self._index])
                 # Switch to default content
             else:
                 raise Exception(f"{self.name_path}: not found")
 
-        self._find_web_elements(_handle)
+        return self._find_web_elements(_handle)
 
     def _action_sequence(self, consumer: Consumer[WebElement]):
         config = TestConfig()
@@ -193,6 +200,19 @@ class UiElement(InteractiveUiElement, HasParent):
     def send_keys(self, value: str):
         self._action_sequence(lambda web_element: web_element.send_keys(value))
         return self
+
+    def take_screenshot(self) -> Path|None:
+        def _handle(web_element: WebElement):
+            dir = Path(os.getenv(Properties.PAF_SCREENSHOTS_DIR.name, Properties.PAF_SCREENSHOTS_DIR.value))
+            file_name = f"{self.name}-{datetime.now().strftime('%Y-%m-%d-%H:%M:%S')}.png"
+            dir.mkdir(parents=True, exist_ok=True)
+            path = dir / file_name
+            if web_element.screenshot(str(path)):
+                return path
+            else:
+                return None
+
+        return self.find_web_element(_handle)
 
     def type(self, value: str):
         def _action(web_element: WebElement):
@@ -282,18 +302,12 @@ class UiElementAssertion:
         self._config = config
 
     def _map_find(self, mapper: Callable[[WebElement], any]):
-        value = None
         try:
-            def _map_value(web_element: WebElement):
-                nonlocal value
-                value = mapper(web_element)
-
-            self._ui_element.find_web_element(_map_value)
-
+            return self._ui_element.find_web_element(mapper)
         except Exception as e:
             pass
 
-        return value
+        return None
 
     def _create_property_assertion(
         self,

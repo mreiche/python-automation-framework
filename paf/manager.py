@@ -1,5 +1,9 @@
 import logging
-from typing import Type, TypeVar
+import os
+import threading
+from pathlib import Path
+from typing import Type, TypeVar, Iterable
+from datetime import datetime
 
 import inject
 from selenium.webdriver import Chrome, Firefox, Edge, Safari
@@ -8,6 +12,7 @@ from selenium.webdriver.common.options import BaseOptions
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.remote.webdriver import WebDriver
 
+from paf.common import Properties
 from paf.request import WebDriverRequest
 from paf.types import Consumer
 
@@ -18,8 +23,8 @@ LOG = logging.getLogger(__name__)
 
 class WebDriverManager:
     def __init__(self):
-        self._driver_map: dict[str, WebDriver] = {}
-        self._user_agent_config: dict[str, Consumer[BaseOptions]] = {}
+        self._session_driver_map: dict[str, WebDriver] = {}
+        self._thread_driver_map: dict[int, WebDriver] = {}
 
     def _get_options(self, request: WebDriverRequest, options_class: Type[OPTION]) -> OPTION:
         options = request.options
@@ -34,8 +39,8 @@ class WebDriverManager:
             request = WebDriverRequest()
 
         session_key = request.session
-        if session_key in self._driver_map:
-            return self._driver_map[session_key]
+        if session_key in self._session_driver_map:
+            return self._session_driver_map[session_key]
 
         webdriver = None
 
@@ -53,7 +58,7 @@ class WebDriverManager:
         if not webdriver:
             raise Exception("No browser specified")
 
-        self._driver_map[session_key] = webdriver
+        self._session_driver_map[session_key] = webdriver
 
         if request.window_size:
             LOG.info(f"Set window size: {request.window_size}")
@@ -66,16 +71,30 @@ class WebDriverManager:
 
     def shutdown(self, webdriver: WebDriver):
         webdriver.quit()
-        webdrivers = list(self._driver_map.values())
+        webdrivers = list(self._session_driver_map.values())
         index = webdrivers.index(webdriver)
 
-        session_keys = list(self._driver_map.keys())
+        session_keys = list(self._session_driver_map.keys())
         key = session_keys[index]
-        self._driver_map.pop(key)
+        self._session_driver_map.pop(key)
 
     def shutdown_all(self):
-        for webdriver in list(self._driver_map.values()):
+        for webdriver in list(self._session_driver_map.values()):
             self.shutdown(webdriver)
+
+    def take_screenshot(self, webdriver: WebDriver) -> Path|None:
+        dir = Path(os.getenv(Properties.PAF_SCREENSHOTS_DIR.name, Properties.PAF_SCREENSHOTS_DIR.value))
+        file_name = f"{webdriver.title}-{datetime.now().strftime('%Y-%m-%d-%H:%M:%S')}.png"
+        dir.mkdir(parents=True, exist_ok=True)
+        path = dir/file_name
+        if webdriver.save_screenshot(dir / file_name):
+            return path
+        else:
+            return None
+
+    @property
+    def webdrivers(self) -> Iterable[WebDriver]:
+        return self._session_driver_map.values()
 
 
 def inject_config(binder: inject.Binder):

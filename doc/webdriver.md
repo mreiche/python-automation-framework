@@ -60,3 +60,8 @@ manager.shutdown(webdriver)
 manager.shutdown_session(request.session)
 manager.shutdown_all()
 ```
+
+## Take screenshot
+```python
+manager.take_screenshot()
+```

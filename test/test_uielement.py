@@ -53,5 +53,13 @@ def test_scroll_and_visible():
     p.expect.fully_visible.be(True)
 
 
+def test_screenshot():
+    finder = page_factory.create_page(FinderPage, create_webdriver())
+    finder.open("https://testpages.herokuapp.com/styled/find-by-playground-test.html")
+    p = finder.find(By.id("pre1").unique)
+    path = p.take_screenshot()
+    assert path
+
+
 def teardown_module():
     inject.instance(WebDriverManager).shutdown_all()

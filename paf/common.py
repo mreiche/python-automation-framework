@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from enum import Enum
 
 from selenium.webdriver.remote.webelement import WebElement
 
@@ -62,7 +63,7 @@ class Rect(Point, Size):
         rect = web_element.rect
         return Rect(rect["x"], rect["y"], rect["width"], rect["height"])
 
-    def __init__(self, x: int = 0, y:int = 0, width: int = 0, height: int = 0):
+    def __init__(self, x: int = 0, y: int = 0, width: int = 0, height: int = 0):
         self.x = x
         self.y = y
         self.width = width
@@ -86,12 +87,18 @@ class Rect(Point, Size):
 
     def contains(self, rect: "Rect"):
         return rect.left >= self.left \
-            and rect.right <= self.right \
-            and rect.top >= self.top \
-            and rect.bottom <= self.bottom
+               and rect.right <= self.right \
+               and rect.top >= self.top \
+               and rect.bottom <= self.bottom
 
     def intersects(self, rect: "Rect"):
         return rect.left <= self.right \
                and rect.right >= self.left \
                and rect.top <= self.bottom \
                and rect.bottom >= self.top
+
+
+class Properties(Enum):
+    PAF_SCREENSHOTS_DIR = "screenshots"
+    PAF_WINDOW_SIZE = "1920x1080"
+    PAF_BROWSER_SETTING = "chrome:90"

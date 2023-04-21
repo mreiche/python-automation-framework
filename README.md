@@ -65,7 +65,6 @@ element.expect.text.be("Search")
 ### Missing features (todos)
 
 #### Assertions
-- Screenshots
 - Rect
 
 #### Actions
@@ -75,6 +74,7 @@ element.expect.text.be("Search")
 
 * `PAF_BROWSER_SETTING=chrome:90`: Sets the requested browser name and it's version.
 * `PAF_WINDOW_SIZE=1920x1080`: Sets the browsers default window size.
+* `PAF_SCREENSHOTS_DIR=screenshots`: Sets the screenshots directory.
 
 
 ## Run the tests

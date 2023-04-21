@@ -4,7 +4,7 @@ import re
 from is_empty import empty
 from selenium.webdriver.common.options import BaseOptions
 
-from paf.common import Size
+from paf.common import Size, Properties
 
 
 # import uuid
@@ -36,7 +36,7 @@ class WebDriverRequest:
 
 
     def __detect_browser(self):
-        match = re.search("(\w+)(?:\:(\w+))?", os.getenv("PAF_BROWSER_SETTING", "chrome"))
+        match = re.search("(\w+)(?:\:(\w+))?", os.getenv(Properties.PAF_BROWSER_SETTING.name, Properties.PAF_BROWSER_SETTING.value))
         if match:
             groups = match.groups()
             self._browser = groups[0]
@@ -66,7 +66,7 @@ class WebDriverRequest:
     @property
     def window_size(self):
         if not self._window_size:
-            match = re.search("(\d+)x(\d+)", os.getenv("PAF_WINDOW_SIZE", "1920x1080"))
+            match = re.search("(\d+)x(\d+)", os.getenv(Properties.PAF_WINDOW_SIZE.name, Properties.PAF_WINDOW_SIZE.value))
             groups = match.groups()
             self._window_size = Size(int(groups[0]), int(groups[1]))
 
