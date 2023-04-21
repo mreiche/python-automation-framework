@@ -15,7 +15,7 @@ def setup_module():
 def test_page():
     page = page_factory.create_page(Page, create_webdriver())
     page.open("https://testpages.herokuapp.com")
-    page.expect.title.be("Selenium Test Page")
+    page.expect.title.be("Selenium Test Pages")
     page.expect.url.be("https://testpages.herokuapp.com/styled/index.html")
 
 # def test_yahoo():

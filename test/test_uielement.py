@@ -1,6 +1,7 @@
 import inject
 from selenium.webdriver.support.color import Color
 
+from paf.control import Control, Config
 from paf.locator import By
 from paf.manager import WebDriverManager
 from paf.page import PageFactory, FinderPage
@@ -59,6 +60,15 @@ def test_screenshot():
     p = finder.find(By.id("pre1").unique)
     path = p.take_screenshot()
     assert path
+
+
+def test_retry():
+    finder = page_factory.create_page(FinderPage, create_webdriver())
+    finder.open("https://testpages.herokuapp.com/styled/find-by-playground-test.html")
+    p = finder.find(By.id("pre1").unique)
+
+    control = inject.instance(Control)
+    control.retry(lambda: p.scroll_to_top(), lambda: p.expect.visible.be(True), config=Config(retry_count=3))
 
 
 def teardown_module():

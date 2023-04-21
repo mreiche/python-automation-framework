@@ -9,9 +9,9 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.color import Color
 
 from paf.assertion import StringAssertion, Format, BinaryAssertion, QuantityAssertion
-from paf.common import HasParent, TestConfig, Locator, Point, Rect, Properties
+from paf.common import HasParent, Locator, Point, Rect, Properties
 from paf.locator import By
-from paf.retry import Sequence
+from paf.control import Sequence, Config
 from paf.types import Mapper, Consumer, R
 from paf.xpath import XPath
 from selenium.webdriver.common.by import By as SeleniumBy
@@ -166,7 +166,7 @@ class UiElement(InteractiveUiElement, HasParent):
         return self._find_web_elements(_handle)
 
     def _action_sequence(self, consumer: Consumer[WebElement]):
-        config = TestConfig()
+        config = Config()
         sequence = Sequence(
             retry_count=config.retry_count,
             wait_after_fail=config.wait_after_fail
@@ -229,7 +229,7 @@ class UiElement(InteractiveUiElement, HasParent):
 
     @property
     def wait_for(self):
-        return UiElementAssertion(self, TestConfig(raise_exception=False))
+        return UiElementAssertion(self, Config(raise_exception=False))
 
     def clear(self):
         self._action_sequence(lambda web_element: web_element.clear())
@@ -296,7 +296,7 @@ class UiElementAssertion:
     def __init__(
         self,
         ui_element: UiElement,
-        config: TestConfig = TestConfig(),
+        config: Config = Config(),
     ):
         self._ui_element = ui_element
         self._config = config

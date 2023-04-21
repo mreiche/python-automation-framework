@@ -2,7 +2,7 @@ from typing import Union
 
 import inject
 import pytest
-
+import logging
 import paf.config
 
 from paf.manager import WebDriverManager
@@ -20,4 +20,5 @@ def pytest_exception_interact(
 ) -> None:
     manager = inject.instance(WebDriverManager)
     for webdriver in manager.webdrivers:
-        manager.take_screenshot(webdriver)
+        path = manager.take_screenshot(webdriver)
+        logging.error(f"Took screenshot: {path}")

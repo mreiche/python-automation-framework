@@ -4,7 +4,8 @@ import inject
 from selenium.webdriver.remote.webdriver import WebDriver
 
 from paf.assertion import StringAssertion, Format
-from paf.common import HasName, TestConfig, Locator
+from paf.common import HasName, Locator
+from paf.control import Config
 from paf.manager import WebDriverManager
 
 C = TypeVar("C")
@@ -68,7 +69,7 @@ class Page(BasePage):
 
     @property
     def wait_for(self):
-        return PageAssertion(self, self._webdriver, TestConfig(raise_exception=False))
+        return PageAssertion(self, self._webdriver, Config(raise_exception=False))
 
 
 class PageAssertion:
@@ -77,7 +78,7 @@ class PageAssertion:
         self,
         page: Page,
         webdriver: WebDriver,
-        config: TestConfig = TestConfig(),
+        config: Config = Config(),
     ):
         self._page = page
         self._webdriver = webdriver

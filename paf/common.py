@@ -37,11 +37,7 @@ class HasParent(HasName, ABC):
         return " > ".join(map(str, reversed(path)))
 
 
-@dataclass()
-class TestConfig:
-    raise_exception: bool = True
-    retry_count: int = 3
-    wait_after_fail: float = 0.3
+
 
 
 @dataclass()

@@ -1,7 +1,6 @@
 from typing import Callable
 
-from paf.common import TestConfig
-from paf.retry import Sequence
+from paf.control import Config, Sequence
 from paf.types import Supplier, Predicate, Number
 import re
 
@@ -26,7 +25,7 @@ class AbstractPropertyAssertion:
         parent: None | object,
         actual: Supplier[any],
         subject: Supplier[str],
-        config: TestConfig = None,
+        config: Config = None,
         failed: Callable = None,
         passed: Callable = None,
         failed_finally: Callable = None
@@ -37,7 +36,7 @@ class AbstractPropertyAssertion:
                 config = parent._config
 
         if not config:
-            config = TestConfig()
+            config = Config()
 
         self._parent = parent
         self._actual = actual
