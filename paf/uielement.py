@@ -9,7 +9,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.color import Color
 
 from paf.assertion import StringAssertion, Format, BinaryAssertion, QuantityAssertion
-from paf.common import HasParent, Locator, Point, Rect, Properties
+from paf.common import HasParent, Locator, Point, Rect, Property
 from paf.locator import By
 from paf.control import Sequence, Config
 from paf.types import Mapper, Consumer, R
@@ -203,7 +203,7 @@ class UiElement(InteractiveUiElement, HasParent):
 
     def take_screenshot(self) -> Path|None:
         def _handle(web_element: WebElement):
-            dir = Path(os.getenv(Properties.PAF_SCREENSHOTS_DIR.name, Properties.PAF_SCREENSHOTS_DIR.value))
+            dir = Path(Property.env(Property.PAF_SCREENSHOTS_DIR))
             file_name = f"{self.name}-{datetime.now().strftime('%Y-%m-%d-%H:%M:%S')}.png"
             dir.mkdir(parents=True, exist_ok=True)
             path = dir / file_name

@@ -45,6 +45,19 @@ request = WebDriverRequest("another")
 webdriver = manager.get_webdriver(request)
 ```
 
+## Connect to remote selenium
+
+```python
+import inject
+from paf.manager import WebDriverManager
+from paf.request import WebDriverRequest
+
+manager = inject.instance(WebDriverManager)
+request = WebDriverRequest()
+request.server_url = "http://remote.server:4444"
+webdriver = manager.get_webdriver(request)
+```
+
 ## Shutdown WebDriver sessions
 
 ```python

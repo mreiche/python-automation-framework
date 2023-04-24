@@ -3,14 +3,14 @@ from time import sleep, time
 from typing import Callable
 import inject
 
-from paf.common import Properties
+from paf.common import Property
 
 
 @dataclass()
 class Config:
     raise_exception: bool = True
-    retry_count: int = Properties.env(Properties.PAF_SEQUENCE_RETRY_COUNT)
-    wait_after_fail: float = Properties.env(Properties.PAF_SEQUENCE_WAIT_AFTER_FAIL)
+    retry_count: int = Property.env(Property.PAF_SEQUENCE_RETRY_COUNT)
+    wait_after_fail: float = Property.env(Property.PAF_SEQUENCE_WAIT_AFTER_FAIL)
 
 
 class Sequence:

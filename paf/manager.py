@@ -6,13 +6,11 @@ from typing import Type, TypeVar, Iterable
 from datetime import datetime
 
 import inject
-from selenium.webdriver import Chrome, Firefox, Edge, Safari
-from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver import Chrome, Firefox, Edge, Safari, Remote, ChromeOptions, EdgeOptions, FirefoxOptions, WPEWebKitOptions
 from selenium.webdriver.common.options import BaseOptions
-from selenium.webdriver.firefox.options import Options as FirefoxOptions
-from selenium.webdriver.remote.webdriver import WebDriver
+from selenium.webdriver.remote.webdriver import WebDriver, BaseWebDriver
 
-from paf.common import Properties
+from paf.common import Property
 from paf.request import WebDriverRequest
 from paf.types import Consumer
 
@@ -31,7 +29,8 @@ class WebDriverManager:
         if not options:
             options = options_class()
         else:
-            assert isinstance(options, options_class)
+            assert isinstance(options, BaseOptions)
+
         return options
 
     def get_webdriver(self, request: WebDriverRequest = None) -> WebDriver:
@@ -43,17 +42,30 @@ class WebDriverManager:
             return self._session_driver_map[session_key]
 
         webdriver = None
+        webdriver_class: Type[BaseWebDriver] = None
+        options: BaseOptions = None
 
         if request.browser in ["chrome", "chromium"]:
             options = self._get_options(request, ChromeOptions)
-            webdriver = Chrome(options=options)
+            webdriver_class = Chrome
         elif request.browser in ["firefox"]:
             options = self._get_options(request, FirefoxOptions)
-            webdriver = Firefox(options=options)
+            webdriver_class = Firefox
         elif request.browser in ["edge"]:
-            webdriver = Edge()
+            options = self._get_options(request, EdgeOptions)
+            webdriver_class = Edge
         elif request.browser in ["safari"]:
-            webdriver = Safari()
+            options = self._get_options(request, WPEWebKitOptions)
+            webdriver_class = Safari
+
+        if request.browser_version:
+            options.set_capability("browserVersion", request.browser_version)
+            #options.set_capability("platformName", "Windows XP")
+
+        if request.server_url:
+            webdriver = Remote(command_executor="http://127.0.0.1:4444", options=options)
+        elif webdriver_class:
+            webdriver = webdriver_class(options=options)
 
         if not webdriver:
             raise Exception("No browser specified")
@@ -83,7 +95,7 @@ class WebDriverManager:
             self.shutdown(webdriver)
 
     def take_screenshot(self, webdriver: WebDriver) -> Path|None:
-        dir = Path(os.getenv(Properties.PAF_SCREENSHOTS_DIR.name, Properties.PAF_SCREENSHOTS_DIR.value))
+        dir = Path(os.getenv(Property.PAF_SCREENSHOTS_DIR.name, Property.PAF_SCREENSHOTS_DIR.value))
         file_name = f"{webdriver.title}-{datetime.now().strftime('%Y-%m-%d-%H:%M:%S')}.png"
         dir.mkdir(parents=True, exist_ok=True)
         path = dir/file_name

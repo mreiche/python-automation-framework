@@ -1,16 +1,18 @@
 import os
 import re
+import urllib
 
 from is_empty import empty
 from selenium.webdriver.common.options import BaseOptions
 
-from paf.common import Size, Properties
-
+from paf.common import Size, Property
+from urllib.parse import urlparse, ParseResult
 
 # import uuid
 # from is_empty import empty
 
 #O = TypeVar("O")
+
 
 class WebDriverRequest:
     def __init__(self, session: str = "default"):
@@ -19,6 +21,9 @@ class WebDriverRequest:
         self._browser: str = None
         self._browser_version: str = None
         self._options: BaseOptions = None
+        server_url = Property.env(Property.PAF_BROWSER_SETTING)
+        if server_url:
+            self.server_url = server_url
 
     @property
     def options(self):
@@ -29,14 +34,21 @@ class WebDriverRequest:
         self._options = options
 
     @property
+    def server_url(self):
+        return self._server_url
+
+    @server_url.setter
+    def server_url(self, url: str):
+        self._server_url = urlparse(url)
+
+    @property
     def session(self):
         #       if empty(self._session):
         #           self._session = uuid.uuid4()
         return self._session
 
-
     def __detect_browser(self):
-        match = re.search("(\w+)(?:\:(\w+))?", os.getenv(Properties.PAF_BROWSER_SETTING.name, Properties.PAF_BROWSER_SETTING.value))
+        match = re.search("(\w+)(?:\:(\w+))?", Property.env(Property.PAF_BROWSER_SETTING))
         if match:
             groups = match.groups()
             self._browser = groups[0]
@@ -66,7 +78,7 @@ class WebDriverRequest:
     @property
     def window_size(self):
         if not self._window_size:
-            match = re.search("(\d+)x(\d+)", os.getenv(Properties.PAF_WINDOW_SIZE.name, Properties.PAF_WINDOW_SIZE.value))
+            match = re.search("(\d+)x(\d+)", Property.env(Property.PAF_WINDOW_SIZE))
             groups = match.groups()
             self._window_size = Size(int(groups[0]), int(groups[1]))
 

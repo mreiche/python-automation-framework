@@ -1,7 +1,7 @@
 from paf.manager import WebDriverManager
 from paf.request import WebDriverRequest
-from selenium.webdriver import ChromeOptions
-
+from selenium.webdriver import ChromeOptions, Remote
+import inject
 
 def test_browser(monkeypatch):
     monkeypatch.setenv('PAF_BROWSER_SETTING', 'firefox')
@@ -27,6 +27,21 @@ def test_chrome_options():
     request = WebDriverRequest()
     request.browser = "chrome"
     request.options = ChromeOptions()
-    manager = WebDriverManager()
+    manager = inject.instance(WebDriverManager)
     webdriver = manager.get_webdriver(request)
     assert webdriver.name == request.browser
+
+
+def test_remote_webdriver():
+    request = WebDriverRequest()
+    request.browser = "chrome"
+    request.options = ChromeOptions()
+    request.server_url = "http://127.0.0.1:4444"
+    manager = inject.instance(WebDriverManager)
+    webdriver = manager.get_webdriver(request)
+    assert webdriver.name == request.browser
+
+
+def teardown_module():
+    manager = inject.instance(WebDriverManager)
+    manager.shutdown_all()
