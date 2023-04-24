@@ -6,6 +6,7 @@ from typing import Type, TypeVar, Iterable
 from datetime import datetime
 
 import inject
+from is_empty import empty
 from selenium.webdriver import Chrome, Firefox, Edge, Safari, Remote, ChromeOptions, EdgeOptions, FirefoxOptions, WPEWebKitOptions
 from selenium.webdriver.common.options import BaseOptions
 from selenium.webdriver.remote.webdriver import WebDriver, BaseWebDriver
@@ -96,7 +97,11 @@ class WebDriverManager:
 
     def take_screenshot(self, webdriver: WebDriver) -> Path|None:
         dir = Path(os.getenv(Property.PAF_SCREENSHOTS_DIR.name, Property.PAF_SCREENSHOTS_DIR.value))
-        file_name = f"{webdriver.title}-{datetime.now().strftime('%Y-%m-%d-%H:%M:%S')}.png"
+        title = webdriver.title
+        if empty(title):
+            title = webdriver.current_url
+
+        file_name = f"{title}-{datetime.now().strftime('%Y-%m-%d-%H:%M:%S')}.png"
         dir.mkdir(parents=True, exist_ok=True)
         path = dir/file_name
         if webdriver.save_screenshot(dir / file_name):

@@ -74,7 +74,7 @@ class PageObject(Generic[T]):
         pass
 
     @abstractmethod
-    def highlight(self, color: Color, seconds: float):
+    def highlight(self, color: Color = Color.from_string("#0f0"), seconds: float = 2):
         pass
 
 
@@ -301,7 +301,7 @@ class UiElementAssertion:
         self._ui_element = ui_element
         self._config = config
 
-    def _map_find(self, mapper: Callable[[WebElement], any]):
+    def _find_failsafe(self, mapper: Callable[[WebElement], any]):
         try:
             return self._ui_element.find_web_element(mapper)
         except Exception as e:
@@ -317,8 +317,8 @@ class UiElementAssertion:
     ) -> A:
         return assertion_class(
             parent=None,
-            actual=lambda: self._map_find(mapper),
-            subject=lambda: f"{self._ui_element.name}.{property_name} {Format.param(self._map_find(mapper))}",
+            actual=lambda: self._ui_element.find_web_element(mapper),
+            subject=lambda: f"{self._ui_element.name_path}.{property_name} {Format.param(self._find_failsafe(mapper))}",
             config=self._config,
         )
 
@@ -327,12 +327,7 @@ class UiElementAssertion:
         def _map(web_element: WebElement):
             return web_element.text
 
-        return StringAssertion(
-            parent=None,
-            actual=lambda: self._map_find(_map),
-            subject=lambda: f"{self._ui_element.name}.text {Format.param(self._map_find(_map))}",
-            config=self._config,
-        )
+        return self._create_property_assertion(StringAssertion, _map, "text")
 
     @property
     def displayed(self):
@@ -399,6 +394,6 @@ class UiElementAssertion:
         return QuantityAssertion(
             parent=None,
             actual=lambda: self._ui_element._count_elements(),
-            subject=lambda: f"element count {Format.param(self._ui_element._count_elements())}",
+            subject=lambda: f"{self._ui_element.name_path} count {Format.param(self._ui_element._count_elements())}",
             config=self._config
         )
