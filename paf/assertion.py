@@ -13,7 +13,6 @@ class Format:
         else:
             return f"[{value}]"
 
-
     @staticmethod
     def separate(*args):
         return " ".join(map(str, args))
@@ -50,33 +49,29 @@ class AbstractPropertyAssertion:
         self,
         test: Predicate[any],
         additional_subject: Supplier = None,
-    ):
+    ) -> bool:
 
         sequence = Sequence(retry_count=self._config.retry_count, wait_after_fail=self._config.wait_after_fail)
         exception = None
-        passed = False
 
         def perform_test():
             nonlocal exception
-            nonlocal passed
 
             try:
                 assert test(self._actual())
                 if self._passed:
                     self._passed()
-                passed = True
+                exception = None
             except Exception as e:
                 if self._failed:
                     self._failed()
                 exception = e
-                passed = False
 
-            return passed
+            return not exception
 
         sequence.run(perform_test)
 
-        if not passed:
-
+        if exception:
             if self._failed_finally:
                 self._failed_finally()
 
@@ -87,7 +82,7 @@ class AbstractPropertyAssertion:
 
                 raise AssertionError(f"Expected {subject} after {sequence.count} retries ({round(sequence.duration, 2)} seconds)")
 
-        return passed
+        return not exception
 
     def _create_subject(self) -> str:
         path = [self]
@@ -107,11 +102,12 @@ class BinaryAssertion(AbstractPropertyAssertion):
     def be(self, expected: any) -> bool:
         return self._test_sequence(lambda actual: actual == expected, lambda: f" to be {Format.param(expected)}")
 
-    # def not_be(self, expected: any) -> bool:
-    #     return self._test_sequence(lambda actual: actual != expected, lambda: f" not to be {Format.param(expected)}")
-
 
 class QuantityAssertion(BinaryAssertion):
+
+    def not_be(self, expected: any) -> bool:
+        return self._test_sequence(lambda actual: actual != expected, lambda: f" not to be {Format.param(expected)}")
+
     def between(self, lower: Number, higher: Number):
         return BinaryAssertion(
             parent=self,
@@ -170,9 +166,9 @@ class StringAssertion(QuantityAssertion):
             subject=lambda: f"contains {Format.param(expected)}",
         )
 
-    def matches(self, expected: str|re.Pattern) -> BinaryAssertion:
+    def matches(self, expected: str | re.Pattern) -> BinaryAssertion:
         if not isinstance(expected, re.Pattern):
-            expected = re.compile(expected, re.MULTILINE|re.IGNORECASE|re.UNICODE)
+            expected = re.compile(expected, re.MULTILINE | re.IGNORECASE | re.UNICODE)
 
         return BinaryAssertion(
             parent=self,

@@ -1,15 +1,16 @@
 from dataclasses import dataclass
 from time import sleep, time
 from typing import Callable
-
 import inject
+
+from paf.common import Properties
 
 
 @dataclass()
 class Config:
     raise_exception: bool = True
-    retry_count: int = 3
-    wait_after_fail: float = 0.3
+    retry_count: int = Properties.env(Properties.PAF_SEQUENCE_RETRY_COUNT)
+    wait_after_fail: float = Properties.env(Properties.PAF_SEQUENCE_WAIT_AFTER_FAIL)
 
 
 class Sequence:
@@ -38,7 +39,26 @@ class Sequence:
 
 
 class Control:
-    def retry(self, action: Callable, on_fail: Callable = None, config: Config = Config()):
+
+    __global_config: Config = Config()
+    #
+    # def with_config(self, config: Config, action: Callable):
+    #     current_config = Control.__global_config
+    #     Control.__global_config = config
+    #     try:
+    #         action()
+    #     except Exception as e:
+    #         pass
+    #
+    #     Control.__global_config = current_config
+
+    def retry(self, action: Callable, on_fail: Callable = None, config: Config = None):
+        current_config = Control.__global_config
+        if not config:
+            config = Control.__global_config
+        else:
+            Control.__global_config = config
+
         sequence = Sequence(retry_count=config.retry_count, wait_after_fail=config.wait_after_fail)
         exception = None
 
@@ -54,6 +74,7 @@ class Control:
                     on_fail()
 
         sequence.run(_run)
+        Control.__global_config = current_config
         if exception:
             raise Exception(f"{exception} after {sequence.count} retries ({round(sequence.duration, 2)} seconds)")
 

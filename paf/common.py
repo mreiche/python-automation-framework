@@ -1,3 +1,4 @@
+import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
@@ -98,3 +99,9 @@ class Properties(Enum):
     PAF_SCREENSHOTS_DIR = "screenshots"
     PAF_WINDOW_SIZE = "1920x1080"
     PAF_BROWSER_SETTING = "chrome:90"
+    PAF_SEQUENCE_WAIT_AFTER_FAIL = 0.3
+    PAF_SEQUENCE_RETRY_COUNT = 3
+
+    @staticmethod
+    def env(property: "Properties") -> any:
+        return os.getenv(property.name, property.value)

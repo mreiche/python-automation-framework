@@ -1,6 +1,7 @@
 import re
 from typing import List, Iterable
 
+from paf.dom import Attribute
 from paf.locator import By
 
 
@@ -106,8 +107,14 @@ class XPath:
 
         return XPath.Test(self, attribute)
 
+    def id(self, value: str):
+        return self.attribute(Attribute.ID).be(value)
+
+    def name(self, value: str):
+        return self.attribute(Attribute.NAME).be(value)
+
     def classes(self, *classes: any):
-        return self.attribute("class").has_words(*classes)
+        return self.attribute(Attribute.CLASS).has_words(*classes)
 
     @property
     def text(self):

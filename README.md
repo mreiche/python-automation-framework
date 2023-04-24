@@ -1,10 +1,15 @@
-# Python automation framework
+# PAF - Python Automation Framework
 
 Python implementation of [Testerra](https://github.com/telekom/testerra) API.
 
+It is basically a wrapper for Selenium *WebDriver* and *WebElement* which bring some more comfort features.
 This is not a test framework, but it implements some assertion features anyway.
 
+The basic concept is, to identify *WebElements* on every action or property accessor to prevent `StaleElementExceptions`.
+
 ## Prerequisites
+
+You need at least a local *WebDriver* installed.
 
 **MacOS**
 ```shell
@@ -64,18 +69,17 @@ element.expect.text.be("Search")
 
 ### Missing features (todos)
 
-#### Assertions
-- Rect
-
-#### Actions
-- ContextClick/DoubleClick
+- Rect assertions
+- ContextClick/DoubleClick actions
+- Frames/ShadowRoot support
 
 ## Environment variables
 
 * `PAF_BROWSER_SETTING=chrome:90`: Sets the requested browser name and it's version.
 * `PAF_WINDOW_SIZE=1920x1080`: Sets the browsers default window size.
-* `PAF_SCREENSHOTS_DIR=screenshots`: Sets the screenshots directory.
-
+* `PAF_SCREENSHOTS_DIR=screenshots`: Sets the screenshots' directory.
+* `PAF_SEQUENCE_WAIT_AFTER_FAIL=0.3`: Wait in seconds whenever a sequence action fails. 
+* `PAF_SEQUENCE_RETRY_COUNT=3`: Retry count for every sequence action.
 
 ## Run the tests
 ```shell
