@@ -1,33 +1,52 @@
 ## Page Objects
 
-More detailed page objects.
+Page objects are adapters for Websites, that provide methods and actions for it's features.
 
+For example: Create a page object, that represents the start page of a website.
 ```python
-import inject
-import paf.config
-from paf.page import Page, PageFactory
+from paf.page import Page
 from paf.locator import By
-from paf.uielement import TestableUiElement
+from pages import UserPage
 
 class StartPage(Page):
-    @property
-    def greeter(self) -> TestableUiElement:
-        return self._find(By.id("greeter"))
-
-
-class LoginPage(Page):
     @property
     def _login_btn(self):
         return self._find(By.id("login"))
 
-    def login(self):
-        self._login_btn.click()
-        return self._create_page(StartPage)
+    def login(self, username: str, password: str):
+        self._find(By.id("username")).type(username)
+        self._find(By.id("password")).type(password)
+        self._find(By.id("login")).click()
+        return self._create_page(UserPage)
+```
+
+This page provides the method `login` which leads to the `UserPage`.
+
+```python
+from paf.page import Page
+from paf.locator import By
+from paf.uielement import TestableUiElement
+
+class UserPage(Page):
+    @property
+    def greeter(self) -> TestableUiElement:
+        return self._find(By.id("greeter"))
+```
+
+The `UserPage` provides a property named `greeter`, which may be a container for login messages.
+
+You can combine these pages now the following way. 
+
+```python
+import inject
+import paf.config
+from paf.page import PageFactory
+from pages import StartPage
 
 inject.configure(paf.config.inject)
 page_factory = inject.instance(PageFactory)
 
-login_page = page_factory.create_page(LoginPage)
-start_page = login_page.login()
-start_page.greeter.expect.text.be("Welcome")
+start_page = page_factory.create_page(StartPage)
+user_page = start_page.login("user", "secret")
+user_page.greeter.expect.text.contains("Welcome").be(True)
 ```
