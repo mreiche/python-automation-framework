@@ -1,17 +1,16 @@
-import os
 import re
-import urllib
+from urllib.parse import urlparse, ParseResult
 
 from is_empty import empty
 from selenium.webdriver.common.options import BaseOptions
 
 from paf.common import Size, Property
-from urllib.parse import urlparse, ParseResult
+
 
 # import uuid
 # from is_empty import empty
 
-#O = TypeVar("O")
+# O = TypeVar("O")
 
 
 class WebDriverRequest:
@@ -21,7 +20,8 @@ class WebDriverRequest:
         self._browser: str = None
         self._browser_version: str = None
         self._options: BaseOptions = None
-        server_url = Property.env(Property.PAF_BROWSER_SETTING)
+        self._server_url: ParseResult = None
+        server_url = Property.env(Property.PAF_SELENIUM_SERVER_URL)
         if server_url:
             self.server_url = server_url
 
@@ -34,12 +34,15 @@ class WebDriverRequest:
         self._options = options
 
     @property
-    def server_url(self):
+    def server_url(self) -> ParseResult:
         return self._server_url
 
     @server_url.setter
-    def server_url(self, url: str):
-        self._server_url = urlparse(url)
+    def server_url(self, url: str | ParseResult):
+        if not isinstance(url, ParseResult):
+            url = urlparse(url)
+
+        self._server_url = url
 
     @property
     def session(self):

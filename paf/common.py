@@ -1,8 +1,10 @@
 import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
 
+import inject
 from selenium.webdriver.remote.webelement import WebElement
 
 from paf.locator import By
@@ -36,9 +38,6 @@ class HasParent(HasName, ABC):
             inst = inst._parent
 
         return " > ".join(map(str, reversed(path)))
-
-
-
 
 
 @dataclass()
@@ -104,5 +103,14 @@ class Property(Enum):
     PAF_SELENIUM_SERVER_URL = None
 
     @staticmethod
-    def env(property: "Property") -> any:
-        return os.getenv(property.name, property.value)
+    def env(prop: "Property") -> any:
+        return os.getenv(prop.name, prop.value)
+
+
+class Formatter:
+    def datetime(self, date: datetime):
+        return date.strftime('%Y-%m-%d-%H:%M:%S')
+
+
+def inject_config(binder: inject.Binder):
+    binder.bind(Formatter, Formatter())
