@@ -1,22 +1,22 @@
 import math
-import os
 from abc import abstractmethod, ABC
+from datetime import datetime
 from pathlib import Path
 from typing import Callable, Type, TypeVar, List, Generic, Iterable, Iterator
 
+import inject
+from selenium.webdriver.common.by import By as SeleniumBy
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.color import Color
 
+import paf.javascript as script
 from paf.assertion import StringAssertion, Format, BinaryAssertion, QuantityAssertion
 from paf.common import HasParent, Locator, Point, Rect, Property
+from paf.control import Control
 from paf.locator import By
-from paf.control import Sequence, Config
 from paf.types import Mapper, Consumer, R
 from paf.xpath import XPath
-from selenium.webdriver.common.by import By as SeleniumBy
-import paf.javascript as script
-from datetime import datetime
 
 
 class UiElementActions:
@@ -166,32 +166,11 @@ class UiElement(InteractiveUiElement, HasParent):
         return self._find_web_elements(_handle)
 
     def _action_sequence(self, consumer: Consumer[WebElement]):
-        config = Config()
-        sequence = Sequence(
-            retry_count=config.retry_count,
-            wait_after_fail=config.wait_after_fail
-        )
-
-        exception = None
-        passed = False
-
-        def perform_action():
-            nonlocal exception
-            nonlocal passed
-
-            try:
-                self.find_web_element(consumer)
-                passed = True
-            except Exception as e:
-                exception = e
-                passed = False
-
-            return passed
-
-        sequence.run(perform_action)
-
-        if not passed:
-            raise Exception(f"{self.name_path}: {exception} after {sequence.count} retries ({round(sequence.duration, 2)} seconds)")
+        control = inject.instance(Control)
+        try:
+            control.retry(lambda: self.find_web_element(consumer))
+        except Exception as exception:
+            raise Exception(f"{self.name_path}: {exception}")
 
     def click(self):
         self._action_sequence(lambda web_element: web_element.click())
@@ -229,7 +208,7 @@ class UiElement(InteractiveUiElement, HasParent):
 
     @property
     def wait_for(self):
-        return UiElementAssertion(self, Config(raise_exception=False))
+        return UiElementAssertion(self, raise_exception=False)
 
     def clear(self):
         self._action_sequence(lambda web_element: web_element.clear())
@@ -296,10 +275,10 @@ class UiElementAssertion:
     def __init__(
         self,
         ui_element: UiElement,
-        config: Config = Config(),
+        raise_exception: bool = True,
     ):
         self._ui_element = ui_element
-        self._config = config
+        self._raise = raise_exception
 
     def _find_failsafe(self, mapper: Callable[[WebElement], any]):
         try:
@@ -319,7 +298,7 @@ class UiElementAssertion:
             parent=None,
             actual=lambda: self._ui_element.find_web_element(mapper),
             subject=lambda: f"{self._ui_element.name_path}.{property_name} {Format.param(self._find_failsafe(mapper))}",
-            config=self._config,
+            raise_exception=self._raise,
         )
 
     @property
@@ -395,5 +374,5 @@ class UiElementAssertion:
             parent=None,
             actual=lambda: self._ui_element._count_elements(),
             subject=lambda: f"{self._ui_element.name_path} count {Format.param(self._ui_element._count_elements())}",
-            config=self._config
+            raise_exception=self._raise,
         )

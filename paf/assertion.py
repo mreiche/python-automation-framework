@@ -1,8 +1,10 @@
+import re
 from typing import Callable
 
-from paf.control import Config, Sequence
+import inject
+
+from paf.control import Control, RetryException
 from paf.types import Supplier, Predicate, Number
-import re
 
 
 class Format:
@@ -24,22 +26,17 @@ class AbstractPropertyAssertion:
         parent: None | object,
         actual: Supplier[any],
         subject: Supplier[str],
-        config: Config = None,
+        raise_exception: bool = True,
         failed: Callable = None,
         passed: Callable = None,
         failed_finally: Callable = None
     ):
         if parent:
             assert isinstance(parent, AbstractPropertyAssertion)
-            if not config:
-                config = parent._config
-
-        if not config:
-            config = Config()
 
         self._parent = parent
         self._actual = actual
-        self._config = config
+        self._raise = raise_exception
         self._subject = subject
         self._failed = failed
         self._passed = passed
@@ -51,38 +48,28 @@ class AbstractPropertyAssertion:
         additional_subject: Supplier = None,
     ) -> bool:
 
-        sequence = Sequence(retry_count=self._config.retry_count, wait_after_fail=self._config.wait_after_fail)
-        exception = None
-
-        def perform_test():
-            nonlocal exception
-
-            try:
+        control = inject.instance(Control)
+        try:
+            def perform_test():
                 assert test(self._actual())
-                if self._passed:
-                    self._passed()
-                exception = None
-            except Exception as e:
-                if self._failed:
-                    self._failed()
-                exception = e
 
-            return not exception
+            control.retry(perform_test, self._failed)
 
-        sequence.run(perform_test)
+            if self._passed:
+                self._passed()
+            return True
 
-        if exception:
+        except RetryException as e:
             if self._failed_finally:
                 self._failed_finally()
 
-            if self._config.raise_exception:
+            if self._raise:
                 subject = self._create_subject()
                 if additional_subject:
                     subject += additional_subject()
 
-                raise AssertionError(f"Expected {subject} after {sequence.count} retries ({round(sequence.duration, 2)} seconds)")
-
-        return not exception
+                raise AssertionError(f"Expected {subject} after {e.sequence.count} retries ({round(e.sequence.duration, 2)} seconds)")
+            return False
 
     def _create_subject(self) -> str:
         path = [self]

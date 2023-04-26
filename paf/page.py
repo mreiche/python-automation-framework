@@ -5,7 +5,6 @@ from selenium.webdriver.remote.webdriver import WebDriver
 
 from paf.assertion import StringAssertion, Format
 from paf.common import HasName, Locator
-from paf.control import Config
 from paf.manager import WebDriverManager
 
 C = TypeVar("C")
@@ -69,7 +68,7 @@ class Page(BasePage):
 
     @property
     def wait_for(self):
-        return PageAssertion(self, self._webdriver, Config(raise_exception=False))
+        return PageAssertion(self, self._webdriver, raise_exception=False)
 
 
 class PageAssertion:
@@ -78,11 +77,11 @@ class PageAssertion:
         self,
         page: Page,
         webdriver: WebDriver,
-        config: Config = Config(),
+        raise_exception: bool = True
     ):
         self._page = page
         self._webdriver = webdriver
-        self._config = config
+        self._raise = raise_exception
 
     @property
     def title(self):
@@ -90,7 +89,7 @@ class PageAssertion:
             parent=None,
             actual=lambda: self._webdriver.title,
             subject=lambda: f"{self._page.name}.title {Format.param(self._webdriver.title)}",
-            config=self._config,
+            raise_exception=self._raise,
         )
 
     @property
@@ -99,7 +98,7 @@ class PageAssertion:
             parent=None,
             actual=lambda: self._webdriver.current_url,
             subject=lambda: f"{self._page.name}.url {Format.param(self._webdriver.current_url)}",
-            config=self._config,
+            raise_exception=self._raise,
         )
 
 

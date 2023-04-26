@@ -1,6 +1,6 @@
 ## Components
 
-Components are custom element containers.
+Components are like page objects, adapters for Website features. But different from that, they contain one root element as it's DOM origin. They can be seen as hybrids between [Page](page_objects.md) and [UiElement](uielement.md).
 
 ```python
 import inject

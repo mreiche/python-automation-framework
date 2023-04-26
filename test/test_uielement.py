@@ -70,9 +70,8 @@ def test_retry():
     clicks = finder.find(XPath.at("div").id("events").select("p"))
 
     control = inject.instance(Control)
-
     btn.click()
-    control.retry(lambda: clicks.expect.count.be(3), lambda: btn.click(), config=Config(retry_count=3, wait_after_fail=0))
+    control.retry(lambda: clicks.expect.count.be(3), lambda: btn.click(), wait_after_fail=0)
 
 
 def teardown_module():

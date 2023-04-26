@@ -1,4 +1,9 @@
-# UiElement features
+# UiElement
+
+*UiElements* are adapters for *WebElements*, but they do not contain a reference, but only a locator instead, which will lookup for the according *WebElement* everytime.
+Additionally, every action performed or property read is capsuled in a retry sequence.
+
+You can create and organize *UiElements* in [Pages](page_objects.md) and [Components](components.md).
 
 ## Actions
 ```python
