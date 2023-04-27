@@ -99,3 +99,14 @@ xpath = "//dt[.//text()='Title:']/following-sibling::dd[1]"
 snapshot = document.evaluate(xpath, document.body, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE)
 snapshot.snapshotItem(0).textContent
 ```
+
+### Release update
+1. Update version in `setup.py`
+2. Package library
+    ```shell
+    python setup.py sdist
+    ```
+3. Publish library
+    ```shell
+    twine upload dist/python-automation-framework-[version].tar.gz
+    ```
