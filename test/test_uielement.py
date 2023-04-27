@@ -34,11 +34,14 @@ def test_finder_page():
 #     assert rect.width == 962
 #     assert rect.height == 27
 
-def test_text_assertions():
+def test_assertions():
     finder = page_factory.create_page(FinderPage, create_webdriver())
     finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
 
-    p = finder.find("para1")
+    p = finder.find("#para1")
+
+    p.expect.tag_name.be("p")
+
     text = p.expect.text
     text.be("A paragraph of text")
     text.contains("paragraph").be(True)

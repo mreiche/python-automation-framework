@@ -32,7 +32,6 @@ import inject
 import paf.config
 from paf.locator import By
 from paf.page import FinderPage, PageFactory
-from paf.manager import WebDriverManager
 
 # Configure dependency injection
 inject.configure(paf.config.inject)
@@ -57,13 +56,11 @@ element.expect.text.be("Search")
 ```
 
 
-
-
-
 ## Feature list
 
 - [UiElements](doc/uielement.md)
-- [Page objects](doc/page_objects.md)
+- [Locators](doc/locators.md)
+- [Page objects](doc/pages.md)
 - [Components](doc/components.md)
 - [Managing WebDrivers](doc/webdriver.md)
 
@@ -85,7 +82,7 @@ element.expect.text.be("Search")
 
 I added two examples.
 
-1. [test_google.py](examples/test_google.py): is a regular Google Search, implemented with [Page Objects](doc/page_objects.md) and [Components](doc/components.md). 
+1. [test_google.py](examples/test_google.py): is a regular Google search, implemented with [Page Objects](doc/pages.md) and [Components](doc/components.md). 
 2. [test_todo_mvc.py](examples/test_todo_mvc.py): are re-implemented test cases from the [Robot Framework TodoMVC](https://docs.robotframework.org/docs/examples/todo) example. It's IMHO developer friendly, better readable and less code. 
 
 

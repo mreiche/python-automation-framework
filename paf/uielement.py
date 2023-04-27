@@ -108,7 +108,7 @@ class UiElement(InteractiveUiElement, HasParent):
         if isinstance(by, XPath):
             by = By.xpath(str(by))
         elif isinstance(by, str):
-            by = By.id(by)
+            by = By.css_selector(by)
 
         self._webdriver = webdriver
         self._ui_element = ui_element
@@ -331,17 +331,24 @@ class UiElementAssertion:
 
         return self._create_property_assertion(BinaryAssertion, _map, "selected")
 
+    @property
+    def tag_name(self):
+        def _map(web_element: WebElement):
+            return web_element.tag_name
+
+        return self._create_property_assertion(StringAssertion, _map, "tag name")
+
     def attribute(self, attribute: str):
         def _map(web_element: WebElement):
             return web_element.get_attribute(attribute)
 
         return self._create_property_assertion(StringAssertion, _map, f"attribute({attribute}")
 
-    def css(self, prop: str):
+    def css(self, property_name: str):
         def _map(web_element: WebElement):
-            return web_element.value_of_css_property(prop)
+            return web_element.value_of_css_property(property_name)
 
-        return self._create_property_assertion(StringAssertion, _map, f"css({prop}")
+        return self._create_property_assertion(StringAssertion, _map, f"css({property_name}")
 
     @property
     def visible(self):

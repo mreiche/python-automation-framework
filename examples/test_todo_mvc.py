@@ -2,7 +2,6 @@ import inject
 import pytest
 from selenium.webdriver import Keys
 
-from paf.locator import By
 from paf.manager import WebDriverManager
 from paf.page import PageFactory, FinderPage
 from paf.xpath import XPath
@@ -68,11 +67,11 @@ def open_todo_app():
 
 def add_new_todo(*names):
     for name in names:
-        finder.find(By.css_selector(".new-todo")).type(name).send_keys(Keys.ENTER)
+        finder.find(".new-todo").type(name).send_keys(Keys.ENTER)
 
 
 def mark_todo(name: str):
-    finder.find(XPath.at("label").text.be(name).preceding_sibling("input")).click()
+    finder.find(XPath.at("label").text.be(name).preceding("/input")).click()
 
 
 def mark_one_todo():
@@ -80,7 +79,7 @@ def mark_one_todo():
 
 
 def todo_count():
-    return finder.find(By.css_selector(".todo-count"))
+    return finder.find(".todo-count")
 
 
 def teardown_function():

@@ -68,7 +68,7 @@ class XPath:
         if isinstance(selector, XPath):
             selector = selector._build()
 
-        return selector
+        return selector.strip()
 
     @staticmethod
     def at(selector: any, position: int = None):
@@ -86,11 +86,17 @@ class XPath:
         xpath._parent = xpath
         return xpath
 
-    def following_sibling(self, selector: any, position: int = None):
-        return self.select(f"/following-sibling::{XPath._normalize_selector(selector)}", position)
 
-    def preceding_sibling(self, selector: any, position: int = None):
-        return self.select(f"/preceding-sibling::{XPath._normalize_selector(selector)}", position)
+
+    def following(self, selector: any, position: int = None):
+        selector = XPath._normalize_selector(selector)
+        selector = XPath._translate_sibling(selector)
+        return self.select(f"/following{selector}", position)
+
+    def preceding(self, selector: any, position: int = None):
+        selector = XPath._normalize_selector(selector)
+        selector = XPath._translate_sibling(selector)
+        return self.select(f"/preceding{selector}", position)
 
     def encloses(self, selector: any, position: int = None):
         selector = XPath._normalize_selector(selector)
@@ -125,8 +131,6 @@ class XPath:
 
     @staticmethod
     def _translate_sub_selection(selector: str):
-        selector = selector.strip()
-
         if selector.startswith("("):
             return selector
         elif selector.startswith("./"):
@@ -138,7 +142,6 @@ class XPath:
 
     @staticmethod
     def _translate_inner_selection(selector: str):
-        selector = selector.strip()
         if selector.startswith("//"):
             return re.sub("^//", "descendant::", selector)
         elif selector.startswith("/"):
@@ -147,6 +150,16 @@ class XPath:
             return re.sub("^\\./", "child::", selector)
         else:
             return f"descendant::{selector}"
+
+    @staticmethod
+    def _translate_sibling(selector: str):
+        select_type = ""
+        if selector.startswith("//"):
+            selector = selector.lstrip("//")
+        elif selector.startswith("/"):
+            selector = selector.lstrip("/")
+            select_type = "-sibling"
+        return f"{select_type}::{selector}"
 
     @staticmethod
     def _something_contains_word(something: str, string: any):

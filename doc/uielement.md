@@ -3,7 +3,7 @@
 *UiElements* are adapters for *WebElements*, but they do not contain a reference, but only a locator instead, which will lookup for the according *WebElement* everytime.
 Additionally, every action performed or property read is capsuled in a retry sequence.
 
-You can create and organize *UiElements* in [Pages](page_objects.md) and [Components](components.md).
+You can create *UiElements* using [Locators](locators.md) and organize them in [Pages](page_objects.md) and [Components](components.md).
 
 ## Actions
 ```python
@@ -105,4 +105,22 @@ from paf.uielement import UiElement
 ui_element: UiElement
 
 text = ui_element.expect.text.actual
+```
+
+
+## Element lists
+
+*UiElements* represent only on element at a time. To access all elements found by the locator, use the `list` property.
+
+```python
+first = ui_element.list.first
+last = ui_element.list.last
+second = ui_element.list[1]
+```
+
+You can also iterate over all found items:
+
+```python
+for item in ui_element.list:
+    pass
 ```

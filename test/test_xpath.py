@@ -17,7 +17,7 @@ def test_XPath_with_XPath():
 
 
 def test_select_sibling():
-    assert str(XPath.at("body").select("dd").text.be("Title").following_sibling("dt")) == "//body//dd[.//text()='Title']/following-sibling::dt"
+    assert str(XPath.at("body").select("dd").text.be("Title").following("/dt")) == "//body//dd[.//text()='Title']/following-sibling::dt"
 
 
 def test_class_selection():
