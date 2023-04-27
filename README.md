@@ -52,6 +52,7 @@ brew|choco|apt install chromedriver
 - [Page objects](doc/pages.md)
 - [Components](doc/components.md)
 - [Managing WebDrivers](doc/webdriver.md)
+- [Execution controlling](doc/control.md)
 
 ### Missing features (todos)
 
