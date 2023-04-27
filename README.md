@@ -7,24 +7,6 @@ This is not a test framework, but it implements some assertion features anyway.
 
 The basic concept is, to identify *WebElements* on every action or property accessor to prevent `StaleElementExceptions`.
 
-## Prerequisites
-
-You need at least a local *WebDriver* installed.
-
-**MacOS**
-```shell
-brew install chromedriver
-```
-
-**Windows**
-```shell
-choco install chromedriver
-```
-**Linux**
-```shell
-apt install chromedriver
-```
-
 ## Quick start
 
 ```python
@@ -46,7 +28,7 @@ page = page_factory.create_page(FinderPage)
 page.open("https://google.com")
 
 # Find element
-element = page.find(By.id("q"))
+element = page.find("#q")
 
 # Perform actions
 element.type("Search")
@@ -55,6 +37,13 @@ element.type("Search")
 element.expect.text.be("Search")
 ```
 
+### Prerequisites
+
+You need at least a local *WebDriver* installed.
+
+```shell
+brew|choco|apt install chromedriver
+```
 
 ## Feature list
 
