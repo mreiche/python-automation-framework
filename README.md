@@ -62,7 +62,7 @@ element.expect.text.be("Search")
 
 ## Feature list
 
-- [UiElement features](doc/uielement.md)
+- [UiElements](doc/uielement.md)
 - [Page objects](doc/page_objects.md)
 - [Components](doc/components.md)
 - [Managing WebDrivers](doc/webdriver.md)
@@ -81,12 +81,21 @@ element.expect.text.be("Search")
 * `PAF_SEQUENCE_WAIT_AFTER_FAIL=0.3`: Wait in seconds whenever a sequence action fails. 
 * `PAF_SEQUENCE_RETRY_COUNT=3`: Retry count for every sequence action.
 
-## Run the tests
+## Examples
+
+I added two examples.
+
+1. [test_google.py](examples/test_google.py): is a regular Google Search, implemented with [Page Objects](doc/page_objects.md) and [Components](doc/components.md). 
+2. [test_todo_mvc.py](examples/test_todo_mvc.py): are re-implemented test cases from the [Robot Framework TodoMVC](https://docs.robotframework.org/docs/examples/todo) example. It's IMHO developer friendly, better readable and less code. 
+
+
+## Developer area
+### Run the tests
 ```shell
-PYTHONPATH="." pytest --numprocesses=4 test
+PYTHONPATH="." pytest --numprocesses=4 --cov=paf test
 ```
 
-## Utils
+### Utils
 
 ```javascript
 xpath = "//dt[.//text()='Title:']/following-sibling::dd[1]"

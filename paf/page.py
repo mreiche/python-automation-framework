@@ -42,6 +42,14 @@ class BasePage(HasName):
     def name(self):
         return self.__class__.__name__
 
+    @property
+    def expect(self):
+        return PageAssertion(self, self._webdriver)
+
+    @property
+    def wait_for(self):
+        return PageAssertion(self, self._webdriver, raise_exception=False)
+
 
 class FinderPage(BasePage):
     def find(self, by: Locator):
@@ -62,20 +70,12 @@ class Page(BasePage):
     def _create_page(self, page_class: Type[P]) -> P:
         return page_class(self._webdriver)
 
-    @property
-    def expect(self):
-        return PageAssertion(self, self._webdriver)
-
-    @property
-    def wait_for(self):
-        return PageAssertion(self, self._webdriver, raise_exception=False)
-
 
 class PageAssertion:
 
     def __init__(
         self,
-        page: Page,
+        page: BasePage,
         webdriver: WebDriver,
         raise_exception: bool = True
     ):

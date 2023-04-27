@@ -10,7 +10,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from paf.locator import By
 from paf.xpath import XPath
 
-Locator = By | XPath
+Locator = By | XPath | str
 
 
 class HasName(ABC):

@@ -1,5 +1,5 @@
 import re
-from typing import Callable
+from typing import Callable, Iterable
 
 import inject
 
@@ -102,28 +102,28 @@ class QuantityAssertion(BinaryAssertion):
             subject=lambda: f"between {Format.param(lower)} and {Format.param(higher)}",
         )
 
-    def greater_than(self, expected: Number) -> BinaryAssertion:
+    def greater_than(self, expected: Number):
         return BinaryAssertion(
             parent=self,
             actual=lambda: self._actual() > expected,
             subject=lambda: f"greater than {Format.param(expected)}",
         )
 
-    def lower_than(self, expected: Number) -> BinaryAssertion:
+    def lower_than(self, expected: Number):
         return BinaryAssertion(
             parent=self,
             actual=lambda: self._actual() < expected,
             subject=lambda: f"lower than {Format.param(expected)}",
         )
 
-    def greater_equal_than(self, expected: Number) -> BinaryAssertion:
+    def greater_equal_than(self, expected: Number):
         return BinaryAssertion(
             parent=self,
             actual=lambda: self._actual() >= expected,
             subject=lambda: f"greater equal than {Format.param(expected)}",
         )
 
-    def lower_equal_than(self, expected: Number) -> BinaryAssertion:
+    def lower_equal_than(self, expected: Number):
         return BinaryAssertion(
             parent=self,
             actual=lambda: self._actual() <= expected,
@@ -132,39 +132,53 @@ class QuantityAssertion(BinaryAssertion):
 
 
 class StringAssertion(QuantityAssertion):
-    def starts_with(self, expected: str) -> BinaryAssertion:
+    def starts_with(self, expected: str):
         return BinaryAssertion(
             parent=self,
             actual=lambda: str(self._actual()).startswith(expected),
             subject=lambda: f"starts with {Format.param(expected)}",
         )
 
-    def ends_with(self, expected: str) -> BinaryAssertion:
+    def ends_with(self, expected: str):
         return BinaryAssertion(
             parent=self,
             actual=lambda: str(self._actual()).endswith(expected),
             subject=lambda: f"ends with {Format.param(expected)}",
         )
 
-    def contains(self, expected: str) -> BinaryAssertion:
+    def contains(self, expected: str):
         return BinaryAssertion(
             parent=self,
             actual=lambda: str(self._actual()).find(expected) >= 0,
             subject=lambda: f"contains {Format.param(expected)}",
         )
 
-    def matches(self, expected: str | re.Pattern) -> BinaryAssertion:
-        if not isinstance(expected, re.Pattern):
-            expected = re.compile(expected, re.MULTILINE | re.IGNORECASE | re.UNICODE)
+    def matches(self, regex: str | re.Pattern):
+        if not isinstance(regex, re.Pattern):
+            regex = re.compile(regex, re.MULTILINE | re.IGNORECASE | re.UNICODE)
 
         return BinaryAssertion(
             parent=self,
-            actual=lambda: expected.match(self._actual()) is not None,
-            subject=lambda: f"matches {Format.param(expected)}",
+            actual=lambda: regex.search(self._actual()) is not None,
+            subject=lambda: f"matches {Format.param(regex)}",
         )
 
+    def has_words(self, *words: any):
+        if not isinstance(words, Iterable):
+            words = [words]
+
+        pattern = "|".join(words)
+        regex = re.compile(f"\\b(?:{pattern})\\b", re.MULTILINE | re.IGNORECASE | re.UNICODE)
+
+        return BinaryAssertion(
+            parent=self,
+            actual=lambda: regex.search(self._actual()) is not None,
+            subject=lambda: f"has words {Format.param(pattern)}",
+        )
+
+
     @property
-    def length(self) -> QuantityAssertion:
+    def length(self):
         return QuantityAssertion(
             parent=self,
             actual=lambda: len(self._actual()),

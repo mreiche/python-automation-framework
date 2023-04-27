@@ -60,6 +60,8 @@ ui_element.expect.text.be("Hello")
 # Element text contains "World"
 ui_element.expect.text.contains("World").be(True)
 
+ui_element.expect.text.has_words("Hello", "World").be(True)
+
 # Element text matches regular expression
 ui_element.expect.text.matches("d\sW").be(True)
 

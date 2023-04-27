@@ -51,14 +51,14 @@ class XPath:
             return self._xpath
 
         def _attribute_is(self, attribute: str, value: any):
-            self._xpath._attributes.append(XPath.something_is(attribute, value))
+            self._xpath._attributes.append(XPath._something_is(attribute, value))
 
         def _attribute_matches(self, operation: str, attribute: str, value: any):
-            self._xpath._attributes.append(XPath.something_matches(operation, attribute, value))
+            self._xpath._attributes.append(XPath._something_matches(operation, attribute, value))
 
         def _attribute_contains_words(self, attribute: str, value: Iterable[any]):
             for word in value:
-                self._xpath._attributes.append(XPath.something_contains_word(attribute, word))
+                self._xpath._attributes.append(XPath._something_contains_word(attribute, word))
 
     @staticmethod
     def _normalize_selector(selector: any) -> str:
@@ -88,6 +88,9 @@ class XPath:
 
     def following_sibling(self, selector: any, position: int = None):
         return self.select(f"/following-sibling::{XPath._normalize_selector(selector)}", position)
+
+    def preceding_sibling(self, selector: any, position: int = None):
+        return self.select(f"/preceding-sibling::{XPath._normalize_selector(selector)}", position)
 
     def encloses(self, selector: any, position: int = None):
         selector = XPath._normalize_selector(selector)
@@ -146,19 +149,19 @@ class XPath:
             return f"descendant::{selector}"
 
     @staticmethod
-    def something_contains_word(something: str, string: any):
+    def _something_contains_word(something: str, string: any):
         return f"contains(concat(' ', normalize-space({something}), ' '), ' {string} ')"
 
     @staticmethod
-    def something_is(something: str, value: any):
+    def _something_is(something: str, value: any):
         return f"{something}='{value}'"
 
     @staticmethod
-    def something_is_not(something: str, value: any):
+    def _something_is_not(something: str, value: any):
         return f"{something}!='{value}'"
 
     @staticmethod
-    def something_matches(operation:str, something: str, value: any):
+    def _something_matches(operation:str, something: str, value: any):
         return f"{operation}({something},'{value}')"
 
     def _build(self):

@@ -107,6 +107,8 @@ class UiElement(InteractiveUiElement, HasParent):
 
         if isinstance(by, XPath):
             by = By.xpath(str(by))
+        elif isinstance(by, str):
+            by = By.id(by)
 
         self._webdriver = webdriver
         self._ui_element = ui_element
@@ -155,13 +157,13 @@ class UiElement(InteractiveUiElement, HasParent):
             count = len(web_elements)
 
             if self._by.is_unique and count != 1:
-                raise Exception(f"{self.name_path}: not unique")
+                raise Exception(f"Not unique")
             elif count > self._index:
                 # Switch to frame
                 return mapper(web_elements[self._index])
                 # Switch to default content
             else:
-                raise Exception(f"{self.name_path}: not found")
+                raise Exception(f"Not found")
 
         return self._find_web_elements(_handle)
 
@@ -335,11 +337,11 @@ class UiElementAssertion:
 
         return self._create_property_assertion(StringAssertion, _map, f"attribute({attribute}")
 
-    def css(self, property: str):
+    def css(self, prop: str):
         def _map(web_element: WebElement):
-            return web_element.value_of_css_property(property)
+            return web_element.value_of_css_property(prop)
 
-        return self._create_property_assertion(StringAssertion, _map, f"css({property}")
+        return self._create_property_assertion(StringAssertion, _map, f"css({prop}")
 
     @property
     def visible(self):

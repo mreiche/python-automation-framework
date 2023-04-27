@@ -1,7 +1,7 @@
 import inject
 from selenium.webdriver.support.color import Color
 
-from paf.control import Control, Config
+from paf.control import Control
 from paf.locator import By
 from paf.manager import WebDriverManager
 from paf.page import PageFactory, FinderPage
@@ -33,6 +33,26 @@ def test_finder_page():
 #     assert isinstance(rect, Rect)
 #     assert rect.width == 962
 #     assert rect.height == 27
+
+def test_text_assertions():
+    finder = page_factory.create_page(FinderPage, create_webdriver())
+    finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
+
+    p = finder.find("para1")
+    text = p.expect.text
+    text.be("A paragraph of text")
+    text.contains("paragraph").be(True)
+    text.has_words("paragraph", "text").be(True)
+    text.matches("hello").be(False)
+
+    length = p.expect.text.length
+    length.be(19)
+    length.greater_than(1).be(True)
+    length.greater_equal_than(10).be(True)
+    length.lower_than(20).be(True)
+    length.lower_equal_than(30).be(True)
+    length.between(18, 20).be(True)
+    length.not_be(30)
 
 
 def test_highlight():
