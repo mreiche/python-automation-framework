@@ -17,6 +17,7 @@ def test_page():
     page.open("https://testpages.herokuapp.com")
     page.expect.title.be("Selenium Test Pages")
     page.expect.url.be("https://testpages.herokuapp.com/styled/index.html")
+    assert page.webdriver.title == "Selenium Test Pages"
 
 # def test_yahoo():
 #     class YahooStartPage(Page):

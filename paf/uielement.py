@@ -12,7 +12,7 @@ from selenium.webdriver.support.color import Color
 
 import paf.javascript as script
 from paf.assertion import StringAssertion, Format, BinaryAssertion, QuantityAssertion
-from paf.common import HasParent, Locator, Point, Rect, Property
+from paf.common import HasParent, Locator, Point, Rect, Property, Formatter
 from paf.control import Control
 from paf.locator import By
 from paf.types import Mapper, Consumer, R
@@ -130,7 +130,7 @@ class UiElement(InteractiveUiElement, HasParent):
 
     def __relative_selector(self, by: By):
         if by.by == SeleniumBy.XPATH:
-            return by.value.replace("/", "./", 1)
+            return by.value.replace("/", "./", 0)
         else:
             return by.value
 
@@ -182,10 +182,11 @@ class UiElement(InteractiveUiElement, HasParent):
         self._action_sequence(lambda web_element: web_element.send_keys(value))
         return self
 
-    def take_screenshot(self) -> Path|None:
+    def take_screenshot(self) -> Path | None:
         def _handle(web_element: WebElement):
             dir = Path(Property.env(Property.PAF_SCREENSHOTS_DIR))
-            file_name = f"{self.name}-{datetime.now().strftime('%Y-%m-%d-%H:%M:%S')}.png"
+            formatter = inject.instance(Formatter)
+            file_name = f"{self.name}-{formatter.datetime(datetime.now())}.png"
             dir.mkdir(parents=True, exist_ok=True)
             path = dir / file_name
             if web_element.screenshot(str(path)):
@@ -245,7 +246,7 @@ class UiElement(InteractiveUiElement, HasParent):
 
     def highlight(self, color: Color = Color.from_string("#0f0"), seconds: float = 2):
         def _handle(web_element: WebElement):
-            script.highlight(self._webdriver, web_element, color, math.floor(seconds*1000))
+            script.highlight(self._webdriver, web_element, color, math.floor(seconds * 1000))
 
         self.find_web_element(_handle)
 

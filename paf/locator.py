@@ -84,15 +84,15 @@ class By:
     def to_xpath(self):
         from paf.xpath import XPath
 
-        if self._by.XPATH:
+        if self._by == SeleniumBy.XPATH:
             return XPath.at(self._value)
-        elif self._by.NAME:
+        elif self._by == SeleniumBy.NAME:
             return XPath.at("//*").attribute(Attribute.NAME).be(self._value)
-        elif self._by.CLASS_NAME:
+        elif self._by == SeleniumBy.CLASS_NAME:
             return XPath.at("//*").attribute(Attribute.CLASS).be(self._value)
-        elif self._by.ID:
+        elif self._by == SeleniumBy.ID:
             return XPath.at("//*").attribute(Attribute.ID).be(self._value)
-        elif self._by.CLASS_NAME:
+        elif self._by == SeleniumBy.TAG_NAME:
             return XPath.at(self._value)
         else:
             raise Exception(f"By type '{self.by}' not supported (yet)")

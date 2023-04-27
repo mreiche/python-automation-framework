@@ -1,6 +1,7 @@
 from typing import TypeVar, Generic, List
 
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.support.color import Color
 
 from paf.common import HasParent, Locator, Point
 from paf.uielement import UiElement, UiElementActions, PageObject, TestableUiElement, PageObjectList
@@ -9,6 +10,10 @@ T = TypeVar("T")
 
 
 class Component(Generic[T], HasParent, UiElementActions, TestableUiElement, PageObject[T]):
+
+    def highlight(self, color: Color = Color.from_string("#0f0"), seconds: float = 2):
+        self._ui_element.highlight(color, seconds)
+        return self
 
     def __init__(self, ui_element: UiElement):
         self._ui_element = ui_element

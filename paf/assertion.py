@@ -14,10 +14,10 @@ class Format:
             return "[null]"
         else:
             return f"[{value}]"
-
-    @staticmethod
-    def separate(*args):
-        return " ".join(map(str, args))
+    #
+    # @staticmethod
+    # def separate(*args):
+    #     return " ".join(map(str, args))
 
 
 class AbstractPropertyAssertion:
@@ -31,12 +31,14 @@ class AbstractPropertyAssertion:
         passed: Callable = None,
         failed_finally: Callable = None
     ):
+        self._raise = raise_exception
+
         if parent:
             assert isinstance(parent, AbstractPropertyAssertion)
+            self._raise = parent._raise
 
         self._parent = parent
         self._actual = actual
-        self._raise = raise_exception
         self._subject = subject
         self._failed = failed
         self._passed = passed
@@ -160,7 +162,7 @@ class StringAssertion(QuantityAssertion):
         return BinaryAssertion(
             parent=self,
             actual=lambda: regex.search(self._actual()) is not None,
-            subject=lambda: f"matches {Format.param(regex)}",
+            subject=lambda: f"matches {Format.param(regex.pattern)}",
         )
 
     def has_words(self, *words: any):

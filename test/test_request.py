@@ -1,7 +1,10 @@
+from urllib.parse import ParseResult
+
 from paf.manager import WebDriverManager
 from paf.request import WebDriverRequest
 from selenium.webdriver import ChromeOptions, Remote
 import inject
+
 
 def test_browser(monkeypatch):
     monkeypatch.setenv('PAF_BROWSER_SETTING', 'firefox')
@@ -14,6 +17,9 @@ def test_browser_version(monkeypatch):
     request = WebDriverRequest()
     assert request.browser == "firefox"
     assert request.browser_version == "64"
+
+    request.browser_version = "99"
+    assert request.browser_version == "99"
 
 
 def test_window_size(monkeypatch):
@@ -32,11 +38,13 @@ def test_chrome_options():
     assert webdriver.name == request.browser
 
 
-def test_remote_webdriver():
+def test_remote_webdriver(monkeypatch):
+    server_url = "http://127.0.0.1:4444"
+    monkeypatch.setenv('PAF_SELENIUM_SERVER_URL', server_url)
     request = WebDriverRequest()
     request.browser = "chrome"
     request.options = ChromeOptions()
-    request.server_url = "http://127.0.0.1:4444"
+    assert isinstance(request.server_url, ParseResult)
     manager = inject.instance(WebDriverManager)
     webdriver = manager.get_webdriver(request)
     assert webdriver.name == request.browser

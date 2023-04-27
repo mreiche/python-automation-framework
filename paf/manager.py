@@ -1,9 +1,8 @@
 import logging
 import os
-import threading
+from datetime import datetime
 from pathlib import Path
 from typing import Type, TypeVar, Iterable
-from datetime import datetime
 
 import inject
 from is_empty import empty
@@ -11,9 +10,8 @@ from selenium.webdriver import Chrome, Firefox, Edge, Safari, Remote, ChromeOpti
 from selenium.webdriver.common.options import BaseOptions
 from selenium.webdriver.remote.webdriver import WebDriver, BaseWebDriver
 
-from paf.common import Property
+from paf.common import Property, Formatter
 from paf.request import WebDriverRequest
-from paf.types import Consumer
 
 OPTION = TypeVar("OPTION")
 
@@ -80,7 +78,10 @@ class WebDriverManager:
         return webdriver
 
     def shutdown_session(self, session_key):
-        pass
+        if session_key in self._session_driver_map:
+            self.shutdown(self._session_driver_map[session_key])
+        else:
+            raise Exception(f"Unknown session: {session_key}")
 
     def shutdown(self, webdriver: WebDriver):
         webdriver.quit()
@@ -101,7 +102,9 @@ class WebDriverManager:
         if empty(title):
             title = webdriver.current_url
 
-        file_name = f"{title}-{datetime.now().strftime('%Y-%m-%d-%H:%M:%S')}.png"
+        formatter = inject.instance(Formatter)
+
+        file_name = f"{title}-{formatter.datetime(datetime.now())}.png"
         dir.mkdir(parents=True, exist_ok=True)
         path = dir/file_name
         if webdriver.save_screenshot(dir / file_name):
