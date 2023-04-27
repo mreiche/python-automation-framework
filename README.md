@@ -39,11 +39,12 @@ element.expect.text.be("Search")
 
 ### Prerequisites
 
-You need at least a local *WebDriver* installed.
+- You need at least a local *WebDriver* installed.
+   ```shell
+   brew|choco|apt install chromedriver
+   ```
 
-```shell
-brew|choco|apt install chromedriver
-```
+- Python 3.10 (or higher).
 
 ## Feature list
 
