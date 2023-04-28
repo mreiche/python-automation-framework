@@ -18,7 +18,8 @@ def pytest_exception_interact(
     call: "CallInfo[Any]",
     report: Union["CollectReport", "TestReport"],
 ) -> None:
-    manager = inject.instance(WebDriverManager)
-    for webdriver in manager.webdrivers:
-        path = manager.take_screenshot(webdriver)
-        logging.error(f"Took screenshot: {path}")
+    if inject.is_configured():
+        manager = inject.instance(WebDriverManager)
+        for webdriver in manager.webdrivers:
+            path = manager.take_screenshot(webdriver)
+            logging.error(f"Took screenshot: {path}")

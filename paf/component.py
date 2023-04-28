@@ -1,15 +1,14 @@
-from typing import TypeVar, Generic, List
+from typing import TypeVar, Generic
 
-from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.color import Color
 
 from paf.common import HasParent, Locator, Point
-from paf.uielement import UiElement, UiElementActions, PageObject, TestableUiElement, PageObjectList
+from paf.uielement import UiElement, PageObject, TestableUiElement, PageObjectList
 
 T = TypeVar("T")
 
 
-class Component(Generic[T], HasParent, UiElementActions, TestableUiElement, PageObject[T], PageObjectList[T]):
+class Component(PageObject[T], PageObjectList[T], HasParent):
 
     def highlight(self, color: Color = Color.from_string("#0f0"), seconds: float = 2):
         self._ui_element.highlight(color, seconds)
@@ -18,22 +17,6 @@ class Component(Generic[T], HasParent, UiElementActions, TestableUiElement, Page
     def __init__(self, ui_element: UiElement):
         self._ui_element = ui_element
         ui_element._parent = self
-
-    def click(self):
-        self._ui_element.click()
-        return self
-
-    def send_keys(self, value: str):
-        self._ui_element.send_keys(value)
-        return self
-
-    def type(self, value: str):
-        self._ui_element.type(value)
-        return self
-
-    def clear(self):
-        self._ui_element.clear()
-        return self
 
     def _find(self, by: Locator):
         ui_element = self._ui_element.find(by)
@@ -46,10 +29,6 @@ class Component(Generic[T], HasParent, UiElementActions, TestableUiElement, Page
 
     def __str__(self):
         return self.name
-
-    # @property
-    # def list(self):
-    #     return ComponentList[T](self)
 
     @property
     def expect(self):
