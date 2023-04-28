@@ -2,7 +2,7 @@ import math
 from abc import abstractmethod, ABC
 from datetime import datetime
 from pathlib import Path
-from typing import Callable, Type, TypeVar, List, Generic, Iterable, Iterator
+from typing import Type, TypeVar, List, Generic, Iterable, Iterator
 
 import inject
 from selenium.webdriver import ActionChains
@@ -151,34 +151,43 @@ class UiElement(InteractiveUiElement, HasParent, PageObjectList["UiElement"]):
         else:
             return by.value
 
+    def _filter_web_elements(self, web_elements: List[WebElement]):
+        if self._by.get_filter():
+            return list(filter(self._by.get_filter(), web_elements))
+        else:
+            return web_elements
+
     def _find_web_elements(self, consumer: Mapper[List[WebElement], R]) -> R:
         if self._ui_element:
             def _handle(web_element: WebElement):
                 value = self.__relative_selector(self._by)
-                web_elements = web_element.find_elements(self._by.by, value)
-                return consumer(web_elements)
+
+                is_frame = web_element.tag_name.lower() in ("frame", "iframe")
+                if is_frame:
+                    self._webdriver.switch_to.frame(web_element)
+                    web_elements = self._webdriver.find_elements(self._by.by, value)
+                else:
+                    web_elements = web_element.find_elements(self._by.by, value)
+
+                return consumer(self._filter_web_elements(web_elements))
 
             return self._ui_element.find_web_element(_handle)
         elif self._webdriver:
-            # Switch to default content
+            self._webdriver.switch_to.default_content()
             web_elements = self._webdriver.find_elements(self._by.by, self._by.value)
-            return consumer(web_elements)
+            return consumer(self._filter_web_elements(web_elements))
         else:
             raise Exception("UiElement initialized without WebDriver nor UiElement")
 
     def find_web_element(self, mapper: Mapper[WebElement, R]) -> R:
         def _handle(web_elements: List[WebElement]):
-            if self._by.get_filter():
-                web_elements = list(filter(self._by.get_filter(), web_elements))
-
             count = len(web_elements)
 
             if self._by.is_unique and count != 1:
                 raise Exception(f"Not unique")
             elif count > self._index:
-                # Switch to frame
-                return mapper(web_elements[self._index])
-                # Switch to default content
+                web_element = web_elements[self._index]
+                return mapper(web_element)
             else:
                 raise Exception(f"Not found")
 
@@ -278,10 +287,6 @@ class UiElement(InteractiveUiElement, HasParent, PageObjectList["UiElement"]):
     def name(self):
         return f"UiElement({self._by.__str__()})[{self._index}]"
 
-    # @property
-    # def list(self) -> "UiElementList":
-    #     return UiElementList(self)
-
     def scroll_into_view(self, offset: Point = Point()):
         self._action_sequence(lambda web_element: script.scroll_to_center(self._webdriver, web_element, offset))
 
@@ -331,14 +336,6 @@ class UiElementAssertion:
         self._ui_element = ui_element
         self._raise = raise_exception
 
-    def _find_failsafe(self, mapper: Callable[[WebElement], any]):
-        try:
-            return self._ui_element.find_web_element(mapper)
-        except Exception as e:
-            pass
-
-        return None
-
     def _create_property_assertion(
         self,
         assertion_class: Type[A],
@@ -348,7 +345,7 @@ class UiElementAssertion:
         return assertion_class(
             parent=None,
             actual=lambda: self._ui_element.find_web_element(mapper),
-            subject=lambda: f"{self._ui_element.name_path}.{property_name} {Format.param(self._find_failsafe(mapper))}",
+            subject=lambda: f"{self._ui_element.name_path}.{property_name} {Format.param(self._ui_element.find_web_element(mapper))}",
             raise_exception=self._raise,
         )
 

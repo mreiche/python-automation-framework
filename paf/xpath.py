@@ -9,7 +9,7 @@ class XPath:
 
     def __init__(self, selector: str, position: int = None):
         self._selector = selector
-        if position and position == 0:
+        if position is not None and position == 0:
             position = 1
         self._pos = position
         self._root: XPath = None
@@ -85,8 +85,6 @@ class XPath:
         self._parent._sub = xpath
         xpath._parent = xpath
         return xpath
-
-
 
     def following(self, selector: any, position: int = None):
         selector = XPath._normalize_selector(selector)

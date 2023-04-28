@@ -136,3 +136,16 @@ You can also iterate over all found items:
 for item in ui_element:
     pass
 ```
+
+## Frames support
+
+*UiElements* switch automatically to the frame's content.
+
+```python
+from paf.page import FinderPage
+
+finder: FinderPage
+
+frame = finder.find("frame")
+frame.find("div").expect.text.be("Text in frame")
+```

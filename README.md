@@ -58,7 +58,7 @@ element.expect.text.be("Search")
 ### Missing features (todos)
 
 - Rect assertions
-- Frames/ShadowRoot support
+- ShadowRoot support
 - Drag & Drop over frames
 
 ## Environment variables

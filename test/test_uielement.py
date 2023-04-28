@@ -1,4 +1,5 @@
 import inject
+import pytest
 from selenium.webdriver.support.color import Color
 
 from paf.control import Control
@@ -16,8 +17,13 @@ def setup_module():
     page_factory = inject.instance(PageFactory)
 
 
-def test_finder_page():
+@pytest.fixture
+def finder():
     finder = page_factory.create_page(FinderPage, create_webdriver())
+    yield finder
+
+
+def test_finder_page(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
 
     p = finder.find(By.id("para1"))
@@ -35,8 +41,7 @@ def test_finder_page():
 #     assert rect.width == 962
 #     assert rect.height == 27
 
-def test_text_assertions():
-    finder = page_factory.create_page(FinderPage, create_webdriver())
+def test_text_assertions(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
 
     p = finder.find("#para1")
@@ -62,8 +67,7 @@ def test_text_assertions():
     length.not_be(30)
 
 
-def test_wait():
-    finder = page_factory.create_page(FinderPage, create_webdriver())
+def test_wait(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
 
     p = finder.find("#para1")
@@ -72,20 +76,7 @@ def test_wait():
     assert p.wait_for.tag_name.be("b") is False
 
 
-# def test_displayed():
-#     finder = page_factory.create_page(FinderPage, create_webdriver())
-#     finder.open("https://testpages.herokuapp.com/styled/alerts/fake-alert-test.html")
-#
-#     ok = finder.find("#dialog-ok")
-#     btn = finder.find("#fakealert")
-#
-#     ok.expect.displayed.be(False)
-#     btn.click()
-#     ok.expect.displayed.be(True)
-
-
-def test_highlight():
-    finder = page_factory.create_page(FinderPage, create_webdriver())
+def test_highlight(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
 
     p = finder.find(By.id("para1"))
@@ -93,8 +84,7 @@ def test_highlight():
     p.expect.css("outline").be("rgb(0, 255, 0) solid 5px")
 
 
-def test_scroll_until_visible():
-    finder = page_factory.create_page(FinderPage, create_webdriver())
+def test_scroll_until_visible(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/find-by-playground-test.html")
 
     p = finder.find(By.id("pre1").unique)
@@ -110,8 +100,7 @@ def test_scroll_until_visible():
     p.expect.visible.be(False)
 
 
-def test_find_sub_elements_list():
-    finder = page_factory.create_page(FinderPage, create_webdriver())
+def test_find_sub_elements_list(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/find-by-playground-test.html")
 
     # Sub elements
@@ -133,8 +122,7 @@ def test_find_sub_elements_list():
         break
 
 
-def test_form():
-    finder = page_factory.create_page(FinderPage, create_webdriver())
+def test_form(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/basic-html-form-test.html")
 
     checkbox = finder.find(XPath.at("input").name("checkboxes[]").attribute("value").be("cb3"))
@@ -153,16 +141,14 @@ def test_form():
     username.expect.value.be("")
 
 
-def test_screenshot():
-    finder = page_factory.create_page(FinderPage, create_webdriver())
+def test_screenshot(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/find-by-playground-test.html")
     p = finder.find(By.id("pre1").unique)
     path = p.take_screenshot()
     assert path
 
 
-def test_retry():
-    finder = page_factory.create_page(FinderPage, create_webdriver())
+def test_retry(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/key-click-display-test.html")
     btn = finder.find(By.id("button").unique)
     clicks = finder.find(XPath.at("div").id("events").select("p"))
@@ -172,8 +158,7 @@ def test_retry():
     control.retry(lambda: clicks.expect.count.be(3), lambda: btn.click(), wait_after_fail=0, count=3)
 
 
-def test_actions():
-    finder = page_factory.create_page(FinderPage, create_webdriver())
+def test_actions(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/events/javascript-events.html")
 
     click_btn = finder.find("#onclick")
@@ -201,8 +186,7 @@ def test_actions():
     double_click_status.expect.displayed.be(True)
 
 
-def test_drag_and_drop():
-    finder = page_factory.create_page(FinderPage, create_webdriver())
+def test_drag_and_drop(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/drag-drop-javascript.html")
 
     drag = finder.find(".drag.left")
@@ -210,6 +194,28 @@ def test_drag_and_drop():
     drop.expect.text.be("Drop here")
     drag.drag_and_drop_to(drop)
     drop.expect.text.be("Dropped!")
+
+
+def test_frames(finder: FinderPage):
+    finder.open("https://testpages.herokuapp.com/styled/frames/frames-test.html")
+    left = finder.find(By.name("left"))
+    left.expect.tag_name.be("frame")
+    left.find("li").expect.count.be(30)
+    left.expect.tag_name.be("frame")
+
+    top = finder.find(By.name("top"))
+    exp = top.find(By.class_name("explanation"))
+    exp.expect.text.starts_with("This page").be(True)
+
+
+def test_locate_displayed(finder: FinderPage):
+    finder.open("https://testpages.herokuapp.com/styled/alerts/fake-alert-test.html")
+    ok = finder.find(By.id("dialog-ok").displayed)
+    btn = finder.find("#fakealert")
+
+    ok.expect.count.be(0)
+    btn.click()
+    ok.expect.count.be(1)
 
 
 def teardown_module():
