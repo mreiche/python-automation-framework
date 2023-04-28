@@ -1,9 +1,9 @@
-from typing import TypeVar, Generic
+from typing import TypeVar
 
 from selenium.webdriver.support.color import Color
 
 from paf.common import HasParent, Locator, Point
-from paf.uielement import UiElement, PageObject, TestableUiElement, PageObjectList
+from paf.uielement import UiElement, PageObject, PageObjectList
 
 T = TypeVar("T")
 
@@ -29,14 +29,6 @@ class Component(PageObject[T], PageObjectList[T], HasParent):
 
     def __str__(self):
         return self.name
-
-    @property
-    def expect(self):
-        return self._ui_element.expect
-
-    @property
-    def wait_for(self):
-        return self._ui_element.wait_for
 
     def scroll_into_view(self, offset: Point = Point()):
         self._ui_element.scroll_into_view(offset)

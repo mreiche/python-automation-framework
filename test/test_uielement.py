@@ -108,6 +108,11 @@ def test_find_sub_elements_list(finder: FinderPage):
     p = div.find("p")
     p.expect.attribute("name").be("pName1")
 
+    # Find sub element by XPath
+    p2 = div.find(XPath.at("p"))
+    p2.expect.attribute("name").be("pName1")
+
+
     # Correct XPAth
     div.find(By.xpath("//p")).expect.attribute("name").be("pName1")
     div.find(By.xpath("./p")).expect.attribute("name").be("pName1")

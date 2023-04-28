@@ -1,4 +1,5 @@
 import math
+import re
 from abc import abstractmethod, ABC
 from datetime import datetime
 from pathlib import Path
@@ -146,8 +147,8 @@ class UiElement(InteractiveUiElement, HasParent, PageObjectList["UiElement"]):
         )
 
     def __relative_selector(self, by: By):
-        if by.by == SeleniumBy.XPATH:
-            return by.value.replace("/", "./", 0)
+        if by.by == SeleniumBy.XPATH and by.value.startswith("/"):
+            return f".{by.value}"
         else:
             return by.value
 
@@ -160,14 +161,13 @@ class UiElement(InteractiveUiElement, HasParent, PageObjectList["UiElement"]):
     def _find_web_elements(self, consumer: Mapper[List[WebElement], R]) -> R:
         if self._ui_element:
             def _handle(web_element: WebElement):
-                value = self.__relative_selector(self._by)
 
                 is_frame = web_element.tag_name.lower() in ("frame", "iframe")
                 if is_frame:
                     self._webdriver.switch_to.frame(web_element)
-                    web_elements = self._webdriver.find_elements(self._by.by, value)
+                    web_elements = self._webdriver.find_elements(self._by.by, self._by.value)
                 else:
-                    web_elements = web_element.find_elements(self._by.by, value)
+                    web_elements = web_element.find_elements(self._by.by, self.__relative_selector(self._by))
 
                 return consumer(self._filter_web_elements(web_elements))
 
