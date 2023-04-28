@@ -62,7 +62,7 @@ def test_search():
     start_page.open("https://google.de")
     start_page.accept_cookies()
     result_page = start_page.search("Testerra")
-    result_page.result.list.first.headline.expect.text.contains("Testerra").be(True)
+    result_page.result.first.headline.expect.text.contains("Testerra").be(True)
 
 
 def teardown_module():

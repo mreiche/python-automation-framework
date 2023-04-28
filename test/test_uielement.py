@@ -124,11 +124,11 @@ def test_find_sub_elements_list():
     div.find(By.xpath("./p")).expect.attribute("name").be("pName1")
 
     # List
-    p.list.first.expect.attribute("name").be("pName1")
-    p.list[1].expect.attribute("name").be("pName2")
-    p.list.last.expect.attribute("name").be("pName41")
+    p.first.expect.attribute("name").be("pName1")
+    p[1].expect.attribute("name").be("pName2")
+    p.last.expect.attribute("name").be("pName41")
 
-    for item in p.list:
+    for item in p:
         item.expect.attribute("name").be("pName1")
         break
 

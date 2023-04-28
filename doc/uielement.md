@@ -54,12 +54,13 @@ ui_element.expect.enabled.be(True)
 # Element is selected
 ui_element.expect.selected.be(True)
 
-# Element text equals "Hello"
+# Element text equals a string
 ui_element.expect.text.be("Hello")
 
-# Element text contains "World"
+# Element text contains a string
 ui_element.expect.text.contains("World").be(True)
 
+# Element text contains the following words
 ui_element.expect.text.has_words("Hello", "World").be(True)
 
 # Element text matches regular expression
@@ -89,9 +90,6 @@ path = ui_element.take_screenshot()
 Instead of `expect`, use write `wait_for` to prevent raising `AssertionError`.
 
 ```python
-from paf.uielement import UiElement
-ui_element: UiElement
-
 if ui_element.wait_for.enabled.be(True):
     ui_element.click()
 ```
@@ -101,26 +99,28 @@ if ui_element.wait_for.enabled.be(True):
 You can also read the actual value of the assertions.
 
 ```python
-from paf.uielement import UiElement
-ui_element: UiElement
-
 text = ui_element.expect.text.actual
 ```
 
 
 ## Element lists
 
-*UiElements* represent only on element at a time. To access all elements found by the locator, use the `list` property.
+All actions on *UiElement* are performed on the first found element by default. But you can access other elements the following way.
 
 ```python
-first = ui_element.list.first
-last = ui_element.list.last
-second = ui_element.list[1]
+first = ui_element.first
+last = ui_element.last
+second = ui_element[1]
+```
+
+To get the amount of found elements use:
+```python
+count = ui_element.expect.count.actual
 ```
 
 You can also iterate over all found items:
 
 ```python
-for item in ui_element.list:
+for item in ui_element:
     pass
 ```

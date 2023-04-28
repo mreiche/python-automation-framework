@@ -9,7 +9,7 @@ from paf.uielement import UiElement, UiElementActions, PageObject, TestableUiEle
 T = TypeVar("T")
 
 
-class Component(Generic[T], HasParent, UiElementActions, TestableUiElement, PageObject[T]):
+class Component(Generic[T], HasParent, UiElementActions, TestableUiElement, PageObject[T], PageObjectList[T]):
 
     def highlight(self, color: Color = Color.from_string("#0f0"), seconds: float = 2):
         self._ui_element.highlight(color, seconds)
@@ -47,9 +47,9 @@ class Component(Generic[T], HasParent, UiElementActions, TestableUiElement, Page
     def __str__(self):
         return self.name
 
-    @property
-    def list(self):
-        return ComponentList[T](self)
+    # @property
+    # def list(self):
+    #     return ComponentList[T](self)
 
     @property
     def expect(self):
@@ -65,23 +65,17 @@ class Component(Generic[T], HasParent, UiElementActions, TestableUiElement, Page
     def scroll_to_top(self, offset: Point = Point()):
         self._ui_element.scroll_to_top(offset)
 
-
-class ComponentList(PageObjectList[T]):
-
-    def __init__(self, component: Component[T]):
-        self._component = component
-
     def __iter__(self):
-        for i in range(self._component._ui_element._count_elements()):
+        for i in range(self._ui_element._count_elements()):
             yield self.__getitem__(i)
 
     def __getitem__(self, index: int) -> T:
         ui_element = UiElement(
-            ui_element=self._component._ui_element._ui_element,
-            webdriver=self._component._ui_element._webdriver,
-            by=self._component._ui_element._by,
+            ui_element=self._ui_element._ui_element,
+            webdriver=self._ui_element._webdriver,
+            by=self._ui_element._by,
             index=index
         )
-        component = self._component.__class__(ui_element)
-        component._parent = self._component._parent
+        component = self.__class__(ui_element)
+        component._parent = self._parent
         return component

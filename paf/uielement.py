@@ -60,10 +60,6 @@ class PageObjectList(Generic[T], Iterable):
 
 
 class PageObject(Generic[T]):
-    @property
-    @abstractmethod
-    def list(self) -> PageObjectList[T]:
-        pass
 
     @abstractmethod
     def scroll_into_view(self, offset: Point = Point()):
@@ -94,7 +90,7 @@ class InteractiveUiElement(TestableUiElement, UiElementActions, PageObject["Inte
     pass
 
 
-class UiElement(InteractiveUiElement, HasParent):
+class UiElement(InteractiveUiElement, HasParent, PageObjectList["UiElement"]):
 
     def __init__(
         self,
@@ -224,9 +220,9 @@ class UiElement(InteractiveUiElement, HasParent):
     def name(self):
         return f"UiElement({self._by.__str__()})[{self._index}]"
 
-    @property
-    def list(self) -> "UiElementList":
-        return UiElementList(self)
+    # @property
+    # def list(self) -> "UiElementList":
+    #     return UiElementList(self)
 
     def scroll_into_view(self, offset: Point = Point()):
         self._action_sequence(lambda web_element: script.scroll_to_center(self._webdriver, web_element, offset))
@@ -250,22 +246,16 @@ class UiElement(InteractiveUiElement, HasParent):
 
         self.find_web_element(_handle)
 
-
-class UiElementList(PageObjectList[UiElement]):
-
-    def __init__(self, ui_element: UiElement):
-        self._ui_element = ui_element
-
     def __iter__(self):
-        for i in range(self._ui_element._count_elements()):
+        for i in range(self._count_elements()):
             yield self.__getitem__(i)
 
     def __getitem__(self, index: int):
         return UiElement(
-            ui_element=self._ui_element._ui_element,
-            webdriver=self._ui_element._webdriver,
-            by=self._ui_element._by,
-            parent=self._ui_element._parent,
+            ui_element=self._ui_element,
+            webdriver=self._webdriver,
+            by=self._by,
+            parent=self._parent,
             index=index
         )
 
