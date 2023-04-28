@@ -72,16 +72,16 @@ def test_wait():
     assert p.wait_for.tag_name.be("b") is False
 
 
-def test_displayed():
-    finder = page_factory.create_page(FinderPage, create_webdriver())
-    finder.open("https://testpages.herokuapp.com/styled/alerts/fake-alert-test.html")
-
-    ok = finder.find("#dialog-ok")
-    btn = finder.find("#fakealert")
-
-    ok.expect.displayed.be(False)
-    btn.click()
-    ok.expect.displayed.be(True)
+# def test_displayed():
+#     finder = page_factory.create_page(FinderPage, create_webdriver())
+#     finder.open("https://testpages.herokuapp.com/styled/alerts/fake-alert-test.html")
+#
+#     ok = finder.find("#dialog-ok")
+#     btn = finder.find("#fakealert")
+#
+#     ok.expect.displayed.be(False)
+#     btn.click()
+#     ok.expect.displayed.be(True)
 
 
 def test_highlight():
@@ -170,6 +170,46 @@ def test_retry():
     control = inject.instance(Control)
     btn.click()
     control.retry(lambda: clicks.expect.count.be(3), lambda: btn.click(), wait_after_fail=0, count=3)
+
+
+def test_actions():
+    finder = page_factory.create_page(FinderPage, create_webdriver())
+    finder.open("https://testpages.herokuapp.com/styled/events/javascript-events.html")
+
+    click_btn = finder.find("#onclick")
+    click_status = finder.find("#onclickstatus")
+    click_status.expect.displayed.be(False)
+    click_btn.click()
+    click_status.expect.displayed.be(True)
+
+    hover_btn = finder.find("#onmouseover")
+    hover_status = finder.find("#onmouseoverstatus")
+    hover_status.expect.displayed.be(False)
+    hover_btn.hover()
+    hover_status.expect.displayed.be(True)
+
+    context_btn = finder.find("#oncontextmenu")
+    context_status = finder.find("#oncontextmenustatus")
+    context_status.expect.displayed.be(False)
+    context_btn.context_click()
+    context_status.expect.displayed.be(True)
+
+    double_click_btn = finder.find("#ondoubleclick")
+    double_click_status = finder.find("#ondoubleclickstatus")
+    double_click_status.expect.displayed.be(False)
+    double_click_btn.double_click()
+    double_click_status.expect.displayed.be(True)
+
+
+def test_drag_and_drop():
+    finder = page_factory.create_page(FinderPage, create_webdriver())
+    finder.open("https://testpages.herokuapp.com/styled/drag-drop-javascript.html")
+
+    drag = finder.find(".drag.left")
+    drop = finder.find("#droppable1")
+    drop.expect.text.be("Drop here")
+    drag.drag_and_drop_to(drop)
+    drop.expect.text.be("Dropped!")
 
 
 def teardown_module():

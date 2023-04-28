@@ -15,6 +15,18 @@ ui_element: UiElement
 # Performs a click on the element
 ui_element.click()
 
+# Hovers an element
+ui_element.hover()
+
+# Performs a context click on the element
+ui_element.context_click()
+
+# Performs a double click on the element
+ui_element.double_click()
+
+# Drags and drops an element to a target element
+ui_element.drag_and_drop_to(target)
+
 # Types the string to the element and checks it's value
 ui_element.type("Hello World")
 

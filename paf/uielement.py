@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Callable, Type, TypeVar, List, Generic, Iterable, Iterator
 
 import inject
+from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By as SeleniumBy
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
@@ -23,6 +24,26 @@ class UiElementActions:
 
     @abstractmethod
     def click(self):
+        pass
+
+    @abstractmethod
+    def hover(self):
+        pass
+
+    @abstractmethod
+    def context_click(self):
+        pass
+
+    @abstractmethod
+    def long_click(self):
+        pass
+
+    @abstractmethod
+    def double_click(self):
+        pass
+
+    @abstractmethod
+    def drag_and_drop_to(self, target_ui_element: "UiElement"):
         pass
 
     @abstractmethod
@@ -200,6 +221,43 @@ class UiElement(InteractiveUiElement, HasParent, PageObjectList["UiElement"]):
 
         self._action_sequence(_action)
         return self
+
+    def hover(self):
+        def _action(web_element: WebElement):
+            actions = ActionChains(self._webdriver)
+            actions.move_to_element(web_element).perform()
+
+        self._action_sequence(_action)
+
+    def context_click(self):
+        def _action(web_element: WebElement):
+            actions = ActionChains(self._webdriver)
+            actions.context_click(web_element).perform()
+
+        self._action_sequence(_action)
+
+    def long_click(self):
+        def _action(web_element: WebElement):
+            actions = ActionChains(self._webdriver)
+            actions.click_and_hold(web_element).perform()
+
+        self._action_sequence(_action)
+
+    def double_click(self):
+        def _action(web_element: WebElement):
+            actions = ActionChains(self._webdriver)
+            actions.double_click(web_element).perform()
+
+        self._action_sequence(_action)
+
+    def drag_and_drop_to(self, target_ui_element: "UiElement"):
+        def _action(source: WebElement):
+            def _target_found(target: WebElement):
+                actions = ActionChains(self._webdriver)
+                actions.drag_and_drop(source, target).perform()
+            target_ui_element.find_web_element(_target_found)
+
+        self._action_sequence(_action)
 
     @property
     def expect(self):

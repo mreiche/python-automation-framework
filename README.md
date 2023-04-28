@@ -58,8 +58,8 @@ element.expect.text.be("Search")
 ### Missing features (todos)
 
 - Rect assertions
-- ContextClick/DoubleClick actions
 - Frames/ShadowRoot support
+- Drag & Drop over frames
 
 ## Environment variables
 
