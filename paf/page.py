@@ -1,18 +1,17 @@
 from typing import Type, TypeVar
 
 import inject
+from selenium.webdriver import ActionChains
 from selenium.webdriver.remote.webdriver import WebDriver
 
 from paf.assertion import StringAssertion, Format
-from paf.common import HasName, Locator
+from paf.common import HasName, Locator, Point
 from paf.manager import WebDriverManager
-
-C = TypeVar("C")
-P = TypeVar("P")
+from paf.types import PAGE, COMPONENT
 
 
 class PageFactory:
-    def create_page(self, page_class: Type[P], webdriver: WebDriver = None) -> P:
+    def create_page(self, page_class: Type[PAGE], webdriver: WebDriver = None) -> PAGE:
         if not webdriver:
             webdriver = inject.instance(WebDriverManager).get_webdriver()
 
@@ -27,10 +26,6 @@ class BasePage(HasName):
         self._webdriver.get(url)
         return self
 
-    @property
-    def webdriver(self):
-        return self._webdriver
-
     def __str__(self):
         return self.name
 
@@ -41,14 +36,6 @@ class BasePage(HasName):
     @property
     def name(self):
         return self.__class__.__name__
-
-    @property
-    def expect(self):
-        return PageAssertion(self, self._webdriver)
-
-    @property
-    def wait_for(self):
-        return PageAssertion(self, self._webdriver, raise_exception=False)
 
 
 class FinderPage(BasePage):
@@ -62,13 +49,29 @@ class Page(BasePage):
     def __init__(self, webdriver: WebDriver):
         super().__init__(webdriver)
 
-    def _create_component(self, component_class: Type[C], ui_element: "UiElement") -> C:
+    def _create_component(self, component_class: Type[COMPONENT], ui_element: "UiElement") -> COMPONENT:
         component = component_class(ui_element)
         component._parent = self
         return component
 
-    def _create_page(self, page_class: Type[P]) -> P:
+    def _create_page(self, page_class: Type[PAGE]) -> PAGE:
         return page_class(self._webdriver)
+
+    @property
+    def expect(self):
+        return PageAssertion(self, self._webdriver)
+
+    @property
+    def wait_for(self):
+        return PageAssertion(self, self._webdriver, raise_exception=False)
+
+    @property
+    def webdriver(self):
+        return self._webdriver
+
+    def scroll_by(self, x: int = 0, y: int = 0):
+        actions = ActionChains(self._webdriver)
+        actions.scroll_by_amount(x, y).perform()
 
 
 class PageAssertion:

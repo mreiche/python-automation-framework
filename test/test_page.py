@@ -1,45 +1,30 @@
 import inject
+import pytest
 
 from paf.manager import WebDriverManager
 from paf.page import PageFactory, Page
-from test import create_webdriver
-
-page_factory: PageFactory = None
 
 
-def setup_module():
-    global page_factory
-    page_factory = inject.instance(PageFactory)
+@pytest.fixture
+def page():
+    yield inject.instance(PageFactory).create_page(Page)
 
 
-def test_page():
-    page = page_factory.create_page(Page, create_webdriver())
+def test_assertions(page: Page):
     page.open("https://testpages.herokuapp.com")
     page.expect.title.be("Selenium Test Pages")
     page.expect.url.be("https://testpages.herokuapp.com/styled/index.html")
     assert page.webdriver.title == "Selenium Test Pages"
 
-# def test_yahoo():
-#     class YahooStartPage(Page):
-#         @property
-#         def cookie_btn(self) -> InteractiveUiElement:
-#             return self._find(By.name("agree").displayed)
-#
-#         @property
-#         def search_box(self) -> InteractiveUiElement:
-#             return self._find(By.name("p"))
-#
-#     page_factory = inject.instance(PageFactory)
-#     page = page_factory.create_page(YahooStartPage)
-#     page.open('http://www.yahoo.com')
-#     page.expect.title.contains("Yahoo").be(True)
-#     page.expect.title.length.greater_than(10).be(True)
-#     page.cookie_btn.expect.count.be(1)
-#     page.cookie_btn.expect.text.contains("akzeptieren").be(True)
-#     page.cookie_btn.click()
-#
-#     page.search_box.type("seleniumhq")
-#     page.search_box.send_keys(Keys.ENTER)
+
+def test_scroll_until_visible(page: Page):
+    page.open("https://testpages.herokuapp.com/styled/find-by-playground-test.html")
+    p = page._find("#p41")
+    height = p.expect.bounds.actual.height
+    while p.wait_for.fully_visible.be(False):
+        page.scroll_by(y=height)
+
+    p.expect.fully_visible.be(True)
 
 
 def teardown_module():

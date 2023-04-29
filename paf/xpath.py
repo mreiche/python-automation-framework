@@ -115,13 +115,13 @@ class XPath:
         return XPath.Test(self, attribute)
 
     def id(self, value: str):
-        return self.attribute(Attribute.ID).be(value)
+        return self.attribute(Attribute.ID.value).be(value)
 
     def name(self, value: str):
-        return self.attribute(Attribute.NAME).be(value)
+        return self.attribute(Attribute.NAME.value).be(value)
 
     def classes(self, *classes: any):
-        return self.attribute(Attribute.CLASS).has_words(*classes)
+        return self.attribute(Attribute.CLASS.value).has_words(*classes)
 
     @property
     def text(self):

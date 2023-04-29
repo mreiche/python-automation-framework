@@ -1,11 +1,13 @@
 import re
-from typing import Callable, Iterable
+from typing import Callable, Iterable, TypeVar, Generic
 
 import inject
 
+from paf.common import Rect
 from paf.control import Control, RetryException
 from paf.types import Supplier, Predicate, Number
 
+ACTUAL_TYPE = TypeVar("ACTUAL_TYPE")
 
 class Format:
     @staticmethod
@@ -20,11 +22,11 @@ class Format:
     #     return " ".join(map(str, args))
 
 
-class AbstractPropertyAssertion:
+class AbstractPropertyAssertion(Generic[ACTUAL_TYPE]):
     def __init__(
         self,
         parent: None | object,
-        actual: Supplier[any],
+        actual: Supplier[ACTUAL_TYPE],
         subject: Supplier[str],
         raise_exception: bool = True,
         failed: Callable = None,
@@ -46,7 +48,7 @@ class AbstractPropertyAssertion:
 
     def _test_sequence(
         self,
-        test: Predicate[any],
+        test: Predicate[ACTUAL_TYPE],
         additional_subject: Supplier = None,
     ) -> bool:
 
@@ -83,16 +85,16 @@ class AbstractPropertyAssertion:
         return " ".join(map(lambda x: x._subject(), reversed(path)))
 
     @property
-    def actual(self):
+    def actual(self) -> ACTUAL_TYPE:
         return self._actual()
 
 
-class BinaryAssertion(AbstractPropertyAssertion):
+class BinaryAssertion(AbstractPropertyAssertion[ACTUAL_TYPE]):
     def be(self, expected: any) -> bool:
         return self._test_sequence(lambda actual: actual == expected, lambda: f" to be {Format.param(expected)}")
 
 
-class QuantityAssertion(BinaryAssertion):
+class QuantityAssertion(Generic[ACTUAL_TYPE], BinaryAssertion[ACTUAL_TYPE]):
 
     def not_be(self, expected: any) -> bool:
         return self._test_sequence(lambda actual: actual != expected, lambda: f" not to be {Format.param(expected)}")
@@ -133,7 +135,7 @@ class QuantityAssertion(BinaryAssertion):
         )
 
 
-class StringAssertion(QuantityAssertion):
+class StringAssertion(QuantityAssertion[str]):
     def starts_with(self, expected: str):
         return BinaryAssertion(
             parent=self,
@@ -178,7 +180,6 @@ class StringAssertion(QuantityAssertion):
             subject=lambda: f"has words {Format.param(pattern)}",
         )
 
-
     @property
     def length(self):
         return QuantityAssertion(
@@ -186,3 +187,7 @@ class StringAssertion(QuantityAssertion):
             actual=lambda: len(self._actual()),
             subject=lambda: f"length {Format.param(len(self._actual()))}",
         )
+
+
+class RectAssertion(AbstractPropertyAssertion[Rect]):
+    pass

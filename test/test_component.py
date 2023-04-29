@@ -3,11 +3,10 @@ from functools import cache
 import inject
 import pytest
 
-import paf.config
 from paf.component import Component
 from paf.locator import By
-from paf.page import Page, PageFactory
 from paf.manager import WebDriverManager
+from paf.page import Page, PageFactory
 from paf.xpath import XPath
 
 
@@ -40,16 +39,17 @@ class TableRow(Component["TableRow"]):
 
 
 def test_component_name_path(components_page: ComponentsPage):
-    assert components_page.custom_component.type.name_path == "ComponentsPage > MyComponent(UiElement(By.tag name(body))[0]) > UiElement(By.id(input))[0]"
+    assert components_page.custom_component.type.name_path == "ComponentsPage > MyComponent > UiElement(By.tag name(body))[0] > UiElement(By.id(input))[0]"
 
 
 def test_component_list_name(components_page: ComponentsPage):
-    assert components_page.custom_component.last.name_path == "ComponentsPage > MyComponent(UiElement(By.tag name(body))[-1])"
+    assert components_page.custom_component.last.name_path == "ComponentsPage > MyComponent > UiElement(By.tag name(body))[-1]"
 
 
 def test_component_list(components_page: ComponentsPage):
     components_page.open("https://testpages.herokuapp.com/styled/tag/dynamic-table.html")
     rows = components_page.table_row
+    assert rows.name_path == "ComponentsPage > TableRow > UiElement(By.xpath(//table[@ID='dynamictable']//tr))[0]"
     rows.expect.count.be(3)
     rows.first.col.first.expect.text.be("name")
     rows.first.col.last.expect.text.be("age")

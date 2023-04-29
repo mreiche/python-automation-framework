@@ -84,7 +84,7 @@ def test_highlight(finder: FinderPage):
     p.expect.css("outline").be("rgb(0, 255, 0) solid 5px")
 
 
-def test_scroll_until_visible(finder: FinderPage):
+def test_scroll_to_visible(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/find-by-playground-test.html")
 
     p = finder.find(By.id("pre1").unique)

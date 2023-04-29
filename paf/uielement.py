@@ -13,7 +13,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.color import Color
 
 import paf.javascript as script
-from paf.assertion import StringAssertion, Format, BinaryAssertion, QuantityAssertion
+from paf.assertion import StringAssertion, Format, BinaryAssertion, QuantityAssertion, RectAssertion
 from paf.common import HasParent, Locator, Point, Rect, Property, Formatter
 from paf.control import Control
 from paf.locator import By
@@ -84,11 +84,11 @@ class PageObjectList(Generic[T], Iterable):
 class PageObject(Generic[T]):
 
     @abstractmethod
-    def scroll_into_view(self, offset: Point = Point()):
+    def scroll_into_view(self, x: int = 0, y: int = 0):
         pass
 
     @abstractmethod
-    def scroll_to_top(self, offset: Point = Point()):
+    def scroll_to_top(self, x: int = 0, y: int = 0):
         pass
 
     @abstractmethod
@@ -96,7 +96,7 @@ class PageObject(Generic[T]):
         pass
 
 
-class TestableUiElement(PageObject["TestableUiElement"]):
+class UiElementTests:
     @property
     @abstractmethod
     def expect(self) -> "UiElementAssertion":
@@ -108,11 +108,15 @@ class TestableUiElement(PageObject["TestableUiElement"]):
         pass
 
 
-class InteractiveUiElement(TestableUiElement, UiElementActions, PageObject["InteractiveUiElement"], ABC):
+class TestableUiElement(PageObject["TestableUiElement"], UiElementTests, ABC):
     pass
 
 
-class UiElement(InteractiveUiElement, HasParent, PageObjectList["UiElement"]):
+class InteractiveUiElement(PageObject["InteractiveUiElement"], UiElementTests, UiElementActions, ABC):
+    pass
+
+
+class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiElement"]):
 
     def __init__(
         self,
@@ -287,11 +291,11 @@ class UiElement(InteractiveUiElement, HasParent, PageObjectList["UiElement"]):
     def name(self):
         return f"UiElement({self._by.__str__()})[{self._index}]"
 
-    def scroll_into_view(self, offset: Point = Point()):
-        self._action_sequence(lambda web_element: script.scroll_to_center(self._webdriver, web_element, offset))
+    def scroll_into_view(self, x: int = 0, y: int = 0):
+        self._action_sequence(lambda web_element: script.scroll_to_center(self._webdriver, web_element, Point(x, y)))
 
-    def scroll_to_top(self, offset: Point = Point()):
-        self._action_sequence(lambda web_element: script.scroll_to_top(self._webdriver, web_element, offset))
+    def scroll_to_top(self, x: int = 0, y: int = 0):
+        self._action_sequence(lambda web_element: script.scroll_to_top(self._webdriver, web_element, Point(x, y)))
 
     def _count_elements(self):
         count = 0
@@ -325,7 +329,6 @@ class UiElement(InteractiveUiElement, HasParent, PageObjectList["UiElement"]):
 
 A = TypeVar('A')
 
-
 class UiElementAssertion:
 
     def __init__(
@@ -336,7 +339,7 @@ class UiElementAssertion:
         self._ui_element = ui_element
         self._raise = raise_exception
 
-    def _create_property_assertion(
+    def _map_web_element_property(
         self,
         assertion_class: Type[A],
         mapper: Mapper[WebElement, any],
@@ -354,47 +357,47 @@ class UiElementAssertion:
         def _map(web_element: WebElement):
             return web_element.text
 
-        return self._create_property_assertion(StringAssertion, _map, "text")
+        return self._map_web_element_property(StringAssertion, _map, "text")
 
     @property
     def displayed(self):
         def _map(web_element: WebElement):
             return web_element.is_displayed()
 
-        return self._create_property_assertion(BinaryAssertion, _map, "displayed")
+        return self._map_web_element_property(BinaryAssertion, _map, "displayed")
 
     @property
     def enabled(self):
         def _map(web_element: WebElement):
             return web_element.is_enabled()
 
-        return self._create_property_assertion(BinaryAssertion, _map, "enabled")
+        return self._map_web_element_property(BinaryAssertion, _map, "enabled")
 
     @property
     def selected(self):
         def _map(web_element: WebElement):
             return web_element.is_selected()
 
-        return self._create_property_assertion(BinaryAssertion, _map, "selected")
+        return self._map_web_element_property(BinaryAssertion, _map, "selected")
 
     @property
     def tag_name(self):
         def _map(web_element: WebElement):
             return web_element.tag_name
 
-        return self._create_property_assertion(StringAssertion, _map, "tag name")
+        return self._map_web_element_property(StringAssertion, _map, "tag name")
 
     def attribute(self, attribute: str):
         def _map(web_element: WebElement):
             return web_element.get_attribute(attribute)
 
-        return self._create_property_assertion(StringAssertion, _map, f"attribute({attribute}")
+        return self._map_web_element_property(StringAssertion, _map, f"attribute({attribute}")
 
     def css(self, property_name: str):
         def _map(web_element: WebElement):
             return web_element.value_of_css_property(property_name)
 
-        return self._create_property_assertion(StringAssertion, _map, f"css({property_name}")
+        return self._map_web_element_property(StringAssertion, _map, f"css({property_name}")
 
     @property
     def visible(self):
@@ -417,7 +420,7 @@ class UiElementAssertion:
         if fully:
             name = f"fully {name}"
 
-        return self._create_property_assertion(BinaryAssertion, _map, name)
+        return self._map_web_element_property(BinaryAssertion, _map, name)
 
     @property
     def value(self):
@@ -425,9 +428,16 @@ class UiElementAssertion:
 
     @property
     def count(self):
-        return QuantityAssertion(
+        return QuantityAssertion[int](
             parent=None,
             actual=lambda: self._ui_element._count_elements(),
             subject=lambda: f"{self._ui_element.name_path} count {Format.param(self._ui_element._count_elements())}",
             raise_exception=self._raise,
         )
+
+    @property
+    def bounds(self):
+        def _map(web_element: WebElement):
+            return Rect.from_web_element(web_element)
+
+        return self._map_web_element_property(RectAssertion, _map, "bounds")
