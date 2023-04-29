@@ -77,6 +77,37 @@ I added two examples.
 2. [test_todo_mvc.py](examples/test_todo_mvc.py): are re-implemented test cases from the [Robot Framework TodoMVC](https://docs.robotframework.org/docs/examples/todo) example. It's IMHO developer friendly, better readable and less code. 
 
 
+## Comparison
+
+Comparison of the syntax with other frameworks.
+
+**Pylenium**
+```python
+py.get("a[href='/about']").should().have_text("About")
+```
+```python
+find("a[href='/about']").expect.text.be("About")
+```
+**SeleniumBase**
+```python
+self.assert_text_not_visible("Thanks for your purchase.", "#app .success")
+```
+```python
+find("#app .success").expect.text.not_be("Thanks for your purchase.")
+```
+**Selene**
+```python
+browser.all('#rso>div').should(have.size_greater_than(5)) \
+    .first.should(have.text('Selenium automates browsers'))
+```
+```python
+div = find("#rso>div")
+div.expect.count.greater_than(5).be(True)
+div.first.expect.text.be("Selenium automates browsers")
+```
+
+References: https://www.nextgenerationautomation.com/post/python-test-automation-frameworks
+
 ## Developer area
 ### Run the tests
 ```shell

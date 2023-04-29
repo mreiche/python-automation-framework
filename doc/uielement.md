@@ -66,8 +66,11 @@ ui_element.expect.enabled.be(True)
 # Element is selected
 ui_element.expect.selected.be(True)
 
-# Element text equals a string
+# Element text equals a case sensitive string
 ui_element.expect.text.be("Hello")
+
+# Element text equals a lower case string
+ui_element.expect.text.map(str.lower).be("hello")
 
 # Element text contains a string
 ui_element.expect.text.contains("World").be(True)
@@ -80,6 +83,9 @@ ui_element.expect.text.matches("d\sW").be(True)
 
 # Element's CSS property equals a value
 ui_element.expect.css("display").be("block")
+
+# Element has classes "main" and "nav"
+ui_element.expect.classes("main", "nav").be(True)
 
 # Element's "max-length" attribute is greater or equal than 3
 ui_element.expect.attribute("max-length").greater_equal_than(3).be(True)
@@ -95,6 +101,17 @@ ui_element.expect.fully_visible.be(True)
 
 # Take screenshot
 path = ui_element.take_screenshot()
+```
+
+The advantage of this chained assertion API is,
+that you can easily perform multiple assertions on the same property.
+```python
+text = ui_element.expect.text
+
+text.not_be("Wrong")
+text.starts_with("Hello").be(True)
+text.map(str.upper).ends_with("WELCOME").be(True)
+text.length.between(10, 20).be(True)
 ```
 
 ## Waiting for conditions

@@ -37,6 +37,10 @@ class BasePage(HasName):
     def name(self):
         return self.__class__.__name__
 
+    @property
+    def webdriver(self):
+        return self._webdriver
+
 
 class FinderPage(BasePage):
     def find(self, by: Locator):
@@ -64,10 +68,6 @@ class Page(BasePage):
     @property
     def wait_for(self):
         return PageAssertion(self, self._webdriver, raise_exception=False)
-
-    @property
-    def webdriver(self):
-        return self._webdriver
 
     def scroll_by(self, x: int = 0, y: int = 0):
         actions = ActionChains(self._webdriver)

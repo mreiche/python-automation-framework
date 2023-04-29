@@ -16,6 +16,7 @@ import paf.javascript as script
 from paf.assertion import StringAssertion, Format, BinaryAssertion, QuantityAssertion, RectAssertion
 from paf.common import HasParent, Locator, Point, Rect, Property, Formatter
 from paf.control import Control
+from paf.dom import Attribute
 from paf.locator import By
 from paf.types import Mapper, Consumer, R
 from paf.xpath import XPath
@@ -57,6 +58,10 @@ class UiElementActions:
 
     @abstractmethod
     def clear(self):
+        pass
+
+    @abstractmethod
+    def submit(self):
         pass
 
 
@@ -284,6 +289,10 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
         self._action_sequence(lambda web_element: web_element.clear())
         return self
 
+    def submit(self):
+        self._action_sequence(lambda web_element: web_element.submit())
+        return self
+
     def __str__(self):
         return self.name
 
@@ -387,17 +396,23 @@ class UiElementAssertion:
 
         return self._map_web_element_property(StringAssertion, _map, "tag name")
 
-    def attribute(self, attribute: str):
+    def attribute(self, attribute: str|Attribute):
+        if isinstance(attribute, Attribute):
+            attribute = attribute.value
+
         def _map(web_element: WebElement):
             return web_element.get_attribute(attribute)
 
-        return self._map_web_element_property(StringAssertion, _map, f"attribute({attribute}")
+        return self._map_web_element_property(StringAssertion, _map, f"attribute({attribute})")
 
     def css(self, property_name: str):
         def _map(web_element: WebElement):
             return web_element.value_of_css_property(property_name)
 
         return self._map_web_element_property(StringAssertion, _map, f"css({property_name}")
+
+    def classes(self, *classes):
+        return self.attribute(Attribute.CLASS).has_words(*classes)
 
     @property
     def visible(self):

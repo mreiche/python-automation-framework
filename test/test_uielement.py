@@ -1,5 +1,6 @@
 import inject
 import pytest
+from selenium.webdriver.remote.webdriver import WebDriver, BaseWebDriver
 from selenium.webdriver.support.color import Color
 
 from paf.control import Control
@@ -29,6 +30,7 @@ def test_finder_page(finder: FinderPage):
     p = finder.find(By.id("para1"))
     assert p.name_path == 'UiElement(By.id(para1))[0]'
     assert p.name == p.name_path
+    assert isinstance(finder.webdriver, BaseWebDriver)
 
 
 # def test_rect():
@@ -41,15 +43,22 @@ def test_finder_page(finder: FinderPage):
 #     assert rect.width == 962
 #     assert rect.height == 27
 
-def test_text_assertions(finder: FinderPage):
+def test_assertions(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
 
     p = finder.find("#para1")
 
+    # tag name
     p.expect.tag_name.be("p")
+
+    # classes
+    p.expect.classes("main").be(True)
+    p.expect.classes("sub").be(False)
 
     text = p.expect.text
     text.be("A paragraph of text")
+    text.map(str.upper).be("A PARAGRAPH OF TEXT")
+    text.not_be("Bla")
     text.contains("paragraph").be(True)
     text.has_words("paragraph", "text").be(True)
     text.starts_with("A").be(True)

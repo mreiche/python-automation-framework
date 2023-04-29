@@ -5,7 +5,7 @@ import inject
 
 from paf.common import Rect
 from paf.control import Control, RetryException
-from paf.types import Supplier, Predicate, Number
+from paf.types import Supplier, Predicate, Number, Mapper
 
 ACTUAL_TYPE = TypeVar("ACTUAL_TYPE")
 
@@ -95,6 +95,12 @@ class BinaryAssertion(AbstractPropertyAssertion[ACTUAL_TYPE]):
 
 
 class QuantityAssertion(Generic[ACTUAL_TYPE], BinaryAssertion[ACTUAL_TYPE]):
+    def map(self, mapper: Mapper):
+        return self.__class__(
+            parent=self,
+            actual=lambda: mapper(self._actual()),
+            subject=lambda: "mapped",
+        )
 
     def not_be(self, expected: any) -> bool:
         return self._test_sequence(lambda actual: actual != expected, lambda: f" not to be {Format.param(expected)}")
