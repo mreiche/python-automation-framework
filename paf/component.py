@@ -33,11 +33,11 @@ class Component(PageObject[COMPONENT], PageObjectList[COMPONENT], HasParent, UiE
     def __str__(self):
         return self.name
 
-    def scroll_into_view(self, offset: Point = Point()):
-        self._ui_element.scroll_into_view(offset)
+    def scroll_into_view(self, x: int = 0, y: int = 0):
+        self._ui_element.scroll_into_view(x, y)
 
-    def scroll_to_top(self, offset: Point = Point()):
-        self._ui_element.scroll_to_top(offset)
+    def scroll_to_top(self,  x: int = 0, y: int = 0):
+        self._ui_element.scroll_to_top(x, y)
 
     def __iter__(self):
         for i in range(self._ui_element._count_elements()):
