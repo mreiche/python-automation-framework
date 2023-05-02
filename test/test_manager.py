@@ -10,6 +10,7 @@ import pytest
 from paf.common import Property
 from paf.manager import WebDriverManager
 from paf.request import WebDriverRequest
+from test import create_webdriver
 
 
 @pytest.fixture
@@ -23,7 +24,7 @@ def test_manager_singleton(manager: WebDriverManager):
 
 
 def test_take_screenshot(manager: WebDriverManager):
-    manager.get_webdriver()
+    create_webdriver()
     for webdriver in manager.webdrivers:
         path = manager.take_screenshot(webdriver)
         assert path.exists()
@@ -31,7 +32,7 @@ def test_take_screenshot(manager: WebDriverManager):
 
 def test_shutdown_by_session_key(manager: WebDriverManager):
     request = WebDriverRequest("test")
-    manager.get_webdriver(request)
+    create_webdriver(request)
     manager.shutdown_session(request.session)
 
 
@@ -47,7 +48,7 @@ def test_take_screenshot_fails(monkeypatch, manager: WebDriverManager):
     dir = Path(Property.env(Property.PAF_SCREENSHOTS_DIR))
     dir.mkdir(parents=True, exist_ok=True)
     os.chmod(dir, 555)
-    webdriver = manager.get_webdriver()
+    webdriver = create_webdriver()
     path = manager.take_screenshot(webdriver)
     assert path is None
     os.chmod(dir, 775)

@@ -3,11 +3,12 @@ import pytest
 
 from paf.manager import WebDriverManager
 from paf.page import PageFactory, Page
+from test import create_webdriver
 
 
 @pytest.fixture
 def page():
-    yield inject.instance(PageFactory).create_page(Page)
+    yield inject.instance(PageFactory).create_page(Page, create_webdriver())
 
 
 def test_assertions(page: Page):

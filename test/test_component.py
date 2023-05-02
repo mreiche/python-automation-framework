@@ -8,11 +8,12 @@ from paf.locator import By
 from paf.manager import WebDriverManager
 from paf.page import Page, PageFactory
 from paf.xpath import XPath
+from test import create_webdriver
 
 
 @pytest.fixture
 def components_page():
-    yield inject.instance(PageFactory).create_page(ComponentsPage)
+    yield inject.instance(PageFactory).create_page(ComponentsPage, create_webdriver())
 
 
 class ComponentsPage(Page):

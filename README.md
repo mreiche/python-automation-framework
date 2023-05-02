@@ -111,7 +111,7 @@ References: https://www.nextgenerationautomation.com/post/python-test-automation
 ## Developer area
 ### Run the tests
 ```shell
-PYTHONPATH="." pytest --numprocesses=4 --cov=paf test
+PYTHONPATH="." PAF_TEST_HEADLESS=1 pytest --numprocesses=4 --cov=paf test
 ```
 
 ### Utils

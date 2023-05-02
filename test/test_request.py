@@ -1,9 +1,11 @@
 from urllib.parse import ParseResult
 
+import inject
+from selenium.webdriver import ChromeOptions
+
 from paf.manager import WebDriverManager
 from paf.request import WebDriverRequest
-from selenium.webdriver import ChromeOptions, Remote
-import inject
+from test import create_webdriver
 
 
 def test_browser(monkeypatch):
@@ -33,8 +35,7 @@ def test_chrome_options():
     request = WebDriverRequest()
     request.browser = "chrome"
     request.options = ChromeOptions()
-    manager = inject.instance(WebDriverManager)
-    webdriver = manager.get_webdriver(request)
+    webdriver = create_webdriver(request)
     assert webdriver.name == request.browser
 
 
@@ -45,11 +46,9 @@ def test_remote_webdriver(monkeypatch):
     request.browser = "chrome"
     request.options = ChromeOptions()
     assert isinstance(request.server_url, ParseResult)
-    manager = inject.instance(WebDriverManager)
-    webdriver = manager.get_webdriver(request)
+    webdriver = create_webdriver(request)
     assert webdriver.name == request.browser
 
 
 def teardown_module():
-    manager = inject.instance(WebDriverManager)
-    manager.shutdown_all()
+    inject.instance(WebDriverManager).shutdown_all()

@@ -1,9 +1,8 @@
 import inject
 import pytest
-from selenium.webdriver.remote.webdriver import WebDriver, BaseWebDriver
+from selenium.webdriver.remote.webdriver import BaseWebDriver
 from selenium.webdriver.support.color import Color
 
-from paf.common import HasName
 from paf.control import Control
 from paf.locator import By
 from paf.manager import WebDriverManager
@@ -84,7 +83,8 @@ def test_text_assertion_fails(finder: FinderPage):
         p = finder.find("#para1")
         p.expect.attribute("data").be("null")
 
-    assert "Expected UiElement(By.css selector(#para1))[0].attribute(data) *undefined* to be [null] after 3 retries" in e.value.args[0]
+    assert "Expected UiElement(By.css selector(#para1))[0].attribute(data) *undefined* to be [null] after 3 retries" in \
+           e.value.args[0]
 
 
 def test_wait(finder: FinderPage):
@@ -131,7 +131,6 @@ def test_find_sub_elements_list(finder: FinderPage):
     # Find sub element by XPath
     p2 = div.find(XPath.at("p"))
     p2.expect.attribute("name").be("pName1")
-
 
     # Correct XPAth
     div.find(By.xpath("//p")).expect.attribute("name").be("pName1")
@@ -180,7 +179,12 @@ def test_retry(finder: FinderPage):
 
     control = inject.instance(Control)
     btn.click()
-    control.retry(lambda: clicks.expect.count.be(3), lambda: btn.click(), wait_after_fail=0, count=3)
+    control.retry(
+        lambda: clicks.expect.count.be(3),
+        lambda: btn.click(),
+        wait_after_fail=0,
+        count=3
+        )
 
 
 def test_actions(finder: FinderPage):
@@ -215,8 +219,6 @@ def test_actions(finder: FinderPage):
     mouse_down_status.expect.displayed.be(False)
     mouse_down_btn.long_click()
     mouse_down_status.expect.displayed.be(True)
-
-
 
 
 def test_drag_and_drop(finder: FinderPage):
