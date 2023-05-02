@@ -12,9 +12,16 @@ def page():
 
 def test_assertions(page: Page):
     page.open("https://testpages.herokuapp.com")
+    assert page.wait_for.url.be("https://testpages.herokuapp.com/styled/index.html")
+
     page.expect.title.be("Selenium Test Pages")
-    page.expect.url.be("https://testpages.herokuapp.com/styled/index.html")
     assert page.webdriver.title == "Selenium Test Pages"
+
+
+def test_create_page(page: Page):
+    other_page = page._create_page(Page)
+    assert isinstance(other_page, Page)
+    assert page.webdriver == other_page.webdriver
 
 
 def test_scroll_until_visible(page: Page):

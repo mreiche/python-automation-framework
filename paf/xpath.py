@@ -37,8 +37,8 @@ class XPath:
             return self._xpath
 
         def has_words(self, *words: any):
-            if not isinstance(words, Iterable):
-                words = [words]
+            # if not isinstance(words, Iterable):
+            #     words = [words]
             self._attribute_contains_words(self._attribute, words)
             return self._xpath
 
@@ -108,20 +108,23 @@ class XPath:
     def _is_function(attribute: str):
         return attribute.strip().endswith(")")
 
-    def attribute(self, attribute: str):
+    def attribute(self, attribute: str | Attribute):
+        if isinstance(attribute, Attribute):
+            attribute = attribute.value
+
         if not XPath._is_function(attribute):
             attribute = f"@{attribute}"
 
         return XPath.Test(self, attribute)
 
     def id(self, value: str):
-        return self.attribute(Attribute.ID.value).be(value)
+        return self.attribute(Attribute.ID).be(value)
 
     def name(self, value: str):
-        return self.attribute(Attribute.NAME.value).be(value)
+        return self.attribute(Attribute.NAME).be(value)
 
     def classes(self, *classes: any):
-        return self.attribute(Attribute.CLASS.value).has_words(*classes)
+        return self.attribute(Attribute.CLASS).has_words(*classes)
 
     @property
     def text(self):
@@ -167,12 +170,12 @@ class XPath:
     def _something_is(something: str, value: any):
         return f"{something}='{value}'"
 
-    @staticmethod
-    def _something_is_not(something: str, value: any):
-        return f"{something}!='{value}'"
+    # @staticmethod
+    # def _something_is_not(something: str, value: any):
+    #     return f"{something}!='{value}'"
 
     @staticmethod
-    def _something_matches(operation:str, something: str, value: any):
+    def _something_matches(operation: str, something: str, value: any):
         return f"{operation}({something},'{value}')"
 
     def _build(self):

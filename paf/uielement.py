@@ -25,43 +25,43 @@ from paf.xpath import XPath
 class UiElementActions:
 
     @abstractmethod
-    def click(self):
+    def click(self):   # pragma: no cover
         pass
 
     @abstractmethod
-    def hover(self):
+    def hover(self):  # pragma: no cover
         pass
 
     @abstractmethod
-    def context_click(self):
+    def context_click(self):  # pragma: no cover
         pass
 
     @abstractmethod
-    def long_click(self):
+    def long_click(self):  # pragma: no cover
         pass
 
     @abstractmethod
-    def double_click(self):
+    def double_click(self):  # pragma: no cover
         pass
 
     @abstractmethod
-    def drag_and_drop_to(self, target_ui_element: "UiElement"):
+    def drag_and_drop_to(self, target_ui_element: "UiElement"):  # pragma: no cover
         pass
 
     @abstractmethod
-    def send_keys(self, value: str):
+    def send_keys(self, value: str):  # pragma: no cover
         pass
 
     @abstractmethod
-    def type(self, value: str):
+    def type(self, value: str):  # pragma: no cover
         pass
 
     @abstractmethod
-    def clear(self):
+    def clear(self):  # pragma: no cover
         pass
 
     @abstractmethod
-    def submit(self):
+    def submit(self):  # pragma: no cover
         pass
 
 
@@ -70,11 +70,11 @@ T = TypeVar('T')
 
 class PageObjectList(Generic[T], Iterable):
     @abstractmethod
-    def __getitem__(self, index: int) -> T:
+    def __getitem__(self, index: int) -> T:  # pragma: no cover
         pass
 
     @abstractmethod
-    def __iter__(self) -> Iterator[T]:
+    def __iter__(self) -> Iterator[T]:  # pragma: no cover
         pass
 
     @property
@@ -89,27 +89,27 @@ class PageObjectList(Generic[T], Iterable):
 class PageObject(Generic[T]):
 
     @abstractmethod
-    def scroll_into_view(self, x: int = 0, y: int = 0):
+    def scroll_into_view(self, x: int = 0, y: int = 0):  # pragma: no cover
         pass
 
     @abstractmethod
-    def scroll_to_top(self, x: int = 0, y: int = 0):
+    def scroll_to_top(self, x: int = 0, y: int = 0):  # pragma: no cover
         pass
 
     @abstractmethod
-    def highlight(self, color: Color = Color.from_string("#0f0"), seconds: float = 2):
+    def highlight(self, color: Color = Color.from_string("#0f0"), seconds: float = 2):  # pragma: no cover
         pass
 
 
 class UiElementTests:
     @property
     @abstractmethod
-    def expect(self) -> "UiElementAssertion":
+    def expect(self) -> "UiElementAssertion":  # pragma: no cover
         pass
 
     @property
     @abstractmethod
-    def wait_for(self) -> "UiElementAssertion":
+    def wait_for(self) -> "UiElementAssertion":  # pragma: no cover
         pass
 
 

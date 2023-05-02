@@ -1,5 +1,4 @@
 import logging
-import os
 from datetime import datetime
 from pathlib import Path
 from typing import Type, TypeVar, Iterable
@@ -59,7 +58,7 @@ class WebDriverManager:
 
         if request.browser_version:
             options.set_capability("browserVersion", request.browser_version)
-            #options.set_capability("platformName", "Windows XP")
+            # options.set_capability("platformName", "Windows XP")
 
         if request.server_url:
             webdriver = Remote(command_executor="http://127.0.0.1:4444", options=options)
@@ -77,7 +76,7 @@ class WebDriverManager:
 
         return webdriver
 
-    def shutdown_session(self, session_key):
+    def shutdown_session(self, session_key: str):
         if session_key in self._session_driver_map:
             self.shutdown(self._session_driver_map[session_key])
         else:
@@ -96,8 +95,8 @@ class WebDriverManager:
         for webdriver in list(self._session_driver_map.values()):
             self.shutdown(webdriver)
 
-    def take_screenshot(self, webdriver: WebDriver) -> Path|None:
-        dir = Path(os.getenv(Property.PAF_SCREENSHOTS_DIR.name, Property.PAF_SCREENSHOTS_DIR.value))
+    def take_screenshot(self, webdriver: WebDriver) -> Path | None:
+        dir = Path(Property.env(Property.PAF_SCREENSHOTS_DIR))
         title = webdriver.title
         if empty(title):
             title = webdriver.current_url
@@ -106,7 +105,7 @@ class WebDriverManager:
 
         file_name = f"{title}-{formatter.datetime(datetime.now())}.png"
         dir.mkdir(parents=True, exist_ok=True)
-        path = dir/file_name
+        path = dir / file_name
         if webdriver.save_screenshot(dir / file_name):
             return path
         else:

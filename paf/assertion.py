@@ -9,11 +9,12 @@ from paf.types import Supplier, Predicate, Number, Mapper
 
 ACTUAL_TYPE = TypeVar("ACTUAL_TYPE")
 
+
 class Format:
     @staticmethod
     def param(value: any):
         if value is None:
-            return "[null]"
+            return "*undefined*"
         else:
             return f"[{value}]"
     #
@@ -174,8 +175,8 @@ class StringAssertion(QuantityAssertion[str]):
         )
 
     def has_words(self, *words: any):
-        if not isinstance(words, Iterable):
-            words = [words]
+        # if not isinstance(words, Iterable):
+        #     words = [words]
 
         pattern = "|".join(words)
         regex = re.compile(f"\\b(?:{pattern})\\b", re.MULTILINE | re.IGNORECASE | re.UNICODE)

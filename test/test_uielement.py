@@ -3,6 +3,7 @@ import pytest
 from selenium.webdriver.remote.webdriver import WebDriver, BaseWebDriver
 from selenium.webdriver.support.color import Color
 
+from paf.common import HasName
 from paf.control import Control
 from paf.locator import By
 from paf.manager import WebDriverManager
@@ -61,6 +62,7 @@ def test_assertions(finder: FinderPage):
     text.not_be("Bla")
     text.contains("paragraph").be(True)
     text.has_words("paragraph", "text").be(True)
+    text.has_words("bla").be(False)
     text.starts_with("A").be(True)
     text.ends_with("text").be(True)
     text.matches("hello").be(False)
@@ -74,6 +76,15 @@ def test_assertions(finder: FinderPage):
     length.lower_equal_than(30).be(True)
     length.between(18, 20).be(True)
     length.not_be(30)
+
+
+def test_text_assertion_fails(finder: FinderPage):
+    with pytest.raises(AssertionError) as e:
+        finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
+        p = finder.find("#para1")
+        p.expect.attribute("data").be("null")
+
+    assert "Expected UiElement(By.css selector(#para1))[0].attribute(data) *undefined* to be [null] after 3 retries" in e.value.args[0]
 
 
 def test_wait(finder: FinderPage):
@@ -198,6 +209,14 @@ def test_actions(finder: FinderPage):
     double_click_status.expect.displayed.be(False)
     double_click_btn.double_click()
     double_click_status.expect.displayed.be(True)
+
+    mouse_down_btn = finder.find("#onmousedown")
+    mouse_down_status = finder.find("#onmousedownstatus")
+    mouse_down_status.expect.displayed.be(False)
+    mouse_down_btn.long_click()
+    mouse_down_status.expect.displayed.be(True)
+
+
 
 
 def test_drag_and_drop(finder: FinderPage):

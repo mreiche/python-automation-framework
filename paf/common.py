@@ -16,7 +16,7 @@ Locator = By | XPath | str
 class HasName(ABC):
     @property
     @abstractmethod
-    def name(self):
+    def name(self):  # pragma: no cover
         pass
 
 
@@ -83,15 +83,15 @@ class Rect(Point, Size):
 
     def contains(self, rect: "Rect"):
         return rect.left >= self.left \
-               and rect.right <= self.right \
-               and rect.top >= self.top \
-               and rect.bottom <= self.bottom
+            and rect.right <= self.right \
+            and rect.top >= self.top \
+            and rect.bottom <= self.bottom
 
     def intersects(self, rect: "Rect"):
         return rect.left <= self.right \
-               and rect.right >= self.left \
-               and rect.top <= self.bottom \
-               and rect.bottom >= self.top
+            and rect.right >= self.left \
+            and rect.top <= self.bottom \
+            and rect.bottom >= self.top
 
 
 class Property(Enum):

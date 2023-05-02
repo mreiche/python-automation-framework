@@ -49,11 +49,11 @@ def test_component_list_name(components_page: ComponentsPage):
 def test_component_list(components_page: ComponentsPage):
     components_page.open("https://testpages.herokuapp.com/styled/tag/dynamic-table.html")
     rows = components_page.table_row
-    assert rows.name_path == "ComponentsPage > TableRow > UiElement(By.xpath(//table[@ID='dynamictable']//tr))[0]"
+    assert rows.name_path == "ComponentsPage > TableRow > UiElement(By.xpath(//table[@id='dynamictable']//tr))[0]"
     rows.expect.count.be(3)
     rows.first.col.first.expect.text.be("name")
     rows.first.col.last.expect.text.be("age")
-
+    assert rows.last.col.first.wait_for.text.be("George")
     rows.last.col.last.expect.text.be("42")
 
     for row in rows:
