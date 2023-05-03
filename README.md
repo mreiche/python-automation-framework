@@ -122,7 +122,7 @@ echo $DOCKER_CONTAINER_REGISTRY_TOKEN | podman login -u <username> --password-st
 podman push paf-test:latest docker://ghcr.io/mreiche/paf-test:latest
 ```
 
-ghcr.io/<YOUR_USERNAME>/my_special_ubuntu:latest
+- Chromium DEB: https://chromium.woolyss.com/#linux
 
 ### Run local selenium server
 ```shell
