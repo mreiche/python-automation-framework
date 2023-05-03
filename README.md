@@ -114,6 +114,22 @@ References: https://www.nextgenerationautomation.com/post/python-test-automation
 PYTHONPATH="." PAF_TEST_HEADLESS=1 pytest --numprocesses=4 --cov=paf test
 ```
 
+### Build test container
+
+```shell
+podman build -f ubuntu.Dockerfile --arch=amd64 -t paf-test:latest
+echo $DOCKER_CONTAINER_REGISTRY_TOKEN | podman login -u <username> --password-stdin ghcr.io
+podman push paf-test:latest docker://ghcr.io/mreiche/paf-test:latest
+```
+
+ghcr.io/<YOUR_USERNAME>/my_special_ubuntu:latest
+
+### Run local selenium server
+```shell
+wget https://github.com/SeleniumHQ/selenium/releases/download/selenium-4.9.0/selenium-server-4.9.0.jar -O selenium-server.jar
+java -jar selenium-server.jar standalone --host 127.0.0.1
+```
+
 ### Utils
 
 ```javascript
@@ -132,3 +148,7 @@ snapshot.snapshotItem(0).textContent
     ```shell
     twine upload dist/python-automation-framework-[version].tar.gz
     ```
+
+### References
+- https://stackoverflow.com/questions/64033686/how-can-i-use-private-docker-image-in-github-actions
+- https://tecadmin.net/setup-selenium-chromedriver-on-ubuntu/
