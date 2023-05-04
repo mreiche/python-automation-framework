@@ -55,6 +55,8 @@ class WebDriverManager:
         elif request.browser in ["safari"]:
             options = self._get_options(request, WPEWebKitOptions)
             webdriver_class = Safari
+        else:
+            raise Exception("No browser specified")
 
         if request.browser_version:
             options.set_capability("browserVersion", request.browser_version)
@@ -67,9 +69,6 @@ class WebDriverManager:
             )
         elif webdriver_class:
             webdriver = webdriver_class(options=options)
-
-        if not webdriver:
-            raise Exception("No browser specified")
 
         self.introduce_webdriver(request, webdriver)
 
