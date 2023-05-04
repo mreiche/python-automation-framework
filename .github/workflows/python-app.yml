@@ -17,7 +17,7 @@ jobs:
 
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/mreiche/paf-test:latest
+      image: ghcr.io/mreiche/paf-test-base:latest
       credentials:
         username: mreiche
         password: ${{  secrets.DOCKER_CONTAINER_REGISTRY_TOKEN }}
@@ -32,6 +32,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: List chromedriver
+      run: |
+        ls -lahF
+        /home/chromedriver --version
 #    - name: Lint with flake8
 #      run: |
 #        # stop the build if there are Python syntax errors or undefined names
@@ -40,4 +44,10 @@ jobs:
 #        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        PAF_TEST_HEADLESS=1 pytest --numprocesses=4 test
+        PAF_TEST_HEADLESS=1 PAF_TEST_CONTAINER=1 pytest --numprocesses=4 --junitxml=test-results/pytest.xml test
+#    - name: Publish Test Results
+#      uses: EnricoMi/publish-unit-test-result-action@v2
+#      if: always()
+#      with:
+#        files: |
+#          test-results/**/*.xml
