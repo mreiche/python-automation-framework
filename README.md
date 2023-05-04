@@ -1,4 +1,5 @@
-![Tests](https://github.com/mreiche/python-automation-framework/actions/workflows/tests.yml/badge.svg)
+![Tests Status](https://github.com/mreiche/python-automation-framework/actions/workflows/tests.yml/badge.svg)
+[![codecov](https://codecov.io/github/mreiche/python-automation-framework/branch/main/graph/badge.svg?token=3G71TB7X4D)](https://codecov.io/github/mreiche/python-automation-framework)
 
 # PAF - Python Automation Framework
 

@@ -44,7 +44,7 @@ jobs:
 #        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        java -jar selenium-server.jar standalone --host 127.0.0.1 &
+        java -jar /home/selenium-server.jar standalone --host 127.0.0.1 &
         PAF_TEST_HEADLESS=1 PAF_TEST_CONTAINER=1 PAF_TEST_LOCAL_SELENIUM=1 coverage run -m pytest test
     - name: Generate coverage report
       run: coverage xml
