@@ -114,7 +114,7 @@ References: https://www.nextgenerationautomation.com/post/python-test-automation
 
 ### Run the tests on you local machine
 ```shell
-PYTHONPATH="." pytest --numprocesses=4 --cov=paf test
+PYTHONPATH="." coverage run -m pytest --numprocesses=4 test
 ```
 
 ### Build test base container
@@ -130,7 +130,7 @@ podman build -f test.Dockerfile --arch=amd64 -t paf-test:latest
 ```
 Run tests within container
 ```shell
-podman run paf-test:latest PAF_TEST_HEADLESS=1 PAF_TEST_CONTAINER=1 pytest --numprocesses=4 --cov=paf test
+podman run paf-test:latest PAF_TEST_HEADLESS=1 PAF_TEST_CONTAINER=1 coverage run -m pytest --numprocesses=4 test
 ```
 
 - Chromium DEB: https://chromium.woolyss.com/#linux

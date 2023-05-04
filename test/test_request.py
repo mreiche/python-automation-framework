@@ -1,6 +1,8 @@
+import os
 from urllib.parse import ParseResult
 
 import inject
+import pytest
 from selenium.webdriver import ChromeOptions
 
 from paf.manager import WebDriverManager
@@ -39,6 +41,10 @@ def test_chrome_options():
     assert webdriver.name == request.browser
 
 
+@pytest.mark.skipif(
+    os.getenv("PAF_TEST_REMOTE") != "1",
+    reason="Doesn't work in container",
+)
 def test_remote_webdriver(monkeypatch):
     server_url = "http://127.0.0.1:4444"
     monkeypatch.setenv('PAF_SELENIUM_SERVER_URL', server_url)
