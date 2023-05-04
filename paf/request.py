@@ -21,6 +21,7 @@ class WebDriverRequest:
         self._browser_version: str = None
         self._options: BaseOptions = None
         self._server_url: ParseResult = None
+        self._webdriver_kwargs: dict = {}
         server_url = Property.env(Property.PAF_SELENIUM_SERVER_URL)
         if server_url:
             self.server_url = server_url
@@ -32,6 +33,10 @@ class WebDriverRequest:
     @options.setter
     def options(self, options: BaseOptions):
         self._options = options
+
+    @property
+    def webdriver_kwargs(self):
+        return self._webdriver_kwargs
 
     @property
     def server_url(self) -> ParseResult:
