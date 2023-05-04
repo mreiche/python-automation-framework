@@ -42,7 +42,7 @@ def test_chrome_options():
 
 
 @pytest.mark.skipif(
-    os.getenv("PAF_TEST_REMOTE") != "1",
+    os.getenv("PAF_TEST_LOCAL_SELENIUM") != "1",
     reason="Doesn't work in container",
 )
 def test_remote_webdriver(monkeypatch):

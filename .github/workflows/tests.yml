@@ -43,7 +43,9 @@ jobs:
 #        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
 #        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
-      run: PAF_TEST_HEADLESS=1 PAF_TEST_CONTAINER=1 coverage -m pytest test
+      run: |
+        java -jar selenium-server.jar standalone --host 127.0.0.1 &
+        PAF_TEST_HEADLESS=1 PAF_TEST_CONTAINER=1 PAF_TEST_LOCAL_SELENIUM=1 coverage run -m pytest test
     - name: Generate coverage report
       run: coverage xml
     - name: Upload coverage to Codecov
