@@ -1,3 +1,5 @@
+from urllib.parse import ParseResult
+
 import inject
 
 from paf.manager import WebDriverManager
@@ -26,6 +28,12 @@ def test_window_size(monkeypatch):
     assert request.window_size.width == 1024
     assert request.window_size.height == 768
 
+
+def test_server_url(monkeypatch):
+    monkeypatch.setenv('PAF_SELENIUM_SERVER_URL', "http://127.0.0.1:4444")
+    request = WebDriverRequest("remote")
+    request.browser = "chrome"
+    assert isinstance(request.server_url, ParseResult)
 
 def teardown_module():
     inject.instance(WebDriverManager).shutdown_all()
