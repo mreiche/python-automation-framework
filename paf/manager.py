@@ -65,10 +65,7 @@ class WebDriverManager:
 
         return webdriver
 
-    def introduce_webdriver(self, webdriver: WebDriver, request: WebDriverRequest = None):
-        if not request:
-            request = WebDriverRequest()
-
+    def introduce_webdriver(self, webdriver: WebDriver, request: WebDriverRequest):
         self._session_driver_map[request.session_name] = webdriver
 
         if request.window_size:
