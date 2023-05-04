@@ -7,6 +7,7 @@ from paf.control import Control
 from paf.locator import By
 from paf.manager import WebDriverManager
 from paf.page import PageFactory, FinderPage
+from paf.uielement import UiElement
 from paf.xpath import XPath
 from test import create_webdriver
 
@@ -257,6 +258,23 @@ def test_locate_displayed(finder: FinderPage):
     ok.expect.count.be(0)
     btn.click()
     ok.expect.count.be(1)
+
+
+def test_uninitialized_ui_element_fails(finder: FinderPage):
+    with pytest.raises(Exception) as e:
+        ui_element = UiElement(By.id("id"))
+        ui_element.click()
+
+    assert "initialized without WebDriver nor UiElement" in e.value.args[0]
+
+
+def test_action_on_non_interactable_fails(finder: FinderPage):
+    finder.open("https://testpages.herokuapp.com/styled/alerts/fake-alert-test.html")
+    ok = finder.find("#dialog-ok")
+    with pytest.raises(Exception) as e:
+        ok.click()
+
+    assert "Message: element not interactable" in e.value.args[0]
 
 
 def test_not_unique_fails(finder: FinderPage):
