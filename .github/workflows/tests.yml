@@ -45,7 +45,7 @@ jobs:
     - name: Test with pytest
       run: |
         java -jar /home/selenium-server.jar standalone --host 127.0.0.1 &
-        PAF_TEST_HEADLESS=1 PAF_TEST_CONTAINER=1 PAF_TEST_LOCAL_SELENIUM=1 PAF_BROWSER_SETTING=chrome:113 coverage run -m pytest test
+        PAF_TEST_HEADLESS=1 PAF_TEST_CONTAINER=1 PAF_TEST_LOCAL_SELENIUM=0 PAF_BROWSER_SETTING=chrome:113 coverage run -m pytest test
     - name: Generate coverage report
       run: coverage xml
     - name: Upload coverage to Codecov
