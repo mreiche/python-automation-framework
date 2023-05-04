@@ -57,10 +57,7 @@ class WebDriverManager:
             # options.set_capability("platformName", "Windows XP")
 
         if request.server_url:
-            webdriver = Remote(
-                command_executor=Property.env(Property.PAF_SELENIUM_SERVER_URL),
-                options=options
-            )
+            webdriver = Remote(command_executor=str(request.server_url), options=options)
         elif webdriver_class:
             webdriver = webdriver_class(options=options)
 

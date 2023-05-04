@@ -86,7 +86,7 @@ def test_not_given_chrome_options(manager: WebDriverManager):
 )
 def test_remote_webdriver(monkeypatch):
     monkeypatch.setenv('PAF_SELENIUM_SERVER_URL', "http://127.0.0.1:4444")
-    request = WebDriverRequest()
+    request = WebDriverRequest("remote")
     request.browser = "chrome"
     request.options = ChromeOptions()
     assert isinstance(request.server_url, ParseResult)

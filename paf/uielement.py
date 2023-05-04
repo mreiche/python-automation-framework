@@ -186,7 +186,7 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
             web_elements = self._webdriver.find_elements(self._by.by, self._by.value)
             return consumer(self._filter_web_elements(web_elements))
         else:
-            raise Exception("UiElement initialized without WebDriver nor UiElement")
+            raise Exception(f"{self.name_path} initialized without WebDriver nor UiElement")
 
     def find_web_element(self, mapper: Mapper[WebElement, R]) -> R:
         def _handle(web_elements: List[WebElement]):
