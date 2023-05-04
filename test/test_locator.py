@@ -86,3 +86,7 @@ def test_By_to_XPath_fails():
 
 def test_to_string_filtered():
     assert str(By.id("id").displayed) == "By.id(id) filtered"
+
+
+def test_By_xpath_XPath():
+    assert str(By.xpath(XPath.at("body"))) == "By.xpath(//body)"
