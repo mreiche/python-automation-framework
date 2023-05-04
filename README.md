@@ -1,4 +1,4 @@
-![example workflow](https://github.com/github/docs/actions/workflows/python-app.yml/badge.svg)
+![Tests](https://github.com/mreiche/python-automation-framework/actions/workflows/tests.yml/badge.svg)
 
 # PAF - Python Automation Framework
 
