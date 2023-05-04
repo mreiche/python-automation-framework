@@ -8,6 +8,7 @@ from paf.common import Size
 from paf.manager import WebDriverManager
 from paf.request import WebDriverRequest
 from selenium.webdriver import ChromeOptions
+from selenium.webdriver.chrome.service import Service
 
 
 def create_webdriver(request: WebDriverRequest = None):
@@ -35,7 +36,7 @@ def create_webdriver(request: WebDriverRequest = None):
         #request.options.add_argument("--disable-setuid-sandbox")
         request.options.add_argument("--disable-gpu-sandbox")
         request.options.binary_location = "/opt/google/chrome/chrome"
-        request.webdriver_kwargs["executable_path"] = "/home/chromedriver"
+        request.webdriver_kwargs["service"] = Service("/home/chromedriver")
 
     # options.binary_location = "/snap/bin/chromium"
     logging.info(f"Creating WebDriver using options: {request.options}")

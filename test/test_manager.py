@@ -43,6 +43,10 @@ def test_shutdown_unknown_session_fails(manager: WebDriverManager):
     assert "Unknown session: unknown" in e.value.args[0]
 
 
+@pytest.mark.skipif(
+    os.getenv("PAF_TEST_CONTAINER") == "1",
+    reason="Doesn't work in container",
+)
 def test_take_screenshot_fails(monkeypatch, manager: WebDriverManager):
     monkeypatch.setenv(Property.PAF_SCREENSHOTS_DIR.name, "read-only-screenshots")
     dir = Path(Property.env(Property.PAF_SCREENSHOTS_DIR))
