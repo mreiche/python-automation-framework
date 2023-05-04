@@ -28,7 +28,7 @@ def test_create_page(page: Page):
 def test_create_page_with_webdriver():
     manager = inject.instance(WebDriverManager)
     page_factory = inject.instance(PageFactory)
-    webdriver = manager.get_webdriver()
+    webdriver = create_webdriver()
     page = page_factory.create_page(Page, webdriver)
     assert isinstance(page, Page)
     assert page.webdriver == page.webdriver

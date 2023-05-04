@@ -79,7 +79,7 @@ class WebDriverManager:
         self._session_driver_map[request.session] = webdriver
 
         if request.window_size:
-            LOG.info(f"Set window size {request.window_size} on {webdriver.name}")
+            #LOG.info(f"Set window size {request.window_size} on {webdriver.name}")
             webdriver.set_window_rect(0, 0, request.window_size.width, request.window_size.height)
 
     def shutdown_session(self, session_key: str):
