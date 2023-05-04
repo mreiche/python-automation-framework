@@ -40,8 +40,6 @@ class WebDriverRequest:
 
     @property
     def session(self):
-        #       if empty(self._session):
-        #           self._session = uuid.uuid4()
         return self._session
 
     def __detect_browser(self):

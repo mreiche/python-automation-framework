@@ -4,6 +4,7 @@ import pytest
 from paf.manager import WebDriverManager
 from paf.page import PageFactory, Page
 from test import create_webdriver
+from selenium.webdriver.remote.webdriver import WebDriver
 
 
 @pytest.fixture
@@ -19,19 +20,17 @@ def test_assertions(page: Page):
     assert page.webdriver.title == "Selenium Test Pages"
 
 
-def test_create_page(page: Page):
+def test_create_page_from_page(page: Page):
     other_page = page._create_page(Page)
     assert isinstance(other_page, Page)
     assert page.webdriver == other_page.webdriver
 
 
-def test_create_page_with_webdriver():
-    manager = inject.instance(WebDriverManager)
+def test_create_page_without_webdriver():
     page_factory = inject.instance(PageFactory)
-    webdriver = create_webdriver()
-    page = page_factory.create_page(Page, webdriver)
+    page = page_factory.create_page(Page)
     assert isinstance(page, Page)
-    assert page.webdriver == page.webdriver
+    assert isinstance(page.webdriver, WebDriver)
 
 
 def test_scroll_until_visible(page: Page):

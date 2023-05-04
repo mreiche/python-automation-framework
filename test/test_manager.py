@@ -61,15 +61,21 @@ def test_take_screenshot_fails(monkeypatch, manager: WebDriverManager):
 
 
 def test_empty_request(manager: WebDriverManager):
-    request = WebDriverRequest("empty")
-    webdriver = create_webdriver(request)
+    webdriver = create_webdriver()
     assert isinstance(webdriver, WebDriver)
 
 
 def test_given_chrome_options(manager: WebDriverManager):
-    request = WebDriverRequest("chrome")
+    request = WebDriverRequest("chrome-with-options")
     request.browser = "chrome"
     request.options = ChromeOptions()
+    webdriver = create_webdriver(request)
+    assert webdriver.name == request.browser
+
+
+def test_not_given_chrome_options(manager: WebDriverManager):
+    request = WebDriverRequest("chrome-no-options")
+    request.browser = "chrome"
     webdriver = create_webdriver(request)
     assert webdriver.name == request.browser
 
