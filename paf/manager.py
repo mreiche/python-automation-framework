@@ -43,7 +43,7 @@ class WebDriverManager:
         webdriver_class: Type[BaseWebDriver] = None
         options: BaseOptions = None
 
-        if request.browser in ["chrome", "chromium"]:
+        if request.browser in ["chrome"]:
             options = self._get_options(request, ChromeOptions)
             webdriver_class = Chrome
         elif request.browser in ["firefox"]:
@@ -63,25 +63,24 @@ class WebDriverManager:
         if request.server_url:
             webdriver = Remote(
                 command_executor=Property.env(Property.PAF_SELENIUM_SERVER_URL),
-                options=options,
-                **request.webdriver_kwargs
+                options=options
             )
         elif webdriver_class:
-            webdriver = webdriver_class(
-                options=options,
-                **request.webdriver_kwargs
-            )
+            webdriver = webdriver_class(options=options)
 
         if not webdriver:
             raise Exception("No browser specified")
 
-        self._session_driver_map[session_key] = webdriver
-
-        if request.window_size:
-            LOG.info(f"Set window size: {request.window_size}")
-            webdriver.set_window_rect(0, 0, request.window_size.width, request.window_size.height)
+        self.introduce_webdriver(request, webdriver)
 
         return webdriver
+
+    def introduce_webdriver(self, request: WebDriverRequest, webdriver: WebDriver):
+        self._session_driver_map[request.session] = webdriver
+
+        if request.window_size:
+            LOG.info(f"Set window size {request.window_size} on {webdriver.name}")
+            webdriver.set_window_rect(0, 0, request.window_size.width, request.window_size.height)
 
     def shutdown_session(self, session_key: str):
         if session_key in self._session_driver_map:

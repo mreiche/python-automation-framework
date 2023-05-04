@@ -35,8 +35,8 @@ def create_webdriver(request: WebDriverRequest = None):
         request.options.add_argument("--no-sandbox")
         #request.options.add_argument("--disable-setuid-sandbox")
         request.options.add_argument("--disable-gpu-sandbox")
-        request.options.binary_location = "/opt/google/chrome/chrome"
-        request.webdriver_kwargs["service"] = Service("/home/chromedriver")
+        #request.options.binary_location = "/opt/google/chrome/chrome"
+        #request.webdriver_kwargs["service"] = Service("/home/chromedriver")
 
     #logging.info(f"Creating WebDriver using options: {request.options.capabilities}")
     return manager.get_webdriver(request)

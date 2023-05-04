@@ -57,6 +57,10 @@ class By:
 
     @staticmethod
     def xpath(xpath: str):
+        from paf.xpath import XPath
+        if isinstance(xpath, XPath):
+            xpath = str(xpath)
+
         return By(SeleniumBy.XPATH, xpath)
 
     @staticmethod

@@ -25,6 +25,15 @@ def test_create_page(page: Page):
     assert page.webdriver == other_page.webdriver
 
 
+def test_create_page_with_webdriver():
+    manager = inject.instance(WebDriverManager)
+    page_factory = inject.instance(PageFactory)
+    webdriver = manager.get_webdriver()
+    page = page_factory.create_page(Page, webdriver)
+    assert isinstance(page, Page)
+    assert page.webdriver == page.webdriver
+
+
 def test_scroll_until_visible(page: Page):
     page.open("https://testpages.herokuapp.com/styled/find-by-playground-test.html")
     p = page._find("#p41")

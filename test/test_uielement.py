@@ -30,7 +30,7 @@ def test_finder_page(finder: FinderPage):
     p = finder.find(By.id("para1"))
     assert p.name_path == 'UiElement(By.id(para1))[0]'
     assert p.name == p.name_path
-    assert isinstance(finder.webdriver, BaseWebDriver)
+    assert finder.webdriver == p.webdriver
 
 
 # def test_rect():
@@ -164,6 +164,12 @@ def test_form(finder: FinderPage):
     username.clear()
     username.expect.value.be("")
 
+    form = finder.find("#HTMLFormElements")
+    form.submit()
+
+    # From Textarea
+    finder.find("#_valuecomments").expect.text.be("Hello World")
+
 
 def test_screenshot(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/find-by-playground-test.html")
@@ -184,7 +190,7 @@ def test_retry(finder: FinderPage):
         lambda: btn.click(),
         wait_after_fail=0,
         count=3
-        )
+    )
 
 
 def test_actions(finder: FinderPage):
@@ -251,6 +257,29 @@ def test_locate_displayed(finder: FinderPage):
     ok.expect.count.be(0)
     btn.click()
     ok.expect.count.be(1)
+
+
+def test_not_unique_fails(finder: FinderPage):
+    finder.open("https://testpages.herokuapp.com/styled/key-click-display-test.html")
+    btn = finder.find(By.id("button").unique)
+    btn.click()
+    btn.click()
+
+    events = finder.find("#events")
+    with pytest.raises(Exception) as e:
+        p = events.find(By.tag_name("p").unique)
+        p.expect.text.be("click")
+
+    assert "Not unique" in e.value.args[0]
+
+
+def test_not_found_fails(finder: FinderPage):
+    finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
+    with pytest.raises(Exception) as e:
+        unknown = finder.find("#unkown")
+        unknown.highlight()
+
+    assert "Not found" in e.value.args[0]
 
 
 def teardown_module():

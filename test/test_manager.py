@@ -3,14 +3,15 @@ import shutil
 from pathlib import Path
 
 import inject
-import threading
-
 import pytest
+from selenium.webdriver.remote.webdriver import WebDriver
 
 from paf.common import Property
 from paf.manager import WebDriverManager
 from paf.request import WebDriverRequest
 from test import create_webdriver
+from selenium.webdriver import ChromeOptions
+from urllib.parse import ParseResult
 
 
 @pytest.fixture
@@ -57,6 +58,45 @@ def test_take_screenshot_fails(monkeypatch, manager: WebDriverManager):
     assert path is None
     os.chmod(dir, 775)
     shutil.rmtree(dir)
+
+
+def test_empty_request(manager: WebDriverManager):
+    request = WebDriverRequest("empty")
+    webdriver = create_webdriver(request)
+    assert isinstance(webdriver, WebDriver)
+
+
+def test_given_chrome_options(manager: WebDriverManager):
+    request = WebDriverRequest("chrome")
+    request.browser = "chrome"
+    request.options = ChromeOptions()
+    webdriver = create_webdriver(request)
+    assert webdriver.name == request.browser
+
+
+@pytest.mark.skipif(
+    os.getenv("PAF_TEST_LOCAL_SELENIUM") != "1",
+    reason="Doesn't work in container",
+)
+def test_remote_webdriver(monkeypatch):
+    server_url = "http://127.0.0.1:4444"
+    monkeypatch.setenv('PAF_SELENIUM_SERVER_URL', server_url)
+    request = WebDriverRequest()
+    request.browser = "chrome"
+    request.options = ChromeOptions()
+    assert isinstance(request.server_url, ParseResult)
+    webdriver = create_webdriver(request)
+    assert webdriver.name == request.browser
+
+
+def test_unknown_browser_fails(manager: WebDriverManager):
+    with pytest.raises(Exception) as e:
+        request = WebDriverRequest("unknown")
+        request.browser = "unknown"
+        #request.browser_version = "999"
+        manager.get_webdriver(request)
+
+    assert "No browser specified" in e.value.args[0]
 
 
 def teardown_module():
