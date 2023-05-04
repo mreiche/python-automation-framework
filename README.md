@@ -1,3 +1,5 @@
+![example workflow](https://github.com/github/docs/actions/workflows/python-app.yml/badge.svg)
+
 # PAF - Python Automation Framework
 
 Python implementation of [Testerra](https://github.com/telekom/testerra) API.
@@ -161,3 +163,4 @@ snapshot.snapshotItem(0).textContent
 ### References
 - https://stackoverflow.com/questions/64033686/how-can-i-use-private-docker-image-in-github-actions
 - https://tecadmin.net/setup-selenium-chromedriver-on-ubuntu/
+- https://github.com/dariocurr/pytest-summary
