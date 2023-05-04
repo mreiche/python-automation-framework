@@ -38,6 +38,5 @@ def create_webdriver(request: WebDriverRequest = None):
         request.options.binary_location = "/opt/google/chrome/chrome"
         request.webdriver_kwargs["service"] = Service("/home/chromedriver")
 
-    # options.binary_location = "/snap/bin/chromium"
-    logging.info(f"Creating WebDriver using options: {request.options}")
+    #logging.info(f"Creating WebDriver using options: {request.options.capabilities}")
     return manager.get_webdriver(request)

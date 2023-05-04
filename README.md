@@ -1,4 +1,6 @@
-![Tests](https://github.com/mreiche/python-automation-framework/actions/workflows/tests.yml/badge.svg)
+![Tests Status](https://github.com/mreiche/python-automation-framework/actions/workflows/tests.yml/badge.svg)
+![Code Coverage Status](https://codecov.io/github/mreiche/python-automation-framework/branch/main/graph/badge.svg)
+
 
 # PAF - Python Automation Framework
 
@@ -57,7 +59,7 @@ element.expect.text.be("Search")
 - [Managing WebDrivers](doc/webdriver.md)
 - [Execution controlling](doc/control.md)
 
-### Missing features (todos)
+### Missing features (tdb)
 
 - Rect assertions
 - ShadowRoot support
@@ -112,36 +114,38 @@ References: https://www.nextgenerationautomation.com/post/python-test-automation
 
 ## Developer area
 
-### Run the tests on you local machine
+### Testing
+#### Run the tests on you local machine
 ```shell
-PYTHONPATH="." pytest --numprocesses=4 --cov=paf test
+PYTHONPATH="." coverage run -m pytest --numprocesses=4 test
 ```
 
-### Build test base container
+#### Build test base container (for use in GitHub Actions)
 ```shell
 podman build -f base.Dockerfile --arch=amd64 -t paf-test-base:latest
 echo $DOCKER_CONTAINER_REGISTRY_TOKEN | podman login -u mreiche --password-stdin ghcr.io
 podman push paf-test-base:latest docker://ghcr.io/mreiche/paf-test-base:latest
 ```
 
-### Build test runner container
+#### Build test runner container (for testing)
 ```shell
 podman build -f test.Dockerfile --arch=amd64 -t paf-test:latest
 ```
 Run tests within container
 ```shell
-podman run paf-test:latest PAF_TEST_HEADLESS=1 PAF_TEST_CONTAINER=1 pytest --numprocesses=4 --cov=paf test
+podman run paf-test:latest PAF_TEST_HEADLESS=1 PAF_TEST_CONTAINER=1 coverage run -m pytest --numprocesses=4 test
 ```
 
-- Chromium DEB: https://chromium.woolyss.com/#linux
-
-### Run local selenium server
+#### Run local selenium server
 ```shell
 wget https://github.com/SeleniumHQ/selenium/releases/download/selenium-4.9.0/selenium-server-4.9.0.jar -O selenium-server.jar
 java -jar selenium-server.jar standalone --host 127.0.0.1
 ```
 
-### Utils
+### Todos
+- `pytest --numprocesses` doesn't work with coverage report, considering `pytest-asyncio`
+
+### Debug XPaths in Browser's Developer Console
 
 ```javascript
 xpath = "//dt[.//text()='Title:']/following-sibling::dd[1]"
@@ -163,4 +167,3 @@ snapshot.snapshotItem(0).textContent
 ### References
 - https://stackoverflow.com/questions/64033686/how-can-i-use-private-docker-image-in-github-actions
 - https://tecadmin.net/setup-selenium-chromedriver-on-ubuntu/
-- https://github.com/dariocurr/pytest-summary

@@ -32,10 +32,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: List chromedriver
-      run: |
-        ls -lahF
-        /home/chromedriver --version
+#    - name: List chromedriver
+#      run: |
+#        ls -lahF
+#        /home/chromedriver --version
 #    - name: Lint with flake8
 #      run: |
 #        # stop the build if there are Python syntax errors or undefined names
@@ -44,7 +44,17 @@ jobs:
 #        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        PAF_TEST_HEADLESS=1 PAF_TEST_CONTAINER=1 pytest --numprocesses=4 --junitxml=test-results/pytest.xml test
+        java -jar /home/selenium-server.jar standalone --host 127.0.0.1 &
+        PAF_TEST_HEADLESS=1 PAF_TEST_CONTAINER=1 PAF_TEST_LOCAL_SELENIUM=1 coverage run -m pytest test
+    - name: Generate coverage report
+      run: coverage xml
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      continue-on-error: true
+      with:
+        fail_ci_if_error: true
+        files: ./coverage.xml
+        verbose: true
 #    - name: Publish Test Results
 #      uses: EnricoMi/publish-unit-test-result-action@v2
 #      if: always()
