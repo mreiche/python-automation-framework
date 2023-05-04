@@ -109,17 +109,26 @@ div.first.expect.text.be("Selenium automates browsers")
 References: https://www.nextgenerationautomation.com/post/python-test-automation-frameworks
 
 ## Developer area
-### Run the tests
+
+### Run the tests on you local machine
 ```shell
-PYTHONPATH="." PAF_TEST_HEADLESS=1 pytest --numprocesses=4 --cov=paf test
+PYTHONPATH="." pytest --numprocesses=4 --cov=paf test
 ```
 
-### Build test container
-
+### Build test base container
 ```shell
-podman build -f ubuntu.Dockerfile --arch=amd64 -t paf-test:latest
-echo $DOCKER_CONTAINER_REGISTRY_TOKEN | podman login -u <username> --password-stdin ghcr.io
-podman push paf-test:latest docker://ghcr.io/mreiche/paf-test:latest
+podman build -f base.Dockerfile --arch=amd64 -t paf-test-base:latest
+echo $DOCKER_CONTAINER_REGISTRY_TOKEN | podman login -u mreiche --password-stdin ghcr.io
+podman push paf-test-base:latest docker://ghcr.io/mreiche/paf-test-base:latest
+```
+
+### Build test runner container
+```shell
+podman build -f test.Dockerfile --arch=amd64 -t paf-test:latest
+```
+Run tests within container
+```shell
+podman run paf-test:latest PAF_TEST_HEADLESS=1 PAF_TEST_CONTAINER=1 pytest --numprocesses=4 --cov=paf test
 ```
 
 - Chromium DEB: https://chromium.woolyss.com/#linux
