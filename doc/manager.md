@@ -2,6 +2,8 @@
 
 ## Request a WebDriver session
 
+This configures a default *WebDriver*
+
 ```python
 import inject
 import paf.config
@@ -24,11 +26,9 @@ webdriver = manager.get_webdriver(request)
 
 ## Reuse a WebDriver session
 
-```python
-import inject
-from paf.manager import WebDriverManager
+When no *WebDriverRequest* is passed, the default *WebDriver* will be returned.
 
-manager = inject.instance(WebDriverManager)
+```python
 webdriver = manager.get_webdriver()
 ```
 
@@ -36,45 +36,44 @@ webdriver = manager.get_webdriver()
 
 Request a WebDriver with another request name 
 ```python
-import inject
-from paf.manager import WebDriverManager
-from paf.request import WebDriverRequest
-
-manager = inject.instance(WebDriverManager)
 request = WebDriverRequest("another")
 webdriver = manager.get_webdriver(request)
 ```
 
-## Connect to remote selenium
+## Connect to Selenium
 
 ```python
-import inject
-from paf.manager import WebDriverManager
-from paf.request import WebDriverRequest
-
-manager = inject.instance(WebDriverManager)
 request = WebDriverRequest()
 request.server_url = "http://remote.server:4444"
 webdriver = manager.get_webdriver(request)
 ```
 
+## Introduce a preconfigured WebDriver
+
+If you need fine-tuned *WebDrivers*, you can pass them as default.
+
+```python
+from selenium.webdriver import Chrome
+from selenium.webdriver.chrome.service import Service
+
+webdriver = Chrome(Service(executable_path="/opt/chromedriver"))
+request = WebDriverRequest()
+manager.introduce_webdriver(webdriver, request)
+```
+
+
 ## Shutdown WebDriver sessions
 
 ```python
-import inject
-from paf.manager import WebDriverManager
-from paf.request import WebDriverRequest
-
-manager = inject.instance(WebDriverManager)
 request = WebDriverRequest()
 webdriver = manager.get_webdriver()
 
 manager.shutdown(webdriver)
-manager.shutdown_session(request.session)
+manager.shutdown_session(request.session_name)
 manager.shutdown_all()
 ```
 
 ## Take screenshot
 ```python
-manager.take_screenshot()
+path = manager.take_screenshot()
 ```

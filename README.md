@@ -56,7 +56,7 @@ element.expect.text.be("Search")
 - [Locators](doc/locators.md)
 - [Page objects](doc/pages.md)
 - [Components](doc/components.md)
-- [Managing WebDrivers](doc/webdriver.md)
+- [Managing WebDrivers](doc/manager.md)
 - [Execution controlling](doc/control.md)
 
 ### Missing features (tdb)

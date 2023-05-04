@@ -7,21 +7,14 @@ from selenium.webdriver.common.options import BaseOptions
 from paf.common import Size, Property
 
 
-# import uuid
-# from is_empty import empty
-
-# O = TypeVar("O")
-
-
 class WebDriverRequest:
-    def __init__(self, session: str = "default"):
-        self._session = session
+    def __init__(self, session_name: str = "default"):
+        self._session_name = session_name
         self._window_size: Size = None
         self._browser: str = None
         self._browser_version: str = None
         self._options: BaseOptions = None
         self._server_url: ParseResult = None
-        self._webdriver_kwargs: dict = {}
         server_url = Property.env(Property.PAF_SELENIUM_SERVER_URL)
         if server_url:
             self.server_url = server_url
@@ -35,10 +28,6 @@ class WebDriverRequest:
         self._options = options
 
     @property
-    def webdriver_kwargs(self):
-        return self._webdriver_kwargs
-
-    @property
     def server_url(self) -> ParseResult:
         return self._server_url
 
@@ -50,10 +39,8 @@ class WebDriverRequest:
         self._server_url = url
 
     @property
-    def session(self):
-        #       if empty(self._session):
-        #           self._session = uuid.uuid4()
-        return self._session
+    def session_name(self):
+        return self._session_name
 
     def __detect_browser(self):
         match = re.search("(\w+)(?:\:(\w+))?", Property.env(Property.PAF_BROWSER_SETTING))
