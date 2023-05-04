@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Type, TypeVar, Iterable
@@ -13,8 +12,6 @@ from paf.common import Property, Formatter
 from paf.request import WebDriverRequest
 
 OPTION = TypeVar("OPTION")
-
-LOG = logging.getLogger(__name__)
 
 
 class WebDriverManager:
@@ -31,11 +28,8 @@ class WebDriverManager:
 
         return options
 
-    def get_webdriver(self, request: WebDriverRequest = None) -> WebDriver:
-        if not request:
-            request = WebDriverRequest()
-
-        session_key = request.session
+    def get_webdriver(self, request: WebDriverRequest) -> WebDriver:
+        session_key = request.session_name
         if session_key in self._session_driver_map:
             return self._session_driver_map[session_key]
 
@@ -70,22 +64,28 @@ class WebDriverManager:
         elif webdriver_class:
             webdriver = webdriver_class(options=options)
 
-        self.introduce_webdriver(request, webdriver)
+        self.introduce_webdriver(webdriver, request)
 
         return webdriver
 
-    def introduce_webdriver(self, request: WebDriverRequest, webdriver: WebDriver):
-        self._session_driver_map[request.session] = webdriver
+    def introduce_webdriver(self, webdriver: WebDriver, request: WebDriverRequest = None):
+        if not request:
+            request = WebDriverRequest()
+
+        self._session_driver_map[request.session_name] = webdriver
 
         if request.window_size:
             #LOG.info(f"Set window size {request.window_size} on {webdriver.name}")
             webdriver.set_window_rect(0, 0, request.window_size.width, request.window_size.height)
 
-    def shutdown_session(self, session_key: str):
-        if session_key in self._session_driver_map:
-            self.shutdown(self._session_driver_map[session_key])
+    def has_webdriver(self, session_name):
+        return session_name in self._session_driver_map
+
+    def shutdown_session(self, session_name: str):
+        if session_name in self._session_driver_map:
+            self.shutdown(self._session_driver_map[session_name])
         else:
-            raise Exception(f"Unknown session: {session_key}")
+            raise Exception(f"Unknown session: {session_name}")
 
     def shutdown(self, webdriver: WebDriver):
         webdriver.quit()

@@ -3,6 +3,7 @@ import pytest
 
 from paf.manager import WebDriverManager
 from paf.page import PageFactory, Page
+from paf.request import WebDriverRequest
 from test import create_webdriver
 from selenium.webdriver.remote.webdriver import WebDriver
 
@@ -28,7 +29,9 @@ def test_create_page_from_page(page: Page):
 
 def test_create_page_without_webdriver():
     page_factory = inject.instance(PageFactory)
+    webdriver = create_webdriver(WebDriverRequest())
     page = page_factory.create_page(Page)
+    assert page.webdriver == webdriver
     assert isinstance(page, Page)
     assert isinstance(page.webdriver, WebDriver)
 

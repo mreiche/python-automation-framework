@@ -34,7 +34,7 @@ def test_take_screenshot(manager: WebDriverManager):
 def test_shutdown_by_session_key(manager: WebDriverManager):
     request = WebDriverRequest("test")
     create_webdriver(request)
-    manager.shutdown_session(request.session)
+    manager.shutdown_session(request.session_name)
 
 
 def test_shutdown_unknown_session_fails(manager: WebDriverManager):
@@ -82,11 +82,10 @@ def test_not_given_chrome_options(manager: WebDriverManager):
 
 @pytest.mark.skipif(
     os.getenv("PAF_TEST_LOCAL_SELENIUM") != "1",
-    reason="Doesn't work in container",
+    reason="No local Selenium server running",
 )
 def test_remote_webdriver(monkeypatch):
-    server_url = "http://127.0.0.1:4444"
-    monkeypatch.setenv('PAF_SELENIUM_SERVER_URL', server_url)
+    monkeypatch.setenv('PAF_SELENIUM_SERVER_URL', "http://127.0.0.1:4444")
     request = WebDriverRequest()
     request.browser = "chrome"
     request.options = ChromeOptions()

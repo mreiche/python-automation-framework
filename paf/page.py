@@ -1,19 +1,20 @@
-from typing import Type, TypeVar
+from typing import Type
 
 import inject
 from selenium.webdriver import ActionChains
 from selenium.webdriver.remote.webdriver import WebDriver
 
 from paf.assertion import StringAssertion, Format
-from paf.common import HasName, Locator, Point
+from paf.common import HasName, Locator
 from paf.manager import WebDriverManager
+from paf.request import WebDriverRequest
 from paf.types import PAGE, COMPONENT
 
 
 class PageFactory:
     def create_page(self, page_class: Type[PAGE], webdriver: WebDriver = None) -> PAGE:
         if not webdriver:
-            webdriver = inject.instance(WebDriverManager).get_webdriver()
+            webdriver = inject.instance(WebDriverManager).get_webdriver(WebDriverRequest())
 
         return page_class(webdriver)
 

@@ -8,8 +8,8 @@ from paf.common import Size, Property
 
 
 class WebDriverRequest:
-    def __init__(self, session: str = "default"):
-        self._session = session
+    def __init__(self, session_name: str = "default"):
+        self._session_name = session_name
         self._window_size: Size = None
         self._browser: str = None
         self._browser_version: str = None
@@ -39,8 +39,8 @@ class WebDriverRequest:
         self._server_url = url
 
     @property
-    def session(self):
-        return self._session
+    def session_name(self):
+        return self._session_name
 
     def __detect_browser(self):
         match = re.search("(\w+)(?:\:(\w+))?", Property.env(Property.PAF_BROWSER_SETTING))
