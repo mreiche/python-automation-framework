@@ -7,6 +7,7 @@ from typing import Callable
 import inject
 
 from paf.common import Property
+from paf.types import Consumer
 
 
 @dataclass()
@@ -57,7 +58,7 @@ class Control:
     def retry(
         self,
         action: Callable,
-        on_fail: Callable = None,
+        on_fail: Consumer[Exception] = None,
         count: int = None,
         wait_after_fail: float = None
     ):
@@ -83,7 +84,7 @@ class Control:
             except Exception as e:
                 exception = e
                 if on_fail:
-                    on_fail()
+                    on_fail(e)
 
         sequence.run(_run)
 

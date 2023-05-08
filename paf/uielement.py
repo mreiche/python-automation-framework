@@ -1,11 +1,10 @@
-import math
-import re
 from abc import abstractmethod, ABC
 from datetime import datetime
 from pathlib import Path
 from typing import Type, TypeVar, List, Generic, Iterable, Iterator
 
 import inject
+import math
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By as SeleniumBy
 from selenium.webdriver.remote.webdriver import WebDriver
@@ -14,9 +13,10 @@ from selenium.webdriver.support.color import Color
 
 import paf.javascript as script
 from paf.assertion import StringAssertion, Format, BinaryAssertion, QuantityAssertion, RectAssertion
-from paf.common import HasParent, Locator, Point, Rect, Property, Formatter
+from paf.common import HasParent, Locator, Point, Rect, Property, Formatter, ElementNotFoundException
 from paf.control import Control
 from paf.dom import Attribute
+from paf.listener import Listener
 from paf.locator import By
 from paf.types import Mapper, Consumer, R
 from paf.xpath import XPath
@@ -198,23 +198,29 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
                 web_element = web_elements[self._index]
                 return mapper(web_element)
             else:
-                raise Exception(f"Not found")
+                raise ElementNotFoundException(f"Not found")
 
         return self._find_web_elements(_handle)
 
-    def _action_sequence(self, consumer: Consumer[WebElement]):
+    def _action_sequence(self, consumer: Consumer[WebElement], action_name: str):
         control = inject.instance(Control)
+        listener = inject.instance(Listener)
         try:
-            control.retry(lambda: self.find_web_element(consumer))
+            control.retry(
+                action=lambda: self.find_web_element(consumer),
+                on_fail=lambda e: listener.action_failed(action_name, e)
+            )
+            listener.action_passed(action_name)
         except Exception as exception:
+            listener.action_failed_finally(action_name, exception)
             raise Exception(f"{self.name_path}: {exception}")
 
     def click(self):
-        self._action_sequence(lambda web_element: web_element.click())
+        self._action_sequence(lambda web_element: web_element.click(), __name__)
         return self
 
     def send_keys(self, value: str):
-        self._action_sequence(lambda web_element: web_element.send_keys(value))
+        self._action_sequence(lambda web_element: web_element.send_keys(value), __name__)
         return self
 
     def take_screenshot(self) -> Path | None:
@@ -237,7 +243,7 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
             web_element.send_keys(value)
             assert web_element.get_attribute("value") == value
 
-        self._action_sequence(_action)
+        self._action_sequence(_action, __name__)
         return self
 
     def hover(self):
@@ -245,28 +251,28 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
             actions = ActionChains(self._webdriver)
             actions.move_to_element(web_element).perform()
 
-        self._action_sequence(_action)
+        self._action_sequence(_action, __name__)
 
     def context_click(self):
         def _action(web_element: WebElement):
             actions = ActionChains(self._webdriver)
             actions.context_click(web_element).perform()
 
-        self._action_sequence(_action)
+        self._action_sequence(_action, __name__)
 
     def long_click(self):
         def _action(web_element: WebElement):
             actions = ActionChains(self._webdriver)
             actions.click_and_hold(web_element).perform()
 
-        self._action_sequence(_action)
+        self._action_sequence(_action, __name__)
 
     def double_click(self):
         def _action(web_element: WebElement):
             actions = ActionChains(self._webdriver)
             actions.double_click(web_element).perform()
 
-        self._action_sequence(_action)
+        self._action_sequence(_action, __name__)
 
     def drag_and_drop_to(self, target_ui_element: "UiElement"):
         def _action(source: WebElement):
@@ -275,7 +281,7 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
                 actions.drag_and_drop(source, target).perform()
             target_ui_element.find_web_element(_target_found)
 
-        self._action_sequence(_action)
+        self._action_sequence(_action, __name__)
 
     @property
     def expect(self):
@@ -286,11 +292,11 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
         return UiElementAssertion(self, raise_exception=False)
 
     def clear(self):
-        self._action_sequence(lambda web_element: web_element.clear())
+        self._action_sequence(lambda web_element: web_element.clear(), __name__)
         return self
 
     def submit(self):
-        self._action_sequence(lambda web_element: web_element.submit())
+        self._action_sequence(lambda web_element: web_element.submit(), __name__)
         return self
 
     def __str__(self):
@@ -301,10 +307,10 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
         return f"UiElement({self._by.__str__()})[{self._index}]"
 
     def scroll_into_view(self, x: int = 0, y: int = 0):
-        self._action_sequence(lambda web_element: script.scroll_to_center(self._webdriver, web_element, Point(x, y)))
+        self._action_sequence(lambda web_element: script.scroll_to_center(self._webdriver, web_element, Point(x, y)), __name__)
 
     def scroll_to_top(self, x: int = 0, y: int = 0):
-        self._action_sequence(lambda web_element: script.scroll_to_top(self._webdriver, web_element, Point(x, y)))
+        self._action_sequence(lambda web_element: script.scroll_to_top(self._webdriver, web_element, Point(x, y)), __name__)
 
     def _count_elements(self):
         count = 0
@@ -338,6 +344,7 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
 
 A = TypeVar('A')
 
+
 class UiElementAssertion:
 
     def __init__(
@@ -355,9 +362,9 @@ class UiElementAssertion:
         property_name: str
     ) -> A:
         return assertion_class(
-            parent=None,
+            parent=self._ui_element,
             actual=lambda: self._ui_element.find_web_element(mapper),
-            subject=lambda: f"{self._ui_element.name_path}.{property_name} {Format.param(self._ui_element.find_web_element(mapper))}",
+            name=lambda: f".{property_name} {Format.param(self._ui_element.find_web_element(mapper))}",
             raise_exception=self._raise,
         )
 
@@ -368,26 +375,23 @@ class UiElementAssertion:
 
         return self._map_web_element_property(StringAssertion, _map, "text")
 
-    @property
-    def displayed(self):
+    def displayed(self, expected: bool):
         def _map(web_element: WebElement):
             return web_element.is_displayed()
 
-        return self._map_web_element_property(BinaryAssertion, _map, "displayed")
+        return self._map_web_element_property(BinaryAssertion, _map, "displayed").be(expected)
 
-    @property
-    def enabled(self):
+    def enabled(self, expected: bool):
         def _map(web_element: WebElement):
             return web_element.is_enabled()
 
-        return self._map_web_element_property(BinaryAssertion, _map, "enabled")
+        return self._map_web_element_property(BinaryAssertion, _map, "enabled").be(expected)
 
-    @property
-    def selected(self):
+    def selected(self, expected: bool):
         def _map(web_element: WebElement):
             return web_element.is_selected()
 
-        return self._map_web_element_property(BinaryAssertion, _map, "selected")
+        return self._map_web_element_property(BinaryAssertion, _map, "selected").be(expected)
 
     @property
     def tag_name(self):
@@ -414,15 +418,13 @@ class UiElementAssertion:
     def classes(self, *classes):
         return self.attribute(Attribute.CLASS).has_words(*classes)
 
-    @property
-    def visible(self):
-        return self._visible(False)
+    def visible(self, expected: bool):
+        return self._visible(expected, False)
 
-    @property
-    def fully_visible(self):
-        return self._visible(True)
+    def fully_visible(self, expected: bool):
+        return self._visible(expected, True)
 
-    def _visible(self, fully: bool = False):
+    def _visible(self, expected: bool, fully: bool = False):
         def _map(web_element: WebElement):
             viewport = script.get_viewport(self._ui_element._webdriver)
             bounds = Rect.from_web_element(web_element)
@@ -435,7 +437,7 @@ class UiElementAssertion:
         if fully:
             name = f"fully {name}"
 
-        return self._map_web_element_property(BinaryAssertion, _map, name)
+        return self._map_web_element_property(BinaryAssertion, _map, name).be(expected)
 
     @property
     def value(self):
@@ -444,9 +446,9 @@ class UiElementAssertion:
     @property
     def count(self):
         return QuantityAssertion[int](
-            parent=None,
+            parent=self._ui_element,
             actual=lambda: self._ui_element._count_elements(),
-            subject=lambda: f"{self._ui_element.name_path} count {Format.param(self._ui_element._count_elements())}",
+            name=lambda: f" count {Format.param(self._ui_element._count_elements())}",
             raise_exception=self._raise,
         )
 

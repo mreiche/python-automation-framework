@@ -42,6 +42,18 @@ class BasePage(HasName):
     def webdriver(self):
         return self._webdriver
 
+    @property
+    def expect(self):
+        return PageAssertion(self, self._webdriver)
+
+    @property
+    def wait_for(self):
+        return PageAssertion(self, self._webdriver, raise_exception=False)
+
+    def scroll_by(self, x: int = 0, y: int = 0):
+        actions = ActionChains(self._webdriver)
+        actions.scroll_by_amount(x, y).perform()
+
 
 class FinderPage(BasePage):
     def find(self, by: Locator):
@@ -62,18 +74,6 @@ class Page(BasePage):
     def _create_page(self, page_class: Type[PAGE]) -> PAGE:
         return page_class(self._webdriver)
 
-    @property
-    def expect(self):
-        return PageAssertion(self, self._webdriver)
-
-    @property
-    def wait_for(self):
-        return PageAssertion(self, self._webdriver, raise_exception=False)
-
-    def scroll_by(self, x: int = 0, y: int = 0):
-        actions = ActionChains(self._webdriver)
-        actions.scroll_by_amount(x, y).perform()
-
 
 class PageAssertion:
 
@@ -90,18 +90,18 @@ class PageAssertion:
     @property
     def title(self):
         return StringAssertion(
-            parent=None,
+            parent=self._page,
             actual=lambda: self._webdriver.title,
-            subject=lambda: f"{self._page.name}.title {Format.param(self._webdriver.title)}",
+            name=lambda: f".title {Format.param(self._webdriver.title)}",
             raise_exception=self._raise,
         )
 
     @property
     def url(self):
         return StringAssertion(
-            parent=None,
+            parent=self._page,
             actual=lambda: self._webdriver.current_url,
-            subject=lambda: f"{self._page.name}.url {Format.param(self._webdriver.current_url)}",
+            subject=lambda: f".url {Format.param(self._webdriver.current_url)}",
             raise_exception=self._raise,
         )
 

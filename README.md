@@ -88,23 +88,20 @@ Comparison of the syntax with other frameworks.
 **Pylenium**
 ```python
 py.get("a[href='/about']").should().have_text("About")
-```
-```python
+
 find("a[href='/about']").expect.text.be("About")
 ```
 **SeleniumBase**
 ```python
 self.assert_text_not_visible("Thanks for your purchase.", "#app .success")
-```
-```python
+
 find("#app .success").expect.text.not_be("Thanks for your purchase.")
 ```
 **Selene**
 ```python
 browser.all('#rso>div').should(have.size_greater_than(5)) \
     .first.should(have.text('Selenium automates browsers'))
-```
-```python
+
 div = find("#rso>div")
 div.expect.count.greater_than(5).be(True)
 div.first.expect.text.be("Selenium automates browsers")
@@ -167,3 +164,4 @@ snapshot.snapshotItem(0).textContent
 ### References
 - https://stackoverflow.com/questions/64033686/how-can-i-use-private-docker-image-in-github-actions
 - https://tecadmin.net/setup-selenium-chromedriver-on-ubuntu/
+- https://stackoverflow.com/questions/46052736/python-proxy-class
