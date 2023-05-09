@@ -41,7 +41,9 @@ class HasParent(HasName, ABC):
         def _trace(inst: HasName):
             nonlocal name_path
             name_path = inst.name + name_path
-            if isinstance(inst, HasParent) and isinstance(inst._parent, (UiElement, Component, Page)):
+            if isinstance(inst, (UiElement, Component, Page)) \
+                and isinstance(inst, HasParent) \
+                and isinstance(inst._parent, (UiElement, Component, Page)):
                 name_path = " > " + name_path
             return True
 

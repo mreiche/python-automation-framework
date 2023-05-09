@@ -101,7 +101,7 @@ class PageAssertion:
         return StringAssertion(
             parent=self._page,
             actual=lambda: self._webdriver.current_url,
-            subject=lambda: f".url {Format.param(self._webdriver.current_url)}",
+            name=lambda: f".url {Format.param(self._webdriver.current_url)}",
             raise_exception=self._raise,
         )
 

@@ -4,18 +4,12 @@ import inject
 import pytest
 import logging
 import paf.config
-from paf.listener import Listener, HighlightListener
-
 from paf.manager import WebDriverManager
 
 
 @pytest.fixture(scope="session", autouse=True)
 def configure_inject():
-    def _bind(binder: inject.Binder):
-        binder.install(paf.config.inject)
-        binder.bind(Listener, HighlightListener())
-
-    inject.configure(_bind)
+    inject.configure(paf.config.inject)
 
 
 def pytest_exception_interact(

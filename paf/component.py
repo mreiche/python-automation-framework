@@ -2,7 +2,7 @@ from typing import Type
 
 from selenium.webdriver.support.color import Color
 
-from paf.common import HasParent, Locator, Point
+from paf.common import HasParent, Locator
 from paf.types import COMPONENT, PAGE
 from paf.uielement import UiElement, PageObject, PageObjectList, UiElementTests
 
@@ -19,7 +19,6 @@ class Component(PageObject[COMPONENT], PageObjectList[COMPONENT], HasParent, UiE
 
     def _find(self, by: Locator):
         ui_element = self._ui_element.find(by)
-        #ui_element._parent = self
         return ui_element
 
     @property

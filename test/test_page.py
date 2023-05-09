@@ -18,6 +18,7 @@ def test_assertions(page: Page):
     assert page.wait_for.url.be("https://testpages.herokuapp.com/styled/index.html")
 
     page.expect.title.be("Selenium Test Pages")
+    assert page.name == "Page"
     assert page.webdriver.title == "Selenium Test Pages"
 
 

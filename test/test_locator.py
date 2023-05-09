@@ -90,3 +90,7 @@ def test_to_string_filtered():
 
 def test_By_xpath_XPath():
     assert str(By.xpath(XPath.at("body"))) == "By.xpath(//body)"
+
+
+def test_XPath_group():
+    assert str(XPath.at("(frame|iframe)")) == "(frame|iframe)"

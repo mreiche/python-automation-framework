@@ -199,7 +199,7 @@ def test_retry(finder: FinderPage):
     btn.click()
     control.retry(
         action=lambda: clicks.expect.count.be(3),
-        on_fail=lambda: btn.click(),
+        on_fail=lambda e: btn.click(),
         wait_after_fail=0,
         count=3
     )
