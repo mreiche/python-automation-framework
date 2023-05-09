@@ -43,6 +43,10 @@ class AbstractAssertion(Generic[ACTUAL_TYPE], HasParent, ABC):
     def name(self):
         return self._name()
 
+    @property
+    def raise_exception(self):
+        return self._raise
+
     def _find_closest_ui_element(self) -> "UiElement":
         from paf.uielement import UiElement
         ui_element = None

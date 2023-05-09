@@ -118,6 +118,7 @@ class Property(Enum):
     PAF_SEQUENCE_WAIT_AFTER_FAIL = 0.3
     PAF_SEQUENCE_RETRY_COUNT = 3
     PAF_SELENIUM_SERVER_URL = None
+    PAF_DEMO_MODE = "0"
 
     @staticmethod
     def env(prop: "Property") -> any:
