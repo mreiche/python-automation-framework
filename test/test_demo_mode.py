@@ -43,6 +43,12 @@ def test_highlight_failed_assertion(finder: FinderPage, listener: Listener):
     assert not btn.wait_for.text.raise_exception
 
 
+def test_highlight_passed_assertion(finder: FinderPage, listener: Listener):
+    btn = finder.find("#button")
+    btn.expect.value.be("click me")
+    btn.expect.css("outline").be("rgb(0, 255, 0) solid 5px")
+
+
 def test_highlight_not_found_log(finder: FinderPage, listener: Listener, caplog):
     inexistent = finder.find("#inexistent")
     inexistent.wait_for.count.be(1)

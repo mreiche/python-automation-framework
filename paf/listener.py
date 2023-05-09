@@ -79,6 +79,13 @@ class HighlightListener(Listener):
         if not isinstance(exception, NotFoundException):
             self._highlight_with_color(ui_element, "#f00")
 
+    def assertion_passed(
+        self,
+        assertion: AbstractAssertion,
+        ui_element: "UiElement"
+    ):
+        self._highlight_with_color(ui_element, "#0f0")
+
     def assertion_failed_finally(
         self,
         assertion: AbstractAssertion,
