@@ -48,7 +48,7 @@ class HasParent(HasName, ABC):
         self._trace_path(_trace)
         return name_path
 
-    def _trace_path(self, consumer: Predicate[Self]):
+    def _trace_path(self, consumer: Predicate[HasName]):
         inst = self
         while isinstance(inst, HasName):
             if not consumer(inst) or not isinstance(inst, HasParent):
@@ -129,7 +129,11 @@ class Formatter:
         return date.strftime('%Y-%m-%d-%H:%M:%S')
 
 
-class ElementNotFoundException(Exception):
+class NotFoundException(Exception):
+    pass
+
+
+class NotUniqueException(Exception):
     pass
 
 

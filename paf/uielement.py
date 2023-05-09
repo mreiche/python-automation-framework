@@ -13,7 +13,7 @@ from selenium.webdriver.support.color import Color
 
 import paf.javascript as script
 from paf.assertion import StringAssertion, Format, BinaryAssertion, QuantityAssertion, RectAssertion
-from paf.common import HasParent, Locator, Point, Rect, Property, Formatter, ElementNotFoundException
+from paf.common import HasParent, Locator, Point, Rect, Property, Formatter, NotFoundException, NotUniqueException
 from paf.control import Control
 from paf.dom import Attribute
 from paf.listener import Listener
@@ -193,12 +193,12 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
             count = len(web_elements)
 
             if self._by.is_unique and count != 1:
-                raise Exception(f"Not unique")
+                raise NotUniqueException(f"Not unique")
             elif count > self._index:
                 web_element = web_elements[self._index]
                 return mapper(web_element)
             else:
-                raise ElementNotFoundException(f"Not found")
+                raise NotFoundException(f"Not found")
 
         return self._find_web_elements(_handle)
 
@@ -208,11 +208,11 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
         try:
             control.retry(
                 action=lambda: self.find_web_element(consumer),
-                on_fail=lambda e: listener.action_failed(action_name, e)
+                on_fail=lambda e: listener.action_failed(action_name, self, e)
             )
-            listener.action_passed(action_name)
+            listener.action_passed(action_name, self)
         except Exception as exception:
-            listener.action_failed_finally(action_name, exception)
+            listener.action_failed_finally(action_name, self, exception)
             raise Exception(f"{self.name_path}: {exception}")
 
     def click(self):

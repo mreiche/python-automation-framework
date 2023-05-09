@@ -5,7 +5,7 @@ from typing import TypeVar, Generic
 
 import inject
 
-from paf.common import Rect, HasParent
+from paf.common import Rect, HasParent, HasName
 from paf.control import Control, RetryException
 from paf.types import Supplier, Predicate, Number, Mapper
 
@@ -43,6 +43,20 @@ class AbstractAssertion(Generic[ACTUAL_TYPE], HasParent, ABC):
     def name(self):
         return self._name()
 
+    def _find_closest_ui_element(self) -> "UiElement":
+        from paf.uielement import UiElement
+        ui_element = None
+
+        def _find(inst: HasName):
+            nonlocal ui_element
+            if isinstance(inst, UiElement):
+                ui_element = inst
+                return False
+            return True
+
+        self._trace_path(_find)
+        return ui_element
+
     def _test_sequence(
         self,
         test: Predicate[ACTUAL_TYPE],
@@ -58,12 +72,12 @@ class AbstractAssertion(Generic[ACTUAL_TYPE], HasParent, ABC):
             def perform_test():
                 assert test(self._actual())
 
-            control.retry(perform_test, lambda e: listener.assertion_failed(self, e))
-            listener.assertion_passed(self)
+            control.retry(perform_test, lambda e: listener.assertion_failed(self, self._find_closest_ui_element(), e))
+            listener.assertion_passed(self, self._find_closest_ui_element())
             return True
 
         except RetryException as e:
-            listener.assertion_failed_finally(self, e)
+            listener.assertion_failed_finally(self, self._find_closest_ui_element(), e)
 
             if self._raise:
                 subject = self.name_path
