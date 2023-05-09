@@ -64,7 +64,6 @@ class AbstractAssertion(Generic[ACTUAL_TYPE], HasParent, ABC):
         test: Predicate[ACTUAL_TYPE],
         additional_subject: Supplier = None,
     ) -> bool:
-        self._used = True
         from paf.listener import Listener
 
         control = inject.instance(Control)
@@ -72,7 +71,7 @@ class AbstractAssertion(Generic[ACTUAL_TYPE], HasParent, ABC):
 
         try:
             def perform_test():
-                assert test(self._actual_supplier())
+                assert test(self.actual)
 
             control.retry(perform_test, lambda e: listener.assertion_failed(self, self._find_closest_ui_element(), e))
             listener.assertion_passed(self, self._find_closest_ui_element())

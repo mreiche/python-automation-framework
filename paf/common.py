@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Self
 
 import inject
 from selenium.webdriver.remote.webelement import WebElement
