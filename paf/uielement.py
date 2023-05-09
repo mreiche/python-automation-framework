@@ -12,7 +12,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.color import Color
 
 import paf.javascript as script
-from paf.assertion import StringAssertion, Format, BinaryAssertion, QuantityAssertion, RectAssertion
+from paf.assertion import StringAssertion, Format, BinaryAssertion, QuantityAssertion, RectAssertion, ASSERTION
 from paf.common import HasParent, Locator, Point, Rect, Property, Formatter, NotFoundException, NotUniqueException
 from paf.control import Control
 from paf.dom import Attribute
@@ -342,9 +342,6 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
         )
 
 
-A = TypeVar('A')
-
-
 class UiElementAssertion:
 
     def __init__(
@@ -357,14 +354,14 @@ class UiElementAssertion:
 
     def _map_web_element_property(
         self,
-        assertion_class: Type[A],
+        assertion_class: Type[ASSERTION],
         mapper: Mapper[WebElement, any],
         property_name: str
-    ) -> A:
+    ) -> ASSERTION:
         return assertion_class(
             parent=self._ui_element,
-            actual=lambda: self._ui_element.find_web_element(mapper),
-            name=lambda: f".{property_name} {Format.param(self._ui_element.find_web_element(mapper))}",
+            actual_supplier=lambda: self._ui_element.find_web_element(mapper),
+            name_supplier=lambda: f".{property_name} {Format.param(self._ui_element.find_web_element(mapper))}",
             raise_exception=self._raise,
         )
 
@@ -447,8 +444,8 @@ class UiElementAssertion:
     def count(self):
         return QuantityAssertion[int](
             parent=self._ui_element,
-            actual=lambda: self._ui_element._count_elements(),
-            name=lambda: f" count {Format.param(self._ui_element._count_elements())}",
+            actual_supplier=lambda: self._ui_element._count_elements(),
+            name_supplier=lambda: f" count {Format.param(self._ui_element._count_elements())}",
             raise_exception=self._raise,
         )
 

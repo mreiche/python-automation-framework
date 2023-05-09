@@ -1,6 +1,5 @@
 import inject
 import pytest
-from selenium.webdriver.remote.webdriver import BaseWebDriver
 from selenium.webdriver.support.color import Color
 
 from paf.control import Control

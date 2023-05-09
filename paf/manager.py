@@ -28,9 +28,9 @@ class WebDriverManager:
         return options
 
     def get_webdriver(self, request: WebDriverRequest) -> WebDriver:
-        session_key = request.session_name
-        if session_key in self._session_driver_map:
-            return self._session_driver_map[session_key]
+        session_name = request.session_name
+        if session_name in self._session_driver_map:
+            return self._session_driver_map[session_name]
 
         webdriver = None
         webdriver_class: Type[BaseWebDriver] = None

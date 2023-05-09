@@ -91,8 +91,8 @@ class PageAssertion:
     def title(self):
         return StringAssertion(
             parent=self._page,
-            actual=lambda: self._webdriver.title,
-            name=lambda: f".title {Format.param(self._webdriver.title)}",
+            actual_supplier=lambda: self._webdriver.title,
+            name_supplier=lambda: f".title {Format.param(self._webdriver.title)}",
             raise_exception=self._raise,
         )
 
@@ -100,8 +100,8 @@ class PageAssertion:
     def url(self):
         return StringAssertion(
             parent=self._page,
-            actual=lambda: self._webdriver.current_url,
-            name=lambda: f".url {Format.param(self._webdriver.current_url)}",
+            actual_supplier=lambda: self._webdriver.current_url,
+            name_supplier=lambda: f".url {Format.param(self._webdriver.current_url)}",
             raise_exception=self._raise,
         )
 

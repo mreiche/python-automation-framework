@@ -1,13 +1,12 @@
-import logging
 import os
-import threading
 
 import inject
+from selenium.webdriver import ChromeOptions
 
 from paf.common import Size
 from paf.manager import WebDriverManager
 from paf.request import WebDriverRequest
-from selenium.webdriver import ChromeOptions
+
 
 def create_webdriver(request: WebDriverRequest = None):
     manager = inject.instance(WebDriverManager)
