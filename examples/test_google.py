@@ -1,4 +1,5 @@
 from functools import cache
+from time import sleep
 
 import inject
 from selenium.webdriver import Keys
@@ -46,9 +47,9 @@ class StartPage(Page):
         return self._find(By.id("L2AGLb"))
 
     def accept_cookies(self):
-        if self._accept_cookies_btn.wait_for.displayed.be(True):
+        if self._accept_cookies_btn.wait_for.displayed(True):
             self._accept_cookies_btn.click()
-            self._accept_cookies_btn.expect.displayed.be(False)
+            self._accept_cookies_btn.expect.displayed(False)
 
     def search(self, search: str):
         self._search_field.type(search)
