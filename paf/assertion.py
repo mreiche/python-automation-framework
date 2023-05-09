@@ -102,9 +102,6 @@ class AbstractAssertion(Generic[ACTUAL_TYPE], HasParent, ABC):
 
         return self._actual_supplier()
 
-    def be(self, expected: any) -> bool:
-        return self._test_sequence(lambda actual: actual == expected, lambda: f" to be {Format.param(expected)}")
-
     def __del__(self):
         if not self._used:
             logging.warning(f"Unused Assertion: {self.name_path}")

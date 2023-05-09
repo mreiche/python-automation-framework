@@ -1,7 +1,6 @@
 from paf.common import Size, Rect
-from paf.manager import WebDriverManager
-from paf.request import WebDriverRequest
 from paf.javascript import get_viewport
+from paf.request import WebDriverRequest
 from test import create_webdriver
 
 

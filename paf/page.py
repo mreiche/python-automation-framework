@@ -76,7 +76,6 @@ class Page(BasePage):
 
 
 class PageAssertion:
-
     def __init__(
         self,
         page: BasePage,

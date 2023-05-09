@@ -118,7 +118,7 @@ References: https://www.nextgenerationautomation.com/post/python-test-automation
 ### Testing
 #### Run the tests on you local machine
 ```shell
-PYTHONPATH="." coverage run -m pytest --numprocesses=4 test
+pytest --cov=paf -n=4 test
 ```
 
 #### Build test base container (for use in GitHub Actions)
@@ -134,7 +134,7 @@ podman build -f test.Dockerfile --arch=amd64 -t paf-test:latest
 ```
 Run tests within container
 ```shell
-podman run paf-test:latest PAF_TEST_HEADLESS=1 PAF_TEST_CONTAINER=1 coverage run -m pytest --numprocesses=4 test
+podman run paf-test:latest PAF_TEST_HEADLESS=1 PAF_TEST_CONTAINER=1 pytest --cov=paf -n=4 test
 ```
 
 #### Run local selenium server
@@ -142,9 +142,6 @@ podman run paf-test:latest PAF_TEST_HEADLESS=1 PAF_TEST_CONTAINER=1 coverage run
 wget https://github.com/SeleniumHQ/selenium/releases/download/selenium-4.9.0/selenium-server-4.9.0.jar -O selenium-server.jar
 java -jar selenium-server.jar standalone --host 127.0.0.1
 ```
-
-### Todos
-- `pytest --numprocesses` doesn't work with coverage report, considering `pytest-asyncio`
 
 ### Debug XPaths in Browser's Developer Console
 

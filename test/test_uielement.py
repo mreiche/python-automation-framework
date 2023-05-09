@@ -10,16 +10,10 @@ from paf.uielement import UiElement
 from paf.xpath import XPath
 from test import create_webdriver
 
-page_factory: PageFactory = None
-
-
-def setup_module():
-    global page_factory
-    page_factory = inject.instance(PageFactory)
-
 
 @pytest.fixture
 def finder():
+    page_factory = inject.instance(PageFactory)
     finder = page_factory.create_page(FinderPage, create_webdriver())
     yield finder
 
@@ -30,6 +24,7 @@ def test_basics(finder: FinderPage):
     p = finder.find(By.id("para1"))
     assert p.name_path == 'UiElement(By.id(para1))[0]'
     assert p.name == p.name_path
+    assert str(p) == p.name
     assert finder.webdriver == p.webdriver
 
     centered = finder.find(".centered")

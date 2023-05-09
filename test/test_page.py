@@ -19,6 +19,7 @@ def test_assertions(page: Page):
 
     page.expect.title.be("Selenium Test Pages")
     assert page.name == "Page"
+    assert str(page) == page.name
     assert page.webdriver.title == "Selenium Test Pages"
 
 

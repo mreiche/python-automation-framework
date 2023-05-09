@@ -4,6 +4,7 @@ import pytest
 import paf.config
 from paf.common import Property
 from paf.listener import Listener, HighlightListener
+from paf.manager import WebDriverManager
 from paf.page import PageFactory, FinderPage
 from test import create_webdriver
 
@@ -39,6 +40,7 @@ def test_highlight_failed_assertion(finder: FinderPage, listener: Listener):
     btn = finder.find("#button")
     btn.wait_for.text.be("Katze")
     btn.expect.css("outline").be("rgb(255, 0, 0) solid 5px")
+    assert not btn.wait_for.text.raise_exception
 
 
 def test_highlight_not_found_log(finder: FinderPage, listener: Listener, caplog):
@@ -51,3 +53,7 @@ def test_highlight_not_found_log(finder: FinderPage, listener: Listener, caplog)
     assert len(caplog.records) == 2
     for record in caplog.records:
         assert "Cannot highlight UiElement(By.css selector(#inexistent))[0]: Not found" in record.message
+
+
+def teardown_module():
+    inject.instance(WebDriverManager).shutdown_all()
