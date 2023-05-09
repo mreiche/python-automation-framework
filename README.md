@@ -58,6 +58,7 @@ element.expect.text.be("Search")
 - [Components](doc/components.md)
 - [Managing WebDrivers](doc/manager.md)
 - [Execution controlling](doc/control.md)
+- [Inject listener](doc/listener.md)
 
 ### Missing features (tdb)
 
@@ -67,11 +68,14 @@ element.expect.text.be("Search")
 
 ## Environment variables
 
+The value behind the variable is the default value.
+
 * `PAF_BROWSER_SETTING=chrome:90`: Sets the requested browser name and it's version.
 * `PAF_WINDOW_SIZE=1920x1080`: Sets the browsers default window size.
 * `PAF_SCREENSHOTS_DIR=screenshots`: Sets the screenshots' directory.
 * `PAF_SEQUENCE_WAIT_AFTER_FAIL=0.3`: Wait in seconds whenever a sequence action fails. 
 * `PAF_SEQUENCE_RETRY_COUNT=3`: Retry count for every sequence action.
+* `PAF_DEMO_MODE=0`: Enables the demo mode by highlighting actions and assertions.
 
 ## Examples
 
@@ -88,23 +92,20 @@ Comparison of the syntax with other frameworks.
 **Pylenium**
 ```python
 py.get("a[href='/about']").should().have_text("About")
-```
-```python
+
 find("a[href='/about']").expect.text.be("About")
 ```
 **SeleniumBase**
 ```python
 self.assert_text_not_visible("Thanks for your purchase.", "#app .success")
-```
-```python
+
 find("#app .success").expect.text.not_be("Thanks for your purchase.")
 ```
 **Selene**
 ```python
 browser.all('#rso>div').should(have.size_greater_than(5)) \
     .first.should(have.text('Selenium automates browsers'))
-```
-```python
+
 div = find("#rso>div")
 div.expect.count.greater_than(5).be(True)
 div.first.expect.text.be("Selenium automates browsers")
@@ -117,7 +118,7 @@ References: https://www.nextgenerationautomation.com/post/python-test-automation
 ### Testing
 #### Run the tests on you local machine
 ```shell
-PYTHONPATH="." coverage run -m pytest --numprocesses=4 test
+pytest --cov=paf -n=4 test
 ```
 
 #### Build test base container (for use in GitHub Actions)
@@ -133,7 +134,7 @@ podman build -f test.Dockerfile --arch=amd64 -t paf-test:latest
 ```
 Run tests within container
 ```shell
-podman run paf-test:latest PAF_TEST_HEADLESS=1 PAF_TEST_CONTAINER=1 coverage run -m pytest --numprocesses=4 test
+podman run paf-test:latest PAF_TEST_HEADLESS=1 PAF_TEST_CONTAINER=1 pytest --cov=paf -n=4 test
 ```
 
 #### Run local selenium server
@@ -141,9 +142,6 @@ podman run paf-test:latest PAF_TEST_HEADLESS=1 PAF_TEST_CONTAINER=1 coverage run
 wget https://github.com/SeleniumHQ/selenium/releases/download/selenium-4.9.0/selenium-server-4.9.0.jar -O selenium-server.jar
 java -jar selenium-server.jar standalone --host 127.0.0.1
 ```
-
-### Todos
-- `pytest --numprocesses` doesn't work with coverage report, considering `pytest-asyncio`
 
 ### Debug XPaths in Browser's Developer Console
 
@@ -167,3 +165,4 @@ snapshot.snapshotItem(0).textContent
 ### References
 - https://stackoverflow.com/questions/64033686/how-can-i-use-private-docker-image-in-github-actions
 - https://tecadmin.net/setup-selenium-chromedriver-on-ubuntu/
+- https://stackoverflow.com/questions/46052736/python-proxy-class

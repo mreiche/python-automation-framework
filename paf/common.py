@@ -8,6 +8,7 @@ import inject
 from selenium.webdriver.remote.webelement import WebElement
 
 from paf.locator import By
+from paf.types import Predicate
 from paf.xpath import XPath
 
 Locator = By | XPath | str
@@ -31,13 +32,30 @@ class HasParent(HasName, ABC):
 
     @property
     def name_path(self):
-        path = [self]
-        inst = self
-        while hasattr(inst, "_parent") and inst._parent:
-            path.append(inst._parent)
-            inst = inst._parent
+        from paf.component import Component
+        from paf.page import Page
+        from paf.uielement import UiElement
+        name_path = ""
 
-        return " > ".join(map(str, reversed(path)))
+        def _trace(inst: HasName):
+            nonlocal name_path
+            name_path = inst.name + name_path
+            if isinstance(inst, (UiElement, Component, Page)) \
+                and isinstance(inst, HasParent) \
+                and isinstance(inst._parent, (UiElement, Component, Page)):
+                name_path = " > " + name_path
+            return True
+
+        self._trace_path(_trace)
+        return name_path
+
+    def _trace_path(self, consumer: Predicate[HasName]):
+        inst = self
+        while isinstance(inst, HasName):
+            if not consumer(inst) or not isinstance(inst, HasParent):
+                break
+
+            inst = inst._parent
 
 
 @dataclass()
@@ -101,6 +119,7 @@ class Property(Enum):
     PAF_SEQUENCE_WAIT_AFTER_FAIL = 0.3
     PAF_SEQUENCE_RETRY_COUNT = 3
     PAF_SELENIUM_SERVER_URL = None
+    PAF_DEMO_MODE = "0"
 
     @staticmethod
     def env(prop: "Property") -> any:
@@ -110,6 +129,14 @@ class Property(Enum):
 class Formatter:
     def datetime(self, date: datetime):
         return date.strftime('%Y-%m-%d-%H:%M:%S')
+
+
+class NotFoundException(Exception):
+    pass
+
+
+class NotUniqueException(Exception):
+    pass
 
 
 def inject_config(binder: inject.Binder):

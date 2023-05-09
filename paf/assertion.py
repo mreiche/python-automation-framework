@@ -1,13 +1,13 @@
+import logging
 import re
-from typing import Callable, Iterable, TypeVar, Generic
+from abc import ABC
+from typing import Generic, TypeVar
 
 import inject
 
-from paf.common import Rect
+from paf.common import Rect, HasParent, HasName
 from paf.control import Control, RetryException
-from paf.types import Supplier, Predicate, Number, Mapper
-
-ACTUAL_TYPE = TypeVar("ACTUAL_TYPE")
+from paf.types import Supplier, Predicate, Number, ACTUAL_TYPE, Mapper
 
 
 class Format:
@@ -17,90 +17,110 @@ class Format:
             return "*undefined*"
         else:
             return f"[{value}]"
-    #
-    # @staticmethod
-    # def separate(*args):
-    #     return " ".join(map(str, args))
 
 
-class AbstractPropertyAssertion(Generic[ACTUAL_TYPE]):
+class AbstractAssertion(Generic[ACTUAL_TYPE], HasParent, ABC):
     def __init__(
         self,
-        parent: None | object,
-        actual: Supplier[ACTUAL_TYPE],
-        subject: Supplier[str],
-        raise_exception: bool = True,
-        failed: Callable = None,
-        passed: Callable = None,
-        failed_finally: Callable = None
+        parent: None | HasName,
+        actual_supplier: Supplier[ACTUAL_TYPE],
+        name_supplier: Supplier[str],
+        raise_exception: bool = True
     ):
         self._raise = raise_exception
 
-        if parent:
-            assert isinstance(parent, AbstractPropertyAssertion)
+        if parent and isinstance(parent, AbstractAssertion):
             self._raise = parent._raise
 
         self._parent = parent
-        self._actual = actual
-        self._subject = subject
-        self._failed = failed
-        self._passed = passed
-        self._failed_finally = failed_finally
+        self._actual_supplier = actual_supplier
+        self._name_supplier = name_supplier
+        self._used = False
+
+    @property
+    def name(self):
+        return self._name_supplier()
+
+    @property
+    def raise_exception(self):
+        return self._raise
+
+    def _find_closest_ui_element(self) -> "UiElement":
+        from paf.uielement import UiElement
+        ui_element = None
+
+        def _find(inst: HasName):
+            nonlocal ui_element
+            if isinstance(inst, UiElement):
+                ui_element = inst
+                return False
+            return True
+
+        self._trace_path(_find)
+        return ui_element
 
     def _test_sequence(
         self,
         test: Predicate[ACTUAL_TYPE],
         additional_subject: Supplier = None,
     ) -> bool:
+        from paf.listener import Listener
 
         control = inject.instance(Control)
+        listener = inject.instance(Listener)
+
         try:
             def perform_test():
-                assert test(self._actual())
+                assert test(self.actual)
 
-            control.retry(perform_test, self._failed)
-
-            if self._passed:
-                self._passed()
+            control.retry(perform_test, lambda e: listener.assertion_failed(self, self._find_closest_ui_element(), e))
+            listener.assertion_passed(self, self._find_closest_ui_element())
             return True
 
         except RetryException as e:
-            if self._failed_finally:
-                self._failed_finally()
+            listener.assertion_failed_finally(self, self._find_closest_ui_element(), e)
 
             if self._raise:
-                subject = self._create_subject()
+                subject = self.name_path
+
                 if additional_subject:
                     subject += additional_subject()
 
                 raise AssertionError(f"Expected {subject} after {e.sequence.count} retries ({round(e.sequence.duration, 2)} seconds)")
             return False
 
-    def _create_subject(self) -> str:
-        path = [self]
-        inst = self
-        while inst._parent:
-            path.append(inst._parent)
-            inst = inst._parent
-
-        return " ".join(map(lambda x: x._subject(), reversed(path)))
-
     @property
     def actual(self) -> ACTUAL_TYPE:
-        return self._actual()
+        if not self._used:
+            def _use(inst: HasName):
+                if not isinstance(inst, AbstractAssertion):
+                    return False
+
+                inst._used = True
+                return True
+            self._trace_path(_use)
+
+        return self._actual_supplier()
+
+    def __del__(self):
+        if not self._used:
+            logging.warning(f"Unused Assertion: {self.name_path}")
 
 
-class BinaryAssertion(AbstractPropertyAssertion[ACTUAL_TYPE]):
+ASSERTION = TypeVar('ASSERTION', bound=AbstractAssertion)
+
+
+class BinaryAssertion(AbstractAssertion[ACTUAL_TYPE]):
     def be(self, expected: any) -> bool:
         return self._test_sequence(lambda actual: actual == expected, lambda: f" to be {Format.param(expected)}")
 
 
-class QuantityAssertion(Generic[ACTUAL_TYPE], BinaryAssertion[ACTUAL_TYPE]):
+class QuantityAssertion(BinaryAssertion[ACTUAL_TYPE]):
     def map(self, mapper: Mapper):
         return self.__class__(
             parent=self,
-            actual=lambda: mapper(self._actual()),
-            subject=lambda: "mapped",
+            actual_supplier=lambda: mapper(self._actual_supplier()),
+            name_supplier=lambda: "mapped",
         )
 
     def not_be(self, expected: any) -> bool:
@@ -109,36 +129,36 @@ class QuantityAssertion(Generic[ACTUAL_TYPE], BinaryAssertion[ACTUAL_TYPE]):
     def between(self, lower: Number, higher: Number):
         return BinaryAssertion(
             parent=self,
-            actual=lambda: lower <= self._actual() <= higher,
-            subject=lambda: f"between {Format.param(lower)} and {Format.param(higher)}",
+            actual_supplier=lambda: lower <= self._actual_supplier() <= higher,
+            name_supplier=lambda: f"between {Format.param(lower)} and {Format.param(higher)}",
         )
 
     def greater_than(self, expected: Number):
         return BinaryAssertion(
             parent=self,
-            actual=lambda: self._actual() > expected,
-            subject=lambda: f"greater than {Format.param(expected)}",
+            actual_supplier=lambda: self._actual_supplier() > expected,
+            name_supplier=lambda: f"greater than {Format.param(expected)}",
         )
 
     def lower_than(self, expected: Number):
         return BinaryAssertion(
             parent=self,
-            actual=lambda: self._actual() < expected,
-            subject=lambda: f"lower than {Format.param(expected)}",
+            actual_supplier=lambda: self._actual_supplier() < expected,
+            name_supplier=lambda: f"lower than {Format.param(expected)}",
         )
 
     def greater_equal_than(self, expected: Number):
         return BinaryAssertion(
             parent=self,
-            actual=lambda: self._actual() >= expected,
-            subject=lambda: f"greater equal than {Format.param(expected)}",
+            actual_supplier=lambda: self._actual_supplier() >= expected,
+            name_supplier=lambda: f"greater equal than {Format.param(expected)}",
         )
 
     def lower_equal_than(self, expected: Number):
         return BinaryAssertion(
             parent=self,
-            actual=lambda: self._actual() <= expected,
-            subject=lambda: f"lower equal than {Format.param(expected)}",
+            actual_supplier=lambda: self._actual_supplier() <= expected,
+            name_supplier=lambda: f"lower equal than {Format.param(expected)}",
         )
 
 
@@ -146,22 +166,22 @@ class StringAssertion(QuantityAssertion[str]):
     def starts_with(self, expected: str):
         return BinaryAssertion(
             parent=self,
-            actual=lambda: str(self._actual()).startswith(expected),
-            subject=lambda: f"starts with {Format.param(expected)}",
+            actual_supplier=lambda: str(self._actual_supplier()).startswith(expected),
+            name_supplier=lambda: f"starts with {Format.param(expected)}",
         )
 
     def ends_with(self, expected: str):
         return BinaryAssertion(
             parent=self,
-            actual=lambda: str(self._actual()).endswith(expected),
-            subject=lambda: f"ends with {Format.param(expected)}",
+            actual_supplier=lambda: str(self._actual_supplier()).endswith(expected),
+            name_supplier=lambda: f"ends with {Format.param(expected)}",
         )
 
     def contains(self, expected: str):
         return BinaryAssertion(
             parent=self,
-            actual=lambda: str(self._actual()).find(expected) >= 0,
-            subject=lambda: f"contains {Format.param(expected)}",
+            actual_supplier=lambda: str(self._actual_supplier()).find(expected) >= 0,
+            name_supplier=lambda: f"contains {Format.param(expected)}",
         )
 
     def matches(self, regex: str | re.Pattern):
@@ -170,31 +190,28 @@ class StringAssertion(QuantityAssertion[str]):
 
         return BinaryAssertion(
             parent=self,
-            actual=lambda: regex.search(self._actual()) is not None,
-            subject=lambda: f"matches {Format.param(regex.pattern)}",
+            actual_supplier=lambda: regex.search(self._actual_supplier()) is not None,
+            name_supplier=lambda: f"matches {Format.param(regex.pattern)}",
         )
 
     def has_words(self, *words: any):
-        # if not isinstance(words, Iterable):
-        #     words = [words]
-
         pattern = "|".join(words)
         regex = re.compile(f"\\b(?:{pattern})\\b", re.MULTILINE | re.IGNORECASE | re.UNICODE)
 
         return BinaryAssertion(
             parent=self,
-            actual=lambda: regex.search(self._actual()) is not None,
-            subject=lambda: f"has words {Format.param(pattern)}",
+            actual_supplier=lambda: regex.search(self._actual_supplier()) is not None,
+            name_supplier=lambda: f"has words {Format.param(pattern)}",
         )
 
     @property
     def length(self):
         return QuantityAssertion(
             parent=self,
-            actual=lambda: len(self._actual()),
-            subject=lambda: f"length {Format.param(len(self._actual()))}",
+            actual_supplier=lambda: len(self._actual_supplier()),
+            name_supplier=lambda: f"length {Format.param(len(self._actual_supplier()))}",
         )
 
 
-class RectAssertion(AbstractPropertyAssertion[Rect]):
+class RectAssertion(AbstractAssertion[Rect]):
     pass

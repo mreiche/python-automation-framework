@@ -7,7 +7,6 @@ from is_empty import empty
 from selenium.webdriver import Chrome, Firefox, Edge, Safari, Remote, ChromeOptions, EdgeOptions, FirefoxOptions, WPEWebKitOptions
 from selenium.webdriver.common.options import BaseOptions
 from selenium.webdriver.remote.webdriver import WebDriver, BaseWebDriver
-
 from paf.common import Property, Formatter
 from paf.request import WebDriverRequest
 
@@ -29,9 +28,9 @@ class WebDriverManager:
         return options
 
     def get_webdriver(self, request: WebDriverRequest) -> WebDriver:
-        session_key = request.session_name
-        if session_key in self._session_driver_map:
-            return self._session_driver_map[session_key]
+        session_name = request.session_name
+        if session_name in self._session_driver_map:
+            return self._session_driver_map[session_name]
 
         webdriver = None
         webdriver_class: Type[BaseWebDriver] = None

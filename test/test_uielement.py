@@ -1,6 +1,5 @@
 import inject
 import pytest
-from selenium.webdriver.remote.webdriver import BaseWebDriver
 from selenium.webdriver.support.color import Color
 
 from paf.control import Control
@@ -11,27 +10,28 @@ from paf.uielement import UiElement
 from paf.xpath import XPath
 from test import create_webdriver
 
-page_factory: PageFactory = None
-
-
-def setup_module():
-    global page_factory
-    page_factory = inject.instance(PageFactory)
-
 
 @pytest.fixture
 def finder():
+    page_factory = inject.instance(PageFactory)
     finder = page_factory.create_page(FinderPage, create_webdriver())
     yield finder
 
 
-def test_finder_page(finder: FinderPage):
+def test_basics(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
 
     p = finder.find(By.id("para1"))
     assert p.name_path == 'UiElement(By.id(para1))[0]'
     assert p.name == p.name_path
+    assert str(p) == p.name
     assert finder.webdriver == p.webdriver
+
+    centered = finder.find(".centered")
+    p2 = centered.find("#para2")
+
+    assert p2.name == "UiElement(By.css selector(#para2))[0]"
+    assert p2.name_path == "UiElement(By.css selector(.centered))[0] > " + p2.name
 
 
 # def test_rect():
@@ -88,6 +88,11 @@ def test_text_assertion_fails(finder: FinderPage):
            e.value.args[0]
 
 
+def test_untested_assertion_raises(finder: FinderPage):
+    finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
+    title = finder.expect.title
+
+
 def test_wait(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
 
@@ -109,16 +114,16 @@ def test_scroll_to_visible(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/find-by-playground-test.html")
 
     p = finder.find(By.id("pre1").unique)
-    p.expect.visible.be(False)
+    p.expect.visible(False)
     p.scroll_into_view()
-    p.expect.visible.be(True)
-    p.expect.fully_visible.be(True)
+    p.expect.visible(True)
+    p.expect.fully_visible(True)
 
     first = finder.find("#p1")
-    first.expect.visible.be(False)
+    first.expect.visible(False)
     first.scroll_to_top()
-    first.expect.visible.be(True)
-    p.expect.visible.be(False)
+    first.expect.visible(True)
+    p.expect.visible(False)
 
 
 def test_find_sub_elements_list(finder: FinderPage):
@@ -151,7 +156,7 @@ def test_form(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/basic-html-form-test.html")
 
     checkbox = finder.find(XPath.at("input").name("checkboxes[]").attribute("value").be("cb3"))
-    checkbox.expect.selected.be(True)
+    checkbox.expect.selected(True)
 
     textarea = finder.find(By.name("comments"))
     textarea.expect.value.be("Comments...")
@@ -159,7 +164,7 @@ def test_form(finder: FinderPage):
     textarea.expect.value.be("Hello World")
 
     username = finder.find(By.name("username"))
-    username.expect.enabled.be(True)
+    username.expect.enabled(True)
     username.send_keys("My Name")
     username.expect.value.be("My Name")
     username.clear()
@@ -187,8 +192,8 @@ def test_retry(finder: FinderPage):
     control = inject.instance(Control)
     btn.click()
     control.retry(
-        lambda: clicks.expect.count.be(3),
-        lambda: btn.click(),
+        action=lambda: clicks.expect.count.be(3),
+        on_fail=lambda e: btn.click(),
         wait_after_fail=0,
         count=3
     )
@@ -199,33 +204,33 @@ def test_actions(finder: FinderPage):
 
     click_btn = finder.find("#onclick")
     click_status = finder.find("#onclickstatus")
-    click_status.expect.displayed.be(False)
+    click_status.expect.displayed(False)
     click_btn.click()
-    click_status.expect.displayed.be(True)
+    click_status.expect.displayed(True)
 
     hover_btn = finder.find("#onmouseover")
     hover_status = finder.find("#onmouseoverstatus")
-    hover_status.expect.displayed.be(False)
+    hover_status.expect.displayed(False)
     hover_btn.hover()
-    hover_status.expect.displayed.be(True)
+    hover_status.expect.displayed(True)
 
     context_btn = finder.find("#oncontextmenu")
     context_status = finder.find("#oncontextmenustatus")
-    context_status.expect.displayed.be(False)
+    context_status.expect.displayed(False)
     context_btn.context_click()
-    context_status.expect.displayed.be(True)
+    context_status.expect.displayed(True)
 
     double_click_btn = finder.find("#ondoubleclick")
     double_click_status = finder.find("#ondoubleclickstatus")
-    double_click_status.expect.displayed.be(False)
+    double_click_status.expect.displayed(False)
     double_click_btn.double_click()
-    double_click_status.expect.displayed.be(True)
+    double_click_status.expect.displayed(True)
 
     mouse_down_btn = finder.find("#onmousedown")
     mouse_down_status = finder.find("#onmousedownstatus")
-    mouse_down_status.expect.displayed.be(False)
+    mouse_down_status.expect.displayed(False)
     mouse_down_btn.long_click()
-    mouse_down_status.expect.displayed.be(True)
+    mouse_down_status.expect.displayed(True)
 
 
 def test_drag_and_drop(finder: FinderPage):

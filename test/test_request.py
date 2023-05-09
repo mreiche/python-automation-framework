@@ -35,5 +35,6 @@ def test_server_url(monkeypatch):
     request.browser = "chrome"
     assert isinstance(request.server_url, ParseResult)
 
+
 def teardown_module():
     inject.instance(WebDriverManager).shutdown_all()

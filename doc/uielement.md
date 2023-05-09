@@ -58,13 +58,13 @@ from paf.uielement import UiElement
 ui_element: UiElement
 
 # Element is display
-ui_element.expect.displayed.be(True)
+ui_element.expect.displayed(True)
 
 # Element is enabled
-ui_element.expect.enabled.be(True)
+ui_element.expect.enabled(True)
 
 # Element is selected
-ui_element.expect.selected.be(True)
+ui_element.expect.selected(True)
 
 # Element text equals a case sensitive string
 ui_element.expect.text.be("Hello")
@@ -94,10 +94,10 @@ ui_element.expect.attribute("max-length").greater_equal_than(3).be(True)
 ui_element.expect.value.between(3, 5).be(True)
 
 # Element bounds intersects with the browsers viewport
-ui_element.expect.visible.be(True)
+ui_element.expect.visible(True)
 
 # Element bounds are inside the browsers viewport
-ui_element.expect.fully_visible.be(True)
+ui_element.expect.fully_visible(True)
 
 # Take screenshot
 path = ui_element.take_screenshot()

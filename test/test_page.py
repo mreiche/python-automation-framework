@@ -18,6 +18,8 @@ def test_assertions(page: Page):
     assert page.wait_for.url.be("https://testpages.herokuapp.com/styled/index.html")
 
     page.expect.title.be("Selenium Test Pages")
+    assert page.name == "Page"
+    assert str(page) == page.name
     assert page.webdriver.title == "Selenium Test Pages"
 
 
@@ -40,10 +42,10 @@ def test_scroll_until_visible(page: Page):
     page.open("https://testpages.herokuapp.com/styled/find-by-playground-test.html")
     p = page._find("#p41")
     height = p.expect.bounds.actual.height
-    while p.wait_for.fully_visible.be(False):
+    while p.wait_for.fully_visible(False):
         page.scroll_by(y=height)
 
-    p.expect.fully_visible.be(True)
+    p.expect.fully_visible(True)
 
 
 def teardown_module():

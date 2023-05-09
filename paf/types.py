@@ -9,3 +9,4 @@ Number = float | int
 Consumer = Callable[[T], None]
 COMPONENT = TypeVar("COMPONENT")
 PAGE = TypeVar("PAGE")
+ACTUAL_TYPE = TypeVar("ACTUAL_TYPE")

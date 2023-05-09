@@ -4,7 +4,6 @@ import inject
 import pytest
 import logging
 import paf.config
-
 from paf.manager import WebDriverManager
 
 
