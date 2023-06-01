@@ -30,9 +30,14 @@ class BasePage(HasName):
     def __str__(self):
         return self.name
 
-    def _find(self, by: Locator):
+    def _find(self, by: Locator, name: str = None):
         from paf.uielement import UiElement
-        return UiElement(by, webdriver=self._webdriver, parent=self)
+        return UiElement(
+            by=by,
+            webdriver=self._webdriver,
+            parent=self,
+            name=name,
+        )
 
     @property
     def name(self):
@@ -56,8 +61,8 @@ class BasePage(HasName):
 
 
 class FinderPage(BasePage):
-    def find(self, by: Locator):
-        ui_element = self._find(by)
+    def find(self, by: Locator, name: str = None):
+        ui_element = self._find(by, name)
         ui_element._parent = None
         return ui_element
 

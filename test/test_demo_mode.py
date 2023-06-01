@@ -38,7 +38,10 @@ def test_highlight_action(finder: FinderPage, listener: Listener):
 
 def test_highlight_failed_assertion(finder: FinderPage, listener: Listener):
     btn = finder.find("#button")
-    btn.wait_for.text.be("Katze")
+
+    with pytest.raises(Exception):
+        btn.expect.text.be("Katze")
+
     btn.expect.css("outline").be("rgb(255, 0, 0) solid 5px")
     assert not btn.wait_for.text.raise_exception
 
@@ -51,12 +54,11 @@ def test_highlight_passed_assertion(finder: FinderPage, listener: Listener):
 
 def test_highlight_not_found_log(finder: FinderPage, listener: Listener, caplog):
     inexistent = finder.find("#inexistent")
-    inexistent.wait_for.count.be(1)
 
     with pytest.raises(Exception):
         inexistent.click()
 
-    assert len(caplog.records) == 2
+    assert len(caplog.records) == 1
     for record in caplog.records:
         assert "Cannot highlight UiElement(By.css selector(#inexistent))[0]: Not found" in record.message
 

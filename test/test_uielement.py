@@ -29,9 +29,11 @@ def test_basics(finder: FinderPage):
 
     centered = finder.find(".centered")
     p2 = centered.find("#para2")
+    p_name = finder.find(By.id("para1"), "paragraph")
 
     assert p2.name == "UiElement(By.css selector(#para2))[0]"
     assert p2.name_path == "UiElement(By.css selector(.centered))[0] > " + p2.name
+    assert p_name.name == "paragraph"
 
 
 # def test_rect():

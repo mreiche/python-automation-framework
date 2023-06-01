@@ -9,16 +9,16 @@ from paf.uielement import UiElement, PageObject, PageObjectList, UiElementTests
 
 class Component(PageObject[COMPONENT], PageObjectList[COMPONENT], HasParent, UiElementTests):
 
-    def highlight(self, color: Color = Color.from_string("#0f0"), seconds: float = 2):
-        self._ui_element.highlight(color, seconds)
-        return self
-
     def __init__(self, ui_element: UiElement):
         self._ui_element = ui_element
         ui_element._parent = self
 
-    def _find(self, by: Locator):
-        ui_element = self._ui_element.find(by)
+    def highlight(self, color: Color = Color.from_string("#0f0"), seconds: float = 2):
+        self._ui_element.highlight(color, seconds)
+        return self
+
+    def _find(self, by: Locator, name: str = None):
+        ui_element = self._ui_element.find(by, name)
         return ui_element
 
     @property
