@@ -130,6 +130,7 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
         webdriver: WebDriver = None,
         parent: object = None,
         index: int = 0,
+        name: str = None,
     ):
 
         if isinstance(by, XPath):
@@ -142,17 +143,19 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
         self._by = by
         self._index = index
         self._parent = parent
+        self._name = name
 
     @property
     def webdriver(self):
         return self._webdriver
 
-    def find(self, by: Locator):
+    def find(self, by: Locator, name: str = None):
         return UiElement(
             by=by,
             ui_element=self,
             webdriver=self._webdriver,
-            parent=self
+            parent=self,
+            name=name,
         )
 
     def __relative_selector(self, by: By):
@@ -304,7 +307,10 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
 
     @property
     def name(self):
-        return f"UiElement({self._by.__str__()})[{self._index}]"
+        if self._name:
+            return self._name
+        else:
+            return f"UiElement({self._by.__str__()})[{self._index}]"
 
     def scroll_into_view(self, x: int = 0, y: int = 0):
         self._action_sequence(lambda web_element: script.scroll_to_center(self._webdriver, web_element, Point(x, y)), __name__)
