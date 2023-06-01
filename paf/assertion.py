@@ -67,7 +67,11 @@ class AbstractAssertion(Generic[ACTUAL_TYPE], HasParent, ABC):
         from paf.listener import Listener
 
         control = inject.instance(Control)
-        listener = inject.instance(Listener)
+
+        if self._raise:
+            listener = inject.instance(Listener)
+        else:
+            listener = Listener()
 
         try:
             def perform_test():
