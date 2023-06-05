@@ -2,7 +2,7 @@ import inject
 import pytest
 from selenium.webdriver.support.color import Color
 
-from paf.control import Control
+from paf.control import change, retry
 from paf.locator import By
 from paf.manager import WebDriverManager
 from paf.page import PageFactory, FinderPage
@@ -190,15 +190,10 @@ def test_retry(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/key-click-display-test.html")
     btn = finder.find(By.id("button").unique)
     clicks = finder.find(XPath.at("div").id("events").select("p"))
-
-    control = inject.instance(Control)
     btn.click()
-    control.retry(
-        action=lambda: clicks.expect.count.be(3),
-        on_fail=lambda e: btn.click(),
-        wait_after_fail=0,
-        count=3
-    )
+
+    with change(count=3, wait_after_fail=0):
+        retry(lambda: clicks.expect.count.be(3), lambda e: btn.click())
 
 
 def test_actions(finder: FinderPage):

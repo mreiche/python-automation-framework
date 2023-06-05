@@ -20,12 +20,9 @@ text_element.expect.count.be(1)
 But if you want to perform multiple actions in a retry sequence, you can use the following code.
 
 ```python
-import inject
-from paf.control import Control
+from paf.control import retry
 
-control = inject.instance(Control)
-
-control.retry(lambda: text_element.expect.count.be(1))
+retry(lambda: text_element.expect.count.be(1))
 ```
 
 If you want to perform an action when the conditions failed, use the following construct.
@@ -33,16 +30,14 @@ If you want to perform an action when the conditions failed, use the following c
 This will refresh the page until the text element is present.
 
 ```python
-control.retry(lambda: text_element.expect.count.be(1), lambda: text_element.webdriver.refresh())
+retry(lambda: text_element.expect.count.be(1), lambda: text_element.webdriver.refresh())
 ```
 
 You can also tweak the execution a bit, by overriding timings for the sequence.
 
 ```python
-control.retry(
-    action=lambda: text_element.expect.count.be(1),
-    on_fail=lambda: text_element.webdriver.refresh(),
-    count=3,
-    wait_after_fail=0
-)
+from paf.control import change
+
+with change(count=3, wait_after_fail=0):
+    retry(lambda: text_element.expect.count.be(1), lambda: text_element.webdriver.refresh())
 ```

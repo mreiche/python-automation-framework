@@ -6,7 +6,7 @@ from typing import Generic, TypeVar
 import inject
 
 from paf.common import Rect, HasParent, HasName
-from paf.control import Control, RetryException
+from paf.control import RetryException, retry
 from paf.types import Supplier, Predicate, Number, ACTUAL_TYPE, Mapper
 
 
@@ -65,15 +65,13 @@ class AbstractAssertion(Generic[ACTUAL_TYPE], HasParent, ABC):
         additional_subject: Supplier = None,
     ) -> bool:
         from paf.listener import Listener
-
-        control = inject.instance(Control)
         listener = inject.instance(Listener)
 
         try:
             def perform_test():
                 assert test(self.actual)
 
-            control.retry(perform_test, lambda e: listener.assertion_failed(self, self._find_closest_ui_element(), e))
+            retry(perform_test, lambda e: listener.assertion_failed(self, self._find_closest_ui_element(), e))
             listener.assertion_passed(self, self._find_closest_ui_element())
             return True
 

@@ -14,7 +14,7 @@ from selenium.webdriver.support.color import Color
 import paf.javascript as script
 from paf.assertion import StringAssertion, Format, BinaryAssertion, QuantityAssertion, RectAssertion, ASSERTION
 from paf.common import HasParent, Locator, Point, Rect, Property, Formatter, NotFoundException, NotUniqueException
-from paf.control import Control
+from paf.control import retry
 from paf.dom import Attribute
 from paf.listener import Listener
 from paf.locator import By
@@ -206,13 +206,9 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
         return self._find_web_elements(_handle)
 
     def _action_sequence(self, consumer: Consumer[WebElement], action_name: str):
-        control = inject.instance(Control)
         listener = inject.instance(Listener)
         try:
-            control.retry(
-                action=lambda: self.find_web_element(consumer),
-                on_fail=lambda e: listener.action_failed(action_name, self, e)
-            )
+            retry(lambda: self.find_web_element(consumer), lambda e: listener.action_failed(action_name, self, e))
             listener.action_passed(action_name, self)
         except Exception as exception:
             listener.action_failed_finally(action_name, self, exception)
