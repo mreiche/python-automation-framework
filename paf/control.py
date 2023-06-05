@@ -1,11 +1,8 @@
 import dataclasses
-import logging
+from contextlib import contextmanager
 from dataclasses import dataclass
 from time import sleep, time
 from typing import Callable
-from contextlib import contextmanager
-
-import inject
 
 from paf.common import Property
 from paf.types import Consumer
@@ -60,7 +57,7 @@ class RetryException(Exception):
 
 
 @contextmanager
-def config(
+def change(
     count: int = None,
     wait_after_fail: float = None
 ):

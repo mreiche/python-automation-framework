@@ -2,7 +2,7 @@ import inject
 import pytest
 from selenium.webdriver.support.color import Color
 
-from paf.control import config, retry
+from paf.control import change, retry
 from paf.locator import By
 from paf.manager import WebDriverManager
 from paf.page import PageFactory, FinderPage
@@ -192,7 +192,7 @@ def test_retry(finder: FinderPage):
     clicks = finder.find(XPath.at("div").id("events").select("p"))
     btn.click()
 
-    with config(count=3, wait_after_fail=0):
+    with change(count=3, wait_after_fail=0):
         retry(lambda: clicks.expect.count.be(3), lambda e: btn.click())
 
 
