@@ -1,6 +1,6 @@
 ## Page Objects
 
-Page objects are adapters for Websites, that provide methods and actions for it's features.
+Page objects are adapters for Websites, that provide methods and actions for their features.
 
 For example: Create a page object, that represents the start page of a website.
 ```python
@@ -9,10 +9,6 @@ from paf.locator import By
 from pages import UserPage
 
 class StartPage(Page):
-    @property
-    def _login_btn(self):
-        return self._find(By.id("login"))
-
     def login(self, username: str, password: str):
         self._find(By.id("username")).type(username)
         self._find(By.id("password")).type(password)
