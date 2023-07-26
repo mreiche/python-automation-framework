@@ -10,9 +10,9 @@ from pages import UserPage
 
 class StartPage(Page):
     def login(self, username: str, password: str):
-        self._find(By.id("username")).type(username)
-        self._find(By.id("password")).type(password)
-        self._find(By.id("login")).click()
+        self._find("#username").type(username)
+        self._find("#password").type(password)
+        self._find("#login").click()
         return self._create_page(UserPage)
 ```
 
@@ -26,7 +26,7 @@ from paf.uielement import TestableUiElement
 class UserPage(Page):
     @property
     def greeter(self) -> TestableUiElement:
-        return self._find(By.id("greeter"))
+        return self._find("#greeter")
 ```
 
 The `UserPage` provides a property named `greeter`, which may be a container for login messages.
