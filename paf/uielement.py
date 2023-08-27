@@ -1,7 +1,7 @@
 from abc import abstractmethod, ABC
 from datetime import datetime
 from pathlib import Path
-from typing import Type, TypeVar, List, Generic, Iterable, Iterator
+from typing import Type, TypeVar, List, Generic, Iterable, Iterator, Callable
 
 import inject
 import math
@@ -205,21 +205,27 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
 
         return self._find_web_elements(_handle)
 
-    def _action_sequence(self, consumer: Consumer[WebElement], action_name: str):
+    def _action_sequence(self, method: Callable, action_name: str):
         listener = inject.instance(Listener)
         try:
-            retry(lambda: self.find_web_element(consumer), lambda e: listener.action_failed(action_name, self, e))
+            retry(method, lambda e: listener.action_failed(action_name, self, e))
             listener.action_passed(action_name, self)
         except Exception as exception:
             listener.action_failed_finally(action_name, self, exception)
             raise Exception(f"{self.name_path}: {exception}")
 
     def click(self):
-        self._action_sequence(lambda web_element: web_element.click(), __name__)
+        def _action(web_element: WebElement):
+            web_element.click()
+
+        self._action_sequence(lambda: self.find_web_element(_action), __name__)
         return self
 
     def send_keys(self, value: str):
-        self._action_sequence(lambda web_element: web_element.send_keys(value), __name__)
+        def _action(web_element: WebElement):
+            web_element.send_keys(value)
+
+        self._action_sequence(lambda: self.find_web_element(_action), __name__)
         return self
 
     def take_screenshot(self) -> Path | None:
@@ -242,7 +248,7 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
             web_element.send_keys(value)
             assert web_element.get_attribute("value") == value
 
-        self._action_sequence(_action, __name__)
+        self._action_sequence(lambda: self.find_web_element(_action), __name__)
         return self
 
     def hover(self):
@@ -250,28 +256,28 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
             actions = ActionChains(self._webdriver)
             actions.move_to_element(web_element).perform()
 
-        self._action_sequence(_action, __name__)
+        self._action_sequence(lambda: self.find_web_element(_action), __name__)
 
     def context_click(self):
         def _action(web_element: WebElement):
             actions = ActionChains(self._webdriver)
             actions.context_click(web_element).perform()
 
-        self._action_sequence(_action, __name__)
+        self._action_sequence(lambda: self.find_web_element(_action), __name__)
 
     def long_click(self):
         def _action(web_element: WebElement):
             actions = ActionChains(self._webdriver)
             actions.click_and_hold(web_element).perform()
 
-        self._action_sequence(_action, __name__)
+        self._action_sequence(lambda: self.find_web_element(_action), __name__)
 
     def double_click(self):
         def _action(web_element: WebElement):
             actions = ActionChains(self._webdriver)
             actions.double_click(web_element).perform()
 
-        self._action_sequence(_action, __name__)
+        self._action_sequence(lambda: self.find_web_element(_action), __name__)
 
     def drag_and_drop_to(self, target_ui_element: "UiElement"):
         def _action(source: WebElement):
@@ -280,7 +286,7 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
                 actions.drag_and_drop(source, target).perform()
             target_ui_element.find_web_element(_target_found)
 
-        self._action_sequence(_action, __name__)
+        self._action_sequence(lambda: self.find_web_element(_action), __name__)
 
     @property
     def expect(self):
@@ -291,11 +297,15 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
         return UiElementAssertion(self, raise_exception=False)
 
     def clear(self):
-        self._action_sequence(lambda web_element: web_element.clear(), __name__)
+        def _action(web_element: WebElement):
+            web_element.clear()
+        self._action_sequence(lambda: self.find_web_element(_action), __name__)
         return self
 
     def submit(self):
-        self._action_sequence(lambda web_element: web_element.submit(), __name__)
+        def _action(web_element: WebElement):
+            web_element.submit()
+        self._action_sequence(lambda: self.find_web_element(_action), __name__)
         return self
 
     def __str__(self):
@@ -309,10 +319,15 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
             return f"UiElement({self._by.__str__()})[{self._index}]"
 
     def scroll_into_view(self, x: int = 0, y: int = 0):
-        self._action_sequence(lambda web_element: script.scroll_to_center(self._webdriver, web_element, Point(x, y)), __name__)
+        def _action(web_element: WebElement):
+            script.scroll_to_center(self._webdriver, web_element, Point(x, y))
+        self._action_sequence(lambda: self.find_web_element(_action), __name__)
 
     def scroll_to_top(self, x: int = 0, y: int = 0):
-        self._action_sequence(lambda web_element: script.scroll_to_top(self._webdriver, web_element, Point(x, y)), __name__)
+        def _action(web_element: WebElement):
+            script.scroll_to_top(self._webdriver, web_element, Point(x, y))
+
+        self._action_sequence(lambda: self.find_web_element(_action), __name__)
 
     def _count_elements(self):
         count = 0
@@ -325,10 +340,10 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
         return count
 
     def highlight(self, color: Color = Color.from_string("#0f0"), seconds: float = 2):
-        def _handle(web_element: WebElement):
+        def _action(web_element: WebElement):
             script.highlight(self._webdriver, web_element, color, math.floor(seconds * 1000))
 
-        self.find_web_element(_handle)
+        self._action_sequence(lambda: self.find_web_element(_action), __name__)
 
     def __iter__(self):
         for i in range(self._count_elements()):

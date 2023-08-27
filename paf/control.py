@@ -48,7 +48,7 @@ class Sequence:
 
 class RetryException(Exception):
     def __init__(self, sequence: Sequence, *args, **kwargs):
-        super().__init__(args, kwargs)
+        super().__init__(*args, *kwargs)
         self._sequence = sequence
 
     @property
