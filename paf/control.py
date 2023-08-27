@@ -47,13 +47,11 @@ class Sequence:
 
 
 class RetryException(Exception):
-    def __init__(self, sequence: Sequence, *args, **kwargs):
-        super().__init__(*args, *kwargs)
-        self._sequence = sequence
-
-    @property
-    def sequence(self):
-        return self._sequence
+    def __init__(self, sequence: Sequence, exception: Exception):
+        prefix = f"{exception}"
+        if len(prefix) > 0:
+            prefix += f" "
+        super().__init__(f"{prefix}after {sequence.count} retries ({round(sequence.duration, 2)} seconds)")
 
 
 @contextmanager
@@ -95,5 +93,5 @@ def retry(action: Callable, on_fail: Consumer[Exception] = None):
 
     sequence.run(_run)
 
-    if exception:
-        raise RetryException(sequence, f"{exception} after {sequence.count} retries ({round(sequence.duration, 2)} seconds)")
+    if exception is not None:
+        raise RetryException(sequence, exception)

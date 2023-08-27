@@ -1,10 +1,10 @@
+import math
 from abc import abstractmethod, ABC
 from datetime import datetime
 from pathlib import Path
 from typing import Type, TypeVar, List, Generic, Iterable, Iterator, Callable
 
 import inject
-import math
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By as SeleniumBy
 from selenium.webdriver.remote.webdriver import WebDriver
@@ -18,7 +18,7 @@ from paf.control import retry
 from paf.dom import Attribute
 from paf.listener import Listener
 from paf.locator import By
-from paf.types import Mapper, Consumer, R
+from paf.types import Mapper, R
 from paf.xpath import XPath
 
 
@@ -196,12 +196,12 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
             count = len(web_elements)
 
             if self._by.is_unique and count != 1:
-                raise NotUniqueException(f"Not unique")
+                raise NotUniqueException()
             elif count > self._index:
                 web_element = web_elements[self._index]
                 return mapper(web_element)
             else:
-                raise NotFoundException(f"Not found")
+                raise NotFoundException()
 
         return self._find_web_elements(_handle)
 
@@ -375,10 +375,17 @@ class UiElementAssertion:
         mapper: Mapper[WebElement, any],
         property_name: str
     ) -> ASSERTION:
+
+        def _map_failsafe():
+            try:
+                return self._ui_element.find_web_element(mapper)
+            except Exception:
+                return None
+
         return assertion_class(
             parent=self._ui_element,
             actual_supplier=lambda: self._ui_element.find_web_element(mapper),
-            name_supplier=lambda: f".{property_name} {Format.param(self._ui_element.find_web_element(mapper))}",
+            name_supplier=lambda: f".{property_name} {Format.param(_map_failsafe())}",
             raise_exception=self._raise,
         )
 

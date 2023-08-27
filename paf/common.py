@@ -132,11 +132,13 @@ class Formatter:
 
 
 class NotFoundException(Exception):
-    pass
+    def __init__(self):
+        super().__init__(f"Element not found")
 
 
 class NotUniqueException(Exception):
-    pass
+    def __init__(self):
+        super().__init__(f"Element not unique")
 
 
 def inject_config(binder: inject.Binder):

@@ -1,3 +1,5 @@
+import re
+
 import inject
 import pytest
 from selenium.webdriver.support.color import Color
@@ -81,13 +83,10 @@ def test_assertions(finder: FinderPage):
 
 
 def test_text_assertion_fails(finder: FinderPage):
-    with pytest.raises(AssertionError) as e:
+    with pytest.raises(AssertionError, match=re.escape("Expected UiElement(By.css selector(#para1))[0].attribute(data) *undefined* to be [null] after 3 retries")):
         finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
         p = finder.find("#para1")
         p.expect.attribute("data").be("null")
-
-    assert "Expected UiElement(By.css selector(#para1))[0].attribute(data) *undefined* to be [null] after 3 retries" in \
-           e.value.args[0]
 
 
 def test_untested_assertion_raises(finder: FinderPage):
@@ -286,17 +285,15 @@ def test_not_unique_fails(finder: FinderPage):
     btn.click()
 
     events = finder.find("#events")
-    with pytest.raises(Exception, match="Kacke") as e:
+    with pytest.raises(Exception, match=re.escape("Expected UiElement(By.css selector(#events))[0] > UiElement(By.tag name(p))[0].text *undefined* to be [click] Element not unique after 3 retries")):
         p = events.find(By.tag_name("p").unique)
         p.expect.text.be("click")
-
-    assert "Not unique" in e.value.args[0]
 
 
 def test_highlight_nonexistent_fails(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
 
-    with pytest.raises(Exception, match="UiElement\(By.css selector\(#unkown\)\)\[0\]: Not found after 3 retries"):
+    with pytest.raises(Exception, match=re.escape("UiElement(By.css selector(#unkown))[0]: Element not found after 3 retries")):
          unknown = finder.find("#unkown")
          unknown.highlight()
 
@@ -304,7 +301,7 @@ def test_highlight_nonexistent_fails(finder: FinderPage):
 def test_count_nonexistent_fails(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
 
-    with pytest.raises(Exception, match="Expected UiElement\(By.css selector\(#unkown\)\)\[0\] count \[0\] to be \[1\] after 3 retries"):
+    with pytest.raises(Exception, match=re.escape("Expected UiElement(By.css selector(#unkown))[0] count [0] to be [1] after 3 retries")):
         unknown = finder.find("#unkown")
         unknown.expect.count.be(1)
 
