@@ -56,16 +56,21 @@ class RetryException(Exception):
 
 @contextmanager
 def change(
-    count: int = None,
-    wait_after_fail: float = None
+    count: int = None, # deprecated
+    wait_after_fail: float = None,
+    retry_count: int = None
 ):
     global __global_config
     config_backup = __global_config
     config = dataclasses.replace(__global_config)
     __global_config = config
 
-    if count is not None:
-        config.retry_count = count
+    # deprecated
+    if count is not None and retry_count is None:
+        retry_count = count
+
+    if retry_count is not None:
+        config.retry_count = retry_count
 
     if wait_after_fail is not None:
         config.wait_after_fail = wait_after_fail

@@ -38,6 +38,6 @@ You can also tweak the execution a bit, by overriding timings for the sequence.
 ```python
 from paf.control import change
 
-with change(count=3, wait_after_fail=0):
+with change(retry_count=3, wait_after_fail=0):
     retry(lambda: text_element.expect.count.be(1), lambda: text_element.webdriver.refresh())
 ```
