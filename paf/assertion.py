@@ -84,7 +84,7 @@ class AbstractAssertion(Generic[ACTUAL_TYPE], HasParent, ABC):
                 if additional_subject:
                     subject += additional_subject()
 
-                raise AssertionError(f"Expected {subject} after {e.sequence.count} retries ({round(e.sequence.duration, 2)} seconds)")
+                raise AssertionError(f"Expected {subject} {e}")
             return False
 
     @property

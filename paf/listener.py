@@ -68,6 +68,9 @@ class HighlightListener(Listener):
         action_name: str,
         ui_element: "UiElement"
     ):
+        if action_name == "highlight":
+            return
+
         self._highlight_with_color(ui_element, "#ff0")
 
     def action_failed_finally(
@@ -76,6 +79,9 @@ class HighlightListener(Listener):
         ui_element: "UiElement",
         exception: Exception
     ):
+        if action_name == "highlight":
+            return
+
         if not isinstance(exception, NotFoundException):
             self._highlight_with_color(ui_element, "#f00")
 
