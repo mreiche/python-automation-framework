@@ -7,8 +7,8 @@
 
 Python implementation of [Testerra](https://github.com/telekom/testerra) API.
 
-It is basically a wrapper for Selenium *WebDriver* and *WebElement* which bring some more comfort features.
-This is not a test framework, but it implements some assertion features anyway.
+It is basically a wrapper for Selenium *WebDriver* and *WebElement* which brings some more comfort features.
+This is not a test framework, but it implements assertion features anyway.
 
 The basic concept is, to identify *WebElements* on every action or property accessor to prevent `StaleElementExceptions`.
 
