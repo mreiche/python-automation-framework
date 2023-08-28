@@ -69,14 +69,13 @@ element.expect.text.be("Search")
 
 ## Environment variables
 
-The value behind the variable is the default value.
-
 * `PAF_BROWSER_SETTING=chrome:90`: Sets the requested browser name and it's version.
 * `PAF_WINDOW_SIZE=1920x1080`: Sets the browsers default window size.
 * `PAF_SCREENSHOTS_DIR=screenshots`: Sets the screenshots' directory.
 * `PAF_SEQUENCE_WAIT_AFTER_FAIL=0.3`: Wait in seconds whenever a sequence action fails. 
 * `PAF_SEQUENCE_RETRY_COUNT=3`: Retry count for every sequence action.
 * `PAF_DEMO_MODE=0`: Enables the demo mode by highlighting actions and assertions.
+* `PAF_SELENIUM_SERVER_URL=http://localhost:4444/wd/hub`: Uses Selenium server if set.
 
 ## Examples
 
