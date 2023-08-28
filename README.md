@@ -7,8 +7,8 @@
 
 Python implementation of [Testerra](https://github.com/telekom/testerra) API.
 
-It is basically a wrapper for Selenium *WebDriver* and *WebElement* which bring some more comfort features.
-This is not a test framework, but it implements some assertion features anyway.
+It is basically a wrapper for Selenium *WebDriver* and *WebElement* which brings some more comfort features.
+This is not a test framework, but it implements assertion features anyway.
 
 The basic concept is, to identify *WebElements* on every action or property accessor to prevent `StaleElementExceptions`.
 
@@ -80,7 +80,7 @@ The value behind the variable is the default value.
 
 ## Examples
 
-I added two examples.
+Some real world examples.
 
 1. [test_google.py](examples/test_google.py): is a regular Google search, implemented with [Page Objects](doc/pages.md) and [Components](doc/components.md). 
 2. [test_todo_mvc.py](examples/test_todo_mvc.py): are re-implemented test cases from the [Robot Framework TodoMVC](https://docs.robotframework.org/docs/examples/todo) example. It's IMHO developer friendly, better readable and less code. 
