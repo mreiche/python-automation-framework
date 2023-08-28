@@ -7,7 +7,7 @@ def test_config():
 
     backup = dataclasses.replace(__get_global_config())
 
-    with change(count=99, wait_after_fail=99):
+    with change(retry_count=99, wait_after_fail=99):
         global_config = __get_global_config()
         assert global_config.wait_after_fail == 99
         assert global_config.retry_count == 99

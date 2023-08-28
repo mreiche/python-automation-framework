@@ -191,7 +191,7 @@ def test_retry(finder: FinderPage):
     clicks = finder.find(XPath.at("div").id("events").select("p"))
     btn.click()
 
-    with change(count=3, wait_after_fail=0):
+    with change(retry_count=3, wait_after_fail=0):
         retry(lambda: clicks.expect.count.be(3), lambda e: btn.click())
 
 
