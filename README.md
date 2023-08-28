@@ -75,7 +75,7 @@ element.expect.text.be("Search")
 * `PAF_SEQUENCE_WAIT_AFTER_FAIL=0.3`: Wait in seconds whenever a sequence action fails. 
 * `PAF_SEQUENCE_RETRY_COUNT=3`: Retry count for every sequence action.
 * `PAF_DEMO_MODE=0`: Enables the demo mode by highlighting actions and assertions.
-* `PAF_SELENIUM_SERVER_URL=http://localhost:4444/wd/hub`: Uses Selenium server if set.
+* `PAF_SELENIUM_SERVER_URL=http://127.0.0.1:4444`: Uses Selenium server if set.
 
 ## Examples
 
