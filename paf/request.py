@@ -43,7 +43,7 @@ class WebDriverRequest:
         return self._session_name
 
     def __detect_browser(self):
-        match = re.search("(\w+)(?:\:(\w+))?", Property.env(Property.PAF_BROWSER_SETTING))
+        match = re.search("(\\w+)(?::(\\w+))?", Property.env(Property.PAF_BROWSER_SETTING))
         if match:
             groups = match.groups()
             self._browser = groups[0]
@@ -73,7 +73,7 @@ class WebDriverRequest:
     @property
     def window_size(self):
         if not self._window_size:
-            match = re.search("(\d+)x(\d+)", Property.env(Property.PAF_WINDOW_SIZE))
+            match = re.search("(\\d+)x(\\d+)", Property.env(Property.PAF_WINDOW_SIZE))
             groups = match.groups()
             self._window_size = Size(int(groups[0]), int(groups[1]))
 
