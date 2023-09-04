@@ -135,7 +135,7 @@ podman build -f test.Dockerfile --arch=amd64 -t paf-test:latest
 ```
 Run tests within container
 ```shell
-podman run paf-test:latest PAF_TEST_HEADLESS=1 PAF_TEST_CONTAINER=1 pytest --cov=paf -n=4 test
+podman run -e PAF_TEST_HEADLESS=1 -e PAF_TEST_CONTAINER=1 -e PAF_TEST_LOCAL_SELENIUM=0 paf-test:latest pytest --cov=paf -n=4 test
 ```
 
 #### Run local selenium server
