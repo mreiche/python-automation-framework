@@ -123,9 +123,10 @@ pytest --cov=paf -n=4 test
 
 #### Build test base container (for use in GitHub Actions)
 ```shell
-podman build -f base.Dockerfile --arch=amd64 -t paf-test-base:latest
+podman build -f ubuntu-base.Dockerfile --arch=amd64 -t paf-test-base:latest
+source build.env
 echo $DOCKER_CONTAINER_REGISTRY_TOKEN | podman login -u mreiche --password-stdin ghcr.io
-podman push paf-test-base:latest docker://ghcr.io/mreiche/paf-test-base:latest
+podman push paf-test-base:latest docker://ghcr.io/mreiche/paf-test-base:chrome-116
 ```
 
 #### Build test runner container (for testing)
@@ -134,7 +135,7 @@ podman build -f test.Dockerfile --arch=amd64 -t paf-test:latest
 ```
 Run tests within container
 ```shell
-podman run paf-test:latest PAF_TEST_HEADLESS=1 PAF_TEST_CONTAINER=1 pytest --cov=paf -n=4 test
+podman run -e PAF_TEST_HEADLESS=1 -e PAF_TEST_CONTAINER=1 -e PAF_TEST_LOCAL_SELENIUM=0 paf-test:latest pytest --cov=paf -n=4 test
 ```
 
 #### Run local selenium server
@@ -166,3 +167,4 @@ snapshot.snapshotItem(0).textContent
 - https://stackoverflow.com/questions/64033686/how-can-i-use-private-docker-image-in-github-actions
 - https://tecadmin.net/setup-selenium-chromedriver-on-ubuntu/
 - https://stackoverflow.com/questions/46052736/python-proxy-class
+- https://chromedriver.chromium.org/

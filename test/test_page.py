@@ -15,12 +15,12 @@ def page():
 
 def test_assertions(page: Page):
     page.open("https://testpages.herokuapp.com")
-    assert page.wait_for.url.be("https://testpages.herokuapp.com/styled/index.html")
+    assert page.wait_for.url.be("https://testpages.eviltester.com/styled/index.html")
 
-    page.expect.title.be("Selenium Test Pages")
+    page.expect.title.be("Testing and Automating Practice Pages")
     assert page.name == "Page"
     assert str(page) == page.name
-    assert page.webdriver.title == "Selenium Test Pages"
+    assert page.webdriver.title == "Testing and Automating Practice Pages"
 
 
 def test_create_page_from_page(page: Page):

@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:22.04
 
 WORKDIR /home
 
@@ -11,10 +11,12 @@ RUN apt -y update \
     && apt clean
 
 RUN wget -O selenium-server.jar https://github.com/SeleniumHQ/selenium/releases/download/selenium-4.9.0/selenium-server-4.9.0.jar \
-    && wget https://chromedriver.storage.googleapis.com/113.0.5672.63/chromedriver_linux64.zip \
-    && unzip chromedriver_linux64.zip \
-    && mv chromedriver /usr/local/bin \
-    && rm chromedriver_linux64.zip
+    && wget https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_STABLE \
+    && wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/`cat LATEST_RELEASE_STABLE`/linux64/chromedriver-linux64.zip \
+    && unzip "chromedriver-linux64.zip" \
+    && ln -s "/home/chromedriver-linux64/chromedriver" /usr/local/bin \
+    && rm "chromedriver-linux64.zip" \
+    && rm LATEST_RELEASE_STABLE
 
 RUN java -jar selenium-server.jar standalone --version \
     && chrome --version \
