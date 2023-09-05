@@ -96,7 +96,7 @@ class PageAssertion:
         return StringAssertion(
             parent=self._page,
             actual_supplier=lambda: self._webdriver.title,
-            name_supplier=lambda: f".title {Format.param(self._webdriver.title)}",
+            name_supplier=lambda: f".title {Format.param(self._webdriver.title)} ",
             raise_exception=self._raise,
         )
 
@@ -105,7 +105,7 @@ class PageAssertion:
         return StringAssertion(
             parent=self._page,
             actual_supplier=lambda: self._webdriver.current_url,
-            name_supplier=lambda: f".url {Format.param(self._webdriver.current_url)}",
+            name_supplier=lambda: f".url {Format.param(self._webdriver.current_url)} ",
             raise_exception=self._raise,
         )
 

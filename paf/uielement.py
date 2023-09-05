@@ -385,7 +385,7 @@ class UiElementAssertion:
         return assertion_class(
             parent=self._ui_element,
             actual_supplier=lambda: self._ui_element.find_web_element(mapper),
-            name_supplier=lambda: f".{property_name} {Format.param(_map_failsafe())}",
+            name_supplier=lambda: f".{property_name} {Format.param(_map_failsafe())} ",
             raise_exception=self._raise,
         )
 
@@ -469,7 +469,7 @@ class UiElementAssertion:
         return QuantityAssertion[int](
             parent=self._ui_element,
             actual_supplier=lambda: self._ui_element._count_elements(),
-            name_supplier=lambda: f" count {Format.param(self._ui_element._count_elements())}",
+            name_supplier=lambda: f" count {Format.param(self._ui_element._count_elements())} ",
             raise_exception=self._raise,
         )
 

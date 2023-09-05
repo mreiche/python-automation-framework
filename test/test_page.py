@@ -1,6 +1,9 @@
+import re
+
 import inject
 import pytest
 
+from paf.control import change
 from paf.manager import WebDriverManager
 from paf.page import PageFactory, Page
 from paf.request import WebDriverRequest
@@ -21,6 +24,10 @@ def test_assertions(page: Page):
     assert page.name == "Page"
     assert str(page) == page.name
     assert page.webdriver.title == "Testing and Automating Practice Pages"
+
+    with pytest.raises(AssertionError, match=re.escape("Expected Page.url [https://testpages.eviltester.com/styled/index.html] ends with [index.html] to be [False]")):
+        with change(retry_count=0):
+            page.expect.url.ends_with("index.html").be(False)
 
 
 def test_create_page_from_page(page: Page):

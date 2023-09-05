@@ -272,10 +272,17 @@ def test_uninitialized_ui_element_fails(finder: FinderPage):
 def test_action_on_non_interactable_fails(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/alerts/fake-alert-test.html")
     ok = finder.find("#dialog-ok")
-    with pytest.raises(Exception) as e:
-        ok.click()
+    with pytest.raises(Exception, match=re.escape("Message: element not interactable")):
+        with change(retry_count=0):
+            ok.click()
 
-    assert "Message: element not interactable" in e.value.args[0]
+
+def test_fail_message(finder: FinderPage):
+    finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
+    p1 = finder.find("#para1")
+    with pytest.raises(AssertionError, match=re.escape("Expected UiElement(By.css selector(#para1))[0].text [A paragraph of text] mapped ends with [Katze] to be [True]")):
+        with change(retry_count=0):
+            p1.expect.text.map(str.lower).ends_with("Katze").be(True)
 
 
 def test_not_unique_fails(finder: FinderPage):
@@ -285,25 +292,28 @@ def test_not_unique_fails(finder: FinderPage):
     btn.click()
 
     events = finder.find("#events")
-    with pytest.raises(Exception, match=re.escape("Expected UiElement(By.css selector(#events))[0] > UiElement(By.tag name(p))[0].text *undefined* to be [click] Element not unique after 3 retries")):
-        p = events.find(By.tag_name("p").unique)
-        p.expect.text.be("click")
+    with pytest.raises(Exception, match=re.escape("Expected UiElement(By.css selector(#events))[0] > UiElement(By.tag name(p))[0].text *undefined* to be [click] Element not unique after 0 retries")):
+        with change(retry_count=0):
+            p = events.find(By.tag_name("p").unique)
+            p.expect.text.be("click")
 
 
 def test_highlight_nonexistent_fails(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
 
-    with pytest.raises(Exception, match=re.escape("UiElement(By.css selector(#unkown))[0]: Element not found after 3 retries")):
-         unknown = finder.find("#unkown")
-         unknown.highlight()
+    with pytest.raises(Exception, match=re.escape("UiElement(By.css selector(#unkown))[0]: Element not found after 0 retries")):
+        with change(retry_count=0):
+            unknown = finder.find("#unkown")
+            unknown.highlight()
 
 
 def test_count_nonexistent_fails(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
 
-    with pytest.raises(Exception, match=re.escape("Expected UiElement(By.css selector(#unkown))[0] count [0] to be [1] after 3 retries")):
-        unknown = finder.find("#unkown")
-        unknown.expect.count.be(1)
+    with pytest.raises(Exception, match=re.escape("Expected UiElement(By.css selector(#unkown))[0] count [0] to be [1] after 0 retries")):
+        with change(retry_count=0):
+            unknown = finder.find("#unkown")
+            unknown.expect.count.be(1)
 
 
 def teardown_module():
