@@ -1,24 +1,30 @@
 import dataclasses
+import threading
 from contextlib import contextmanager
 from dataclasses import dataclass
 from time import sleep, time
-from typing import Callable
+from typing import Callable, Optional
 
 from paf.common import Property
 from paf.types import Consumer
 
 
 @dataclass()
-class Config:
+class Config(threading.local):
     retry_count: int = Property.env(Property.PAF_SEQUENCE_RETRY_COUNT)
     wait_after_fail: float = Property.env(Property.PAF_SEQUENCE_WAIT_AFTER_FAIL)
 
 
-__global_config = Config()
+__config = Config()
 
 
-def __get_global_config():
-    return __global_config
+def get_config():
+    return __config
+
+
+def __set_config(config: Config):
+    global __config
+    __config = config
 
 
 class Sequence:
@@ -59,26 +65,26 @@ def change(
     retry_count: int = None,
     wait_after_fail: float = None,
 ):
-    global __global_config
-    config_backup = __global_config
-    config = dataclasses.replace(__global_config)
-    __global_config = config
+    config_backup = get_config()
+    scope_config = dataclasses.replace(config_backup)
+    __set_config(scope_config)
 
     if retry_count is not None:
-        config.retry_count = retry_count
+        scope_config.retry_count = retry_count
 
     if wait_after_fail is not None:
-        config.wait_after_fail = wait_after_fail
+        scope_config.wait_after_fail = wait_after_fail
 
     try:
         yield
     finally:
-        __global_config = config_backup
+        __set_config(config_backup)
 
 
 def retry(action: Callable, on_fail: Consumer[Exception] = None):
-    sequence = Sequence(retry_count=__global_config.retry_count, wait_after_fail=__global_config.wait_after_fail)
-    exception = None
+    config = get_config()
+    sequence = Sequence(retry_count=config.retry_count, wait_after_fail=config.wait_after_fail)
+    exception: Optional[Exception] = None
 
     def _run():
         nonlocal exception
