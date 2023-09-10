@@ -1,3 +1,4 @@
+import asyncio
 import os
 import shutil
 from pathlib import Path
@@ -103,6 +104,25 @@ def test_unknown_browser_fails(manager: WebDriverManager):
         manager.get_webdriver(request)
 
     assert "No browser specified" in e.value.args[0]
+
+
+def first_task():
+    return inject.instance(WebDriverManager)
+
+
+def second_task():
+    return inject.instance(WebDriverManager)
+
+
+@pytest.mark.asyncio
+async def test_thread_singleton():
+    tasks = [
+        asyncio.to_thread(first_task),
+        asyncio.to_thread(second_task)
+    ]
+
+    managers = await asyncio.gather(*tasks)
+    assert managers[0] == managers[1]
 
 
 def teardown_module():
