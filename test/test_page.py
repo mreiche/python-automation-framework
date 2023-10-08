@@ -20,10 +20,12 @@ def test_assertions(page: Page):
     page.open("https://testpages.herokuapp.com")
     assert page.wait_for.url.be("https://testpages.eviltester.com/styled/index.html")
 
-    page.expect.title.be("Testing and Automating Practice Pages")
+    expected_title = "Web Testing and Automation Practice Application Pages"
+
+    page.expect.title.be(expected_title)
     assert page.name == "Page"
     assert str(page) == page.name
-    assert page.webdriver.title == "Testing and Automating Practice Pages"
+    assert page.webdriver.title == expected_title
 
     with pytest.raises(AssertionError, match=re.escape("Expected Page.url [https://testpages.eviltester.com/styled/index.html] ends with [index.html] to be [False]")):
         with change(retry_count=0):

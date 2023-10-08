@@ -75,5 +75,9 @@ manager.shutdown_all()
 
 ## Take screenshot
 ```python
-path = manager.take_screenshot()
+try:
+    path = manager.take_screenshot()
+    assert path is not None
+except Exception as e:
+    logger.error(f"Unable to take screenshot because of: {e}")
 ```

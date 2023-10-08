@@ -2,6 +2,7 @@ import asyncio
 import os
 import shutil
 from pathlib import Path
+from typing import List
 
 import inject
 import pytest
@@ -27,7 +28,10 @@ def test_manager_singleton(manager: WebDriverManager):
 
 def test_take_screenshot(manager: WebDriverManager):
     create_webdriver()
-    for webdriver in manager.webdrivers:
+    webdrivers = manager.webdrivers
+    assert isinstance(webdrivers, list)
+
+    for webdriver in webdrivers:
         path = manager.take_screenshot(webdriver)
         assert path.exists()
 
@@ -49,7 +53,7 @@ def test_shutdown_unknown_session_fails(manager: WebDriverManager):
     os.getenv("PAF_TEST_CONTAINER") == "1",
     reason="Doesn't work in container",
 )
-def test_take_screenshot_fails(monkeypatch, manager: WebDriverManager):
+def test_take_screenshot_fails_read_only(monkeypatch, manager: WebDriverManager):
     monkeypatch.setenv(Property.PAF_SCREENSHOTS_DIR.name, "read-only-screenshots")
     dir = Path(Property.env(Property.PAF_SCREENSHOTS_DIR))
     dir.mkdir(parents=True, exist_ok=True)
@@ -59,6 +63,13 @@ def test_take_screenshot_fails(monkeypatch, manager: WebDriverManager):
     assert path is None
     os.chmod(dir, 775)
     shutil.rmtree(dir)
+
+
+def test_take_screenshot_fails_invalid_session(manager: WebDriverManager):
+    webdriver = create_webdriver()
+    manager.shutdown(webdriver)
+    with pytest.raises(Exception):
+        manager.take_screenshot(webdriver)
 
 
 def test_empty_request(manager: WebDriverManager):
