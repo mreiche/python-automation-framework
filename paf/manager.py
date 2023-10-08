@@ -1,6 +1,6 @@
 from datetime import datetime
 from pathlib import Path
-from typing import Type, TypeVar, Iterable
+from typing import Type, TypeVar, Iterable, List
 
 import inject
 from is_empty import empty
@@ -110,8 +110,8 @@ class WebDriverManager:
             return None
 
     @property
-    def webdrivers(self) -> Iterable[WebDriver]:
-        return self._session_driver_map.values()
+    def webdrivers(self) -> List[WebDriver]:
+        return list(self._session_driver_map.values())
 
 
 def inject_config(binder: inject.Binder):
