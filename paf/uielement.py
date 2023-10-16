@@ -216,11 +216,11 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
             raise Exception(f"{self.name_path}: {exception}")
 
     def click(self):
-        self._web_element_action_sequence(lambda x: x.click(), self.click.__name__)
+        self._web_element_action_sequence(lambda x: x.click(), "click")
         return self
 
     def send_keys(self, value: str):
-        self._web_element_action_sequence(lambda x: x.send_keys(value), self.send_keys.__name__)
+        self._web_element_action_sequence(lambda x: x.send_keys(value), "send_keys")
         return self
 
     def take_screenshot(self) -> Path | None:
@@ -241,7 +241,7 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
             web_element.send_keys(value)
             assert web_element.get_attribute("value") == value
 
-        self._web_element_action_sequence(_action, self.type.__name__)
+        self._web_element_action_sequence(_action, "type")
         return self
 
     def hover(self):
@@ -249,28 +249,28 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
             actions = ActionChains(self._webdriver)
             actions.move_to_element(web_element).perform()
 
-        self._web_element_action_sequence(_action, self.hover.__name__)
+        self._web_element_action_sequence(_action, "hover")
 
     def context_click(self):
         def _action(web_element: WebElement):
             actions = ActionChains(self._webdriver)
             actions.context_click(web_element).perform()
 
-        self._web_element_action_sequence(_action, self.context_click.__name__)
+        self._web_element_action_sequence(_action, "context_click")
 
     def long_click(self):
         def _action(web_element: WebElement):
             actions = ActionChains(self._webdriver)
             actions.click_and_hold(web_element).perform()
 
-        self._web_element_action_sequence(_action, self.long_click.__name__)
+        self._web_element_action_sequence(_action, "long_click")
 
     def double_click(self):
         def _action(web_element: WebElement):
             actions = ActionChains(self._webdriver)
             actions.double_click(web_element).perform()
 
-        self._web_element_action_sequence(_action, self.double_click.__name__)
+        self._web_element_action_sequence(_action, "double_click")
 
     def drag_and_drop_to(self, target_ui_element: "UiElement"):
         def _action(web_element: WebElement):
@@ -278,7 +278,7 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
                 actions = ActionChains(self._webdriver)
                 actions.drag_and_drop(web_element, target).perform()
 
-        self._web_element_action_sequence(_action, self.drag_and_drop_to.__name__)
+        self._web_element_action_sequence(_action, "drag_and_drop_to")
 
     @property
     def expect(self):
@@ -289,11 +289,11 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
         return UiElementAssertion(self, raise_exception=False)
 
     def clear(self):
-        self._web_element_action_sequence(lambda x: x.clear(), self.clear.__name__)
+        self._web_element_action_sequence(lambda x: x.clear(), "clear")
         return self
 
     def submit(self):
-        self._web_element_action_sequence(lambda x: x.submit(), self.submit.__name__)
+        self._web_element_action_sequence(lambda x: x.submit(), "submit")
         return self
 
     def __str__(self):
@@ -309,13 +309,13 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
     def scroll_into_view(self, x: int = 0, y: int = 0):
         def _action(web_element: WebElement):
             script.scroll_to_center(self._webdriver, web_element, Point(x, y))
-        self._web_element_action_sequence(_action, self.scroll_into_view.__name__)
+        self._web_element_action_sequence(_action, "scroll_into_view")
 
     def scroll_to_top(self, x: int = 0, y: int = 0):
         def _action(web_element: WebElement):
             script.scroll_to_top(self._webdriver, web_element, Point(x, y))
 
-        self._web_element_action_sequence(_action, self.scroll_to_top.__name__)
+        self._web_element_action_sequence(_action, "scroll_to_top")
 
     def _count_elements(self):
         with self._find_web_elements() as web_elements:
@@ -325,7 +325,7 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
         def _action(web_element: WebElement):
             script.highlight(self._webdriver, web_element, color, math.floor(seconds * 1000))
 
-        self._web_element_action_sequence(_action, self.highlight.__name__)
+        self._web_element_action_sequence(_action, "highlight")
 
     def __iter__(self):
         for i in range(self._count_elements()):
@@ -378,16 +378,16 @@ class UiElementAssertion:
 
     @property
     def text(self):
-        return self._map_web_element_property(StringAssertion, lambda x: x.text, self.text.__name__)
+        return self._map_web_element_property(StringAssertion, lambda x: x.text, "text")
 
     def displayed(self, expected: bool):
-        return self._map_web_element_property(BinaryAssertion, lambda x: x.is_displayed(), self.displayed.__name__).be(expected)
+        return self._map_web_element_property(BinaryAssertion, lambda x: x.is_displayed(), "displayed").be(expected)
 
     def enabled(self, expected: bool):
-        return self._map_web_element_property(BinaryAssertion, lambda x: x.is_enabled(), self.enabled.__name__).be(expected)
+        return self._map_web_element_property(BinaryAssertion, lambda x: x.is_enabled(), "enabled").be(expected)
 
     def selected(self, expected: bool):
-        return self._map_web_element_property(BinaryAssertion, lambda x: x.is_selected(), self.selected.__name__).be(expected)
+        return self._map_web_element_property(BinaryAssertion, lambda x: x.is_selected(), "selected").be(expected)
 
     @property
     def tag_name(self):
