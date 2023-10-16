@@ -59,7 +59,9 @@ class HighlightListener(Listener):
 
     def _highlight_with_color(self, ui_element: "UiElement", color: str):
         try:
-            ui_element.find_web_element(lambda web_element: javascript.highlight(ui_element.webdriver, web_element, Color.from_string(color)))
+            with ui_element.find_web_element() as web_element:
+                javascript.highlight(ui_element.webdriver, web_element, Color.from_string(color))
+
         except Exception as e:
             logging.warning(f"Cannot highlight {ui_element.name_path}: {e}")
 

@@ -49,7 +49,8 @@ ui_element.scroll_to_top()
 ui_element.find(By.name("div"))
 
 # Find the according WebElement
-ui_element.find_web_element(lambda web_element: None)
+with ui_element.find_web_element() as web_element:
+    pass
 ```
 
 ## Asserting conditions
