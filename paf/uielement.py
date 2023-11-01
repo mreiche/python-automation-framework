@@ -159,6 +159,17 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
             name=name,
         )
 
+    def find_deep(self, by: Locator, name: str = None):
+        scope = self.find(by)
+
+        frames = self.find(By.xpath("(//iframe|//frame)"))
+        for frame in frames:
+            scope = frame.find_deep(by, name)
+            if scope.expect.count.actual > 0:
+                break
+
+        return scope
+
     def __relative_selector(self, by: By):
         if by.by == SeleniumBy.XPATH and by.value.startswith("/"):
             return f".{by.value}"

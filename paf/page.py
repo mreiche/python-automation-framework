@@ -39,6 +39,9 @@ class BasePage(HasName):
             name=name,
         )
 
+    def _find_deep(self, by: Locator, name: str = None):
+        return self._find(by, name).find_deep(by, name)
+
     @property
     def name(self):
         return self.__class__.__name__
@@ -63,6 +66,11 @@ class BasePage(HasName):
 class FinderPage(BasePage):
     def find(self, by: Locator, name: str = None):
         ui_element = self._find(by, name)
+        ui_element._parent = None
+        return ui_element
+
+    def find_deep(self, by: Locator, name: str = None):
+        ui_element = self._find_deep(by, name)
         ui_element._parent = None
         return ui_element
 
