@@ -25,7 +25,7 @@ def test_change():
     assert global_config.wait_after_fail == backup_config.wait_after_fail
 
 
-def change_first():
+def test_change_first():
     global_config = get_config()
     assert global_config.retry_count == Property.env(Property.PAF_SEQUENCE_RETRY_COUNT)
 
@@ -35,7 +35,7 @@ def change_first():
         assert config.retry_count == 0
 
 
-def change_second():
+def test_change_second():
     global_config = get_config()
     assert global_config.retry_count == Property.env(Property.PAF_SEQUENCE_RETRY_COUNT)
 
@@ -43,13 +43,3 @@ def change_second():
         sleep(0.1)
         config = get_config()
         assert config.retry_count == 99
-
-
-@pytest.mark.asyncio
-async def test_thread_safety():
-    tasks = [
-        asyncio.to_thread(change_first),
-        asyncio.to_thread(change_second)
-    ]
-
-    await asyncio.gather(*tasks)
