@@ -8,7 +8,7 @@ from paf.control import change, retry
 from paf.locator import By
 from paf.manager import WebDriverManager
 from paf.page import PageFactory, FinderPage
-from paf.uielement import UiElement
+from paf.uielement import UiElement, EmptyUiElement
 from paf.xpath import XPath
 from test import create_webdriver
 
@@ -314,6 +314,11 @@ def test_count_nonexistent_fails(finder: FinderPage):
         with change(retry_count=0):
             unknown = finder.find("#unkown")
             unknown.expect.count.be(1)
+
+
+def test_empty_ui_element():
+    empty_ui_element = EmptyUiElement("news-list")
+    empty_ui_element.expect.text.be(None)
 
 
 def teardown_module():

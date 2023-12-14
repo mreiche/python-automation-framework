@@ -141,5 +141,12 @@ class NotUniqueException(Exception):
         super().__init__(f"Element not unique")
 
 
+class WebdriverRetainer(ABC):
+    @property
+    @abstractmethod
+    def webdriver(self):  # pragma: no cover
+        pass
+
+
 def inject_config(binder: inject.Binder):
     binder.bind(Formatter, Formatter())
