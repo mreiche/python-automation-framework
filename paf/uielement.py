@@ -14,7 +14,8 @@ from selenium.webdriver.support.color import Color
 
 import paf.javascript as script
 from paf.assertion import StringAssertion, Format, BinaryAssertion, QuantityAssertion, RectAssertion, ASSERTION
-from paf.common import HasParent, Locator, Point, Rect, Property, Formatter, NotFoundException, NotUniqueException
+from paf.common import HasParent, Locator, Point, Rect, Property, Formatter, NotFoundException, NotUniqueException, \
+    WebdriverRetainer
 from paf.control import retry
 from paf.dom import Attribute
 from paf.listener import Listener
@@ -23,7 +24,7 @@ from paf.types import Mapper, R, Consumer
 from paf.xpath import XPath
 
 
-class UiElementActions:
+class UiElementActions(ABC):
 
     @abstractmethod
     def click(self):   # pragma: no cover
@@ -101,6 +102,10 @@ class PageObject(Generic[T]):
     def highlight(self, color: Color = Color.from_string("#0f0"), seconds: float = 2):  # pragma: no cover
         pass
 
+    @abstractmethod
+    def take_screenshot(self) -> Path | None:  # pragma: no cover
+        pass
+
 
 class UiElementTests:
     @property
@@ -114,6 +119,28 @@ class UiElementTests:
         pass
 
 
+class UiElement(WebdriverRetainer, UiElementTests, UiElementActions, PageObjectList["UiElement"], PageObject["UiElement"], HasParent, ABC):
+    @abstractmethod
+    def find(self, by: Locator, name: str = None):  # pragma: no cover
+        pass
+
+    @abstractmethod
+    def find_deep(self, by: Locator, name: str = None):  # pragma: no cover
+        pass
+
+    @abstractmethod
+    def find_web_element(self) -> ContextManager[WebElement]:  # pragma: no cover
+        pass
+
+    @property
+    def expect(self):
+        return UiElementAssertion(self)
+
+    @property
+    def wait_for(self):
+        return UiElementAssertion(self, raise_exception=False)
+
+
 class TestableUiElement(PageObject["TestableUiElement"], UiElementTests, ABC):
     pass
 
@@ -122,12 +149,83 @@ class InteractiveUiElement(PageObject["InteractiveUiElement"], UiElementTests, U
     pass
 
 
-class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiElement"]):
+class EmptyUiElement(UiElement, UiElementTests, UiElementActions, HasParent, PageObjectList["UiElement"]):
+
+    def __init__(self, name: str):
+        self._name = name
+
+    @property
+    def webdriver(self):
+        return None
+
+    def scroll_into_view(self, x: int = 0, y: int = 0):
+        pass
+
+    def scroll_to_top(self, x: int = 0, y: int = 0):
+        pass
+
+    def highlight(self, color: Color = Color.from_string("#0f0"), seconds: float = 2):
+        pass
+
+    def take_screenshot(self) -> Path | None:
+        pass
+
+    def click(self):
+        pass
+
+    def hover(self):
+        pass
+
+    def context_click(self):
+        pass
+
+    def long_click(self):
+        pass
+
+    def double_click(self):
+        pass
+
+    def drag_and_drop_to(self, target_ui_element: UiElement):
+        pass
+
+    def send_keys(self, value: str):
+        pass
+
+    def type(self, value: str):
+        pass
+
+    def clear(self):
+        pass
+
+    def submit(self):
+        pass
+
+    @property
+    def name(self):
+        return self._name
+
+    def __getitem__(self, index: int) -> T:
+        return self
+
+    def __iter__(self) -> Iterator[T]:
+        pass
+
+    def find(self, by: Locator, name: str = None):
+        return EmptyUiElement(name)
+
+    def find_deep(self, by: Locator, name: str = None):
+        return EmptyUiElement(name)
+
+    def find_web_element(self) -> ContextManager[WebElement]:
+        yield None
+
+
+class DefaultUiElement(UiElement):
 
     def __init__(
         self,
         by: Locator,
-        ui_element: "UiElement" = None,
+        ui_element: UiElement = None,
         webdriver: WebDriver = None,
         parent: object = None,
         index: int = 0,
@@ -151,7 +249,7 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
         return self._webdriver
 
     def find(self, by: Locator, name: str = None):
-        return UiElement(
+        return DefaultUiElement(
             by=by,
             ui_element=self,
             webdriver=self._webdriver,
@@ -332,7 +430,7 @@ class UiElement(UiElementTests, UiElementActions, HasParent, PageObjectList["UiE
             yield self.__getitem__(i)
 
     def __getitem__(self, index: int):
-        return UiElement(
+        return DefaultUiElement(
             ui_element=self._ui_element,
             webdriver=self._webdriver,
             by=self._by,
@@ -345,7 +443,7 @@ class UiElementAssertion:
 
     def __init__(
         self,
-        ui_element: UiElement,
+        ui_element: DefaultUiElement,
         raise_exception: bool = True,
     ):
         self._ui_element = ui_element
