@@ -317,11 +317,8 @@ def test_count_nonexistent_fails(finder: FinderPage):
 
 
 def test_empty_ui_element():
-    empty_ui_element = InexistentUiElement("news-list")
-    # with empty_ui_element.find_web_element() as web_element:
-    #     raise Exception("Never raised")
+    empty_ui_element = InexistentUiElement()
     empty_ui_element.expect.count.be(0)
-    #empty_ui_element.expect.text.be(None)
 
 
 def teardown_module():

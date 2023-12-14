@@ -134,10 +134,6 @@ class UiElement(WebdriverRetainer, UiElementTests, UiElementActions, HasParent, 
     def find(self, by: Locator, name: str = None):  # pragma: no cover
         pass
 
-    @abstractmethod
-    def find_deep(self, by: Locator, name: str = None):  # pragma: no cover
-        pass
-
     @property
     def expect(self):
         return UiElementAssertion(self)
@@ -235,9 +231,6 @@ class InexistentUiElement(UiElement):
         pass
 
     def find(self, by: Locator, name: str = None):
-        return InexistentUiElement(name, self)
-
-    def find_deep(self, by: Locator, name: str = None):
         return InexistentUiElement(name, self)
 
     @contextmanager

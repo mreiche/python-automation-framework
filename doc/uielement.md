@@ -167,3 +167,15 @@ finder: FinderPage
 frame = finder.find("frame")
 frame.find("div").expect.text.be("Text in frame")
 ```
+
+
+## Inexistent elements
+
+If you know, that an element doesn't exists and you won't break the API, you can create an `InexistentUiElement`.
+
+```python
+from paf.uielement import InexistentUiElement
+
+def get_switch():
+    return InexistentUiElement()
+```
