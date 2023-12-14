@@ -119,17 +119,23 @@ class UiElementTests:
         pass
 
 
-class UiElement(WebdriverRetainer, UiElementTests, UiElementActions, PageObjectList["UiElement"], PageObject["UiElement"], HasParent, ABC):
+class UiElement(WebdriverRetainer, UiElementTests, UiElementActions, HasParent, PageObjectList["UiElement"], ABC):
+    def __str__(self):
+        return self.name
+
+    @property
+    def name(self):
+        if self._name:
+            return self._name
+        else:
+            return f"UiElement({self._by.__str__()})[{self._index}]"
+
     @abstractmethod
     def find(self, by: Locator, name: str = None):  # pragma: no cover
         pass
 
     @abstractmethod
     def find_deep(self, by: Locator, name: str = None):  # pragma: no cover
-        pass
-
-    @abstractmethod
-    def find_web_element(self) -> ContextManager[WebElement]:  # pragma: no cover
         pass
 
     @property
@@ -140,6 +146,25 @@ class UiElement(WebdriverRetainer, UiElementTests, UiElementActions, PageObjectL
     def wait_for(self):
         return UiElementAssertion(self, raise_exception=False)
 
+    @abstractmethod
+    def _find_web_elements(self) -> ContextManager[List[WebElement]]:
+        pass
+
+    @contextmanager
+    def find_web_element(self) -> ContextManager[WebElement]:
+        with self._find_web_elements() as web_elements:
+            count = len(web_elements)
+            if self._by.is_unique and count != 1:
+                raise NotUniqueException()
+            elif count > self._index:
+                yield web_elements[self._index]
+            else:
+                raise NotFoundException()
+
+    def _count_elements(self):
+        with self._find_web_elements() as web_elements:
+            return len(web_elements)
+
 
 class TestableUiElement(PageObject["TestableUiElement"], UiElementTests, ABC):
     pass
@@ -149,10 +174,13 @@ class InteractiveUiElement(PageObject["InteractiveUiElement"], UiElementTests, U
     pass
 
 
-class EmptyUiElement(UiElement, UiElementTests, UiElementActions, HasParent, PageObjectList["UiElement"]):
+class InexistentUiElement(UiElement):
 
-    def __init__(self, name: str):
+    def __init__(self, name: str = None, parent: object = None):
         self._name = name
+        self._parent = parent
+        self._by = By.id(None)
+        self._index = 0
 
     @property
     def webdriver(self):
@@ -200,10 +228,6 @@ class EmptyUiElement(UiElement, UiElementTests, UiElementActions, HasParent, Pag
     def submit(self):
         pass
 
-    @property
-    def name(self):
-        return self._name
-
     def __getitem__(self, index: int) -> T:
         return self
 
@@ -211,13 +235,14 @@ class EmptyUiElement(UiElement, UiElementTests, UiElementActions, HasParent, Pag
         pass
 
     def find(self, by: Locator, name: str = None):
-        return EmptyUiElement(name)
+        return InexistentUiElement(name, self)
 
     def find_deep(self, by: Locator, name: str = None):
-        return EmptyUiElement(name)
+        return InexistentUiElement(name, self)
 
-    def find_web_element(self) -> ContextManager[WebElement]:
-        yield None
+    @contextmanager
+    def _find_web_elements(self) -> ContextManager[List[WebElement]]:
+        yield []
 
 
 class DefaultUiElement(UiElement):
@@ -378,14 +403,6 @@ class DefaultUiElement(UiElement):
 
         self._web_element_action_sequence(_action, "drag_and_drop_to")
 
-    @property
-    def expect(self):
-        return UiElementAssertion(self)
-
-    @property
-    def wait_for(self):
-        return UiElementAssertion(self, raise_exception=False)
-
     def clear(self):
         self._web_element_action_sequence(lambda x: x.clear(), "clear")
         return self
@@ -393,16 +410,6 @@ class DefaultUiElement(UiElement):
     def submit(self):
         self._web_element_action_sequence(lambda x: x.submit(), "submit")
         return self
-
-    def __str__(self):
-        return self.name
-
-    @property
-    def name(self):
-        if self._name:
-            return self._name
-        else:
-            return f"UiElement({self._by.__str__()})[{self._index}]"
 
     def scroll_into_view(self, x: int = 0, y: int = 0):
         def _action(web_element: WebElement):
@@ -414,10 +421,6 @@ class DefaultUiElement(UiElement):
             script.scroll_to_top(self._webdriver, web_element, Point(x, y))
 
         self._web_element_action_sequence(_action, "scroll_to_top")
-
-    def _count_elements(self):
-        with self._find_web_elements() as web_elements:
-            return len(web_elements)
 
     def highlight(self, color: Color = Color.from_string("#0f0"), seconds: float = 2):
         def _action(web_element: WebElement):
@@ -443,7 +446,7 @@ class UiElementAssertion:
 
     def __init__(
         self,
-        ui_element: DefaultUiElement,
+        ui_element: UiElement,
         raise_exception: bool = True,
     ):
         self._ui_element = ui_element
@@ -511,7 +514,7 @@ class UiElementAssertion:
 
     def _visible(self, expected: bool, fully: bool = False):
         def _map(web_element: WebElement):
-            viewport = script.get_viewport(self._ui_element._webdriver)
+            viewport = script.get_viewport(self._ui_element.webdriver)
             bounds = Rect.from_web_element(web_element)
             if fully:
                 return viewport.contains(bounds)

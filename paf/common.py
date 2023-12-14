@@ -22,13 +22,13 @@ class HasName(ABC):
 
 
 class HasParent(HasName, ABC):
-    @property
-    def _parent(self):
-        return self.__parent
-
-    @_parent.setter
-    def _parent(self, parent: "HasParent"):
-        self.__parent = parent
+    # @property
+    # def _parent(self):
+    #     return self.__parent
+    #
+    # @_parent.setter
+    # def _parent(self, parent: "HasParent"):
+    #     self.__parent = parent
 
     @property
     def name_path(self):

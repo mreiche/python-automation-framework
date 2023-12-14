@@ -8,7 +8,7 @@ from paf.control import change, retry
 from paf.locator import By
 from paf.manager import WebDriverManager
 from paf.page import PageFactory, FinderPage
-from paf.uielement import UiElement, EmptyUiElement
+from paf.uielement import UiElement, InexistentUiElement, DefaultUiElement
 from paf.xpath import XPath
 from test import create_webdriver
 
@@ -263,7 +263,7 @@ def test_locate_displayed(finder: FinderPage):
 
 def test_uninitialized_ui_element_fails(finder: FinderPage):
     with pytest.raises(Exception) as e:
-        ui_element = UiElement(By.id("id"))
+        ui_element = DefaultUiElement(By.id("id"))
         ui_element.click()
 
     assert "initialized without WebDriver nor UiElement" in e.value.args[0]
@@ -317,8 +317,11 @@ def test_count_nonexistent_fails(finder: FinderPage):
 
 
 def test_empty_ui_element():
-    empty_ui_element = EmptyUiElement("news-list")
-    empty_ui_element.expect.text.be(None)
+    empty_ui_element = InexistentUiElement("news-list")
+    # with empty_ui_element.find_web_element() as web_element:
+    #     raise Exception("Never raised")
+    empty_ui_element.expect.count.be(0)
+    #empty_ui_element.expect.text.be(None)
 
 
 def teardown_module():
