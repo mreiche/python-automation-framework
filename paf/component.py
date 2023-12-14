@@ -4,7 +4,7 @@ from selenium.webdriver.support.color import Color
 
 from paf.common import HasParent, Locator
 from paf.types import COMPONENT, PAGE
-from paf.uielement import UiElement, PageObject, PageObjectList, UiElementTests
+from paf.uielement import UiElement, PageObject, PageObjectList, UiElementTests, DefaultUiElement
 
 
 class Component(PageObject[COMPONENT], PageObjectList[COMPONENT], HasParent, UiElementTests):
@@ -43,7 +43,7 @@ class Component(PageObject[COMPONENT], PageObjectList[COMPONENT], HasParent, UiE
             yield self.__getitem__(i)
 
     def __getitem__(self, index: int) -> COMPONENT:
-        ui_element = UiElement(
+        ui_element = DefaultUiElement(
             ui_element=self._ui_element._ui_element,
             webdriver=self._ui_element._webdriver,
             by=self._ui_element._by,

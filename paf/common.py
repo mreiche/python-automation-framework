@@ -22,13 +22,13 @@ class HasName(ABC):
 
 
 class HasParent(HasName, ABC):
-    @property
-    def _parent(self):
-        return self.__parent
-
-    @_parent.setter
-    def _parent(self, parent: "HasParent"):
-        self.__parent = parent
+    # @property
+    # def _parent(self):
+    #     return self.__parent
+    #
+    # @_parent.setter
+    # def _parent(self, parent: "HasParent"):
+    #     self.__parent = parent
 
     @property
     def name_path(self):
@@ -139,6 +139,13 @@ class NotFoundException(Exception):
 class NotUniqueException(Exception):
     def __init__(self):
         super().__init__(f"Element not unique")
+
+
+class WebdriverRetainer(ABC):
+    @property
+    @abstractmethod
+    def webdriver(self):  # pragma: no cover
+        pass
 
 
 def inject_config(binder: inject.Binder):
