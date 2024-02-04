@@ -9,7 +9,7 @@ from paf.common import HasName, Locator
 from paf.manager import WebDriverManager
 from paf.request import WebDriverRequest
 from paf.types import PAGE, COMPONENT
-from paf.uielement import DefaultUiElement
+from paf.uielement import DefaultUiElement, UiElement
 
 
 class PageFactory:
@@ -31,8 +31,7 @@ class BasePage(HasName):
     def __str__(self):
         return self.name
 
-    def _find(self, by: Locator, name: str = None):
-        from paf.uielement import UiElement
+    def _find(self, by: Locator, name: str = None) -> UiElement:
         return DefaultUiElement(
             by=by,
             webdriver=self._webdriver,
@@ -62,7 +61,7 @@ class BasePage(HasName):
 
 
 class FinderPage(BasePage):
-    def find(self, by: Locator, name: str = None):
+    def find(self, by: Locator, name: str = None) -> UiElement:
         ui_element = self._find(by, name)
         ui_element._parent = None
         return ui_element

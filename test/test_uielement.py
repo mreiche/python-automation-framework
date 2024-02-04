@@ -153,6 +153,15 @@ def test_find_sub_elements_list(finder: FinderPage):
         break
 
 
+def test_inexistent_sub_element(finder: FinderPage):
+    finder.open("https://testpages.herokuapp.com/styled/find-by-playground-test.html")
+
+    # Sub elements
+    div = finder.find("#div1")
+    inexistent = div.find("#inexistent")
+    inexistent.expect.count.be(0)
+
+
 def test_form(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/basic-html-form-test.html")
 
