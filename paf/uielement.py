@@ -27,7 +27,7 @@ from paf.xpath import XPath
 class UiElementActions(ABC):
 
     @abstractmethod
-    def click(self):   # pragma: no cover
+    def click(self):  # pragma: no cover
         pass
 
     @abstractmethod
@@ -119,7 +119,15 @@ class UiElementTests:
         pass
 
 
-class UiElement(WebdriverRetainer, UiElementTests, UiElementActions, HasParent, PageObjectList["UiElement"], ABC):
+class UiElement(
+    WebdriverRetainer,
+    PageObject["UiElement"],
+    UiElementTests,
+    UiElementActions,
+    HasParent,
+    PageObjectList["UiElement"],
+    ABC
+):
     def __str__(self):
         return self.name
 
@@ -131,7 +139,7 @@ class UiElement(WebdriverRetainer, UiElementTests, UiElementActions, HasParent, 
             return f"UiElement({self._by.__str__()})[{self._index}]"
 
     @abstractmethod
-    def find(self, by: Locator, name: str = None):  # pragma: no cover
+    def find(self, by: Locator, name: str = None) -> "UiElement":  # pragma: no cover
         pass
 
     @property
@@ -241,13 +249,13 @@ class InexistentUiElement(UiElement):
 class DefaultUiElement(UiElement):
 
     def __init__(
-        self,
-        by: Locator,
-        ui_element: UiElement = None,
-        webdriver: WebDriver = None,
-        parent: object = None,
-        index: int = 0,
-        name: str = None,
+            self,
+            by: Locator,
+            ui_element: UiElement = None,
+            webdriver: WebDriver = None,
+            parent: object = None,
+            index: int = 0,
+            name: str = None,
     ):
 
         if isinstance(by, XPath):
@@ -306,16 +314,17 @@ class DefaultUiElement(UiElement):
         else:
             raise Exception(f"{self.name_path} initialized without WebDriver nor UiElement")
 
-    @contextmanager
-    def find_web_element(self) -> ContextManager[WebElement]:
-        with self._find_web_elements() as web_elements:
-            count = len(web_elements)
-            if self._by.is_unique and count != 1:
-                raise NotUniqueException()
-            elif count > self._index:
-                yield web_elements[self._index]
-            else:
-                raise NotFoundException()
+    # @contextmanager
+    # def find_web_element(self) -> ContextManager[WebElement]:
+    #     pass
+    #     with self._find_web_elements() as web_elements:
+    #         count = len(web_elements)
+    #         if self._by.is_unique and count != 1:
+    #             raise NotUniqueException()
+    #         elif count > self._index:
+    #             yield web_elements[self._index]
+    #         else:
+    #             raise NotFoundException()
 
     def _web_element_action_sequence(self, action: Consumer[WebElement], action_name: str):
         listener = inject.instance(Listener)
@@ -407,6 +416,7 @@ class DefaultUiElement(UiElement):
     def scroll_into_view(self, x: int = 0, y: int = 0):
         def _action(web_element: WebElement):
             script.scroll_to_center(self._webdriver, web_element, Point(x, y))
+
         self._web_element_action_sequence(_action, "scroll_into_view")
 
     def scroll_to_top(self, x: int = 0, y: int = 0):
@@ -438,18 +448,18 @@ class DefaultUiElement(UiElement):
 class UiElementAssertion:
 
     def __init__(
-        self,
-        ui_element: UiElement,
-        raise_exception: bool = True,
+            self,
+            ui_element: UiElement,
+            raise_exception: bool = True,
     ):
         self._ui_element = ui_element
         self._raise = raise_exception
 
     def _map_web_element_property(
-        self,
-        assertion_class: Type[ASSERTION],
-        mapper: Mapper[WebElement, any],
-        property_name: str
+            self,
+            assertion_class: Type[ASSERTION],
+            mapper: Mapper[WebElement, any],
+            property_name: str
     ) -> ASSERTION:
 
         def _map_failsafe():
@@ -491,10 +501,12 @@ class UiElementAssertion:
         if isinstance(attribute, Attribute):
             attribute = attribute.value
 
-        return self._map_web_element_property(StringAssertion, lambda x: x.get_attribute(attribute), f"attribute({attribute})")
+        return self._map_web_element_property(StringAssertion, lambda x: x.get_attribute(attribute),
+                                              f"attribute({attribute})")
 
     def css(self, property_name: str):
-        return self._map_web_element_property(StringAssertion, lambda x: x.value_of_css_property(property_name), f"css({property_name}")
+        return self._map_web_element_property(StringAssertion, lambda x: x.value_of_css_property(property_name),
+                                              f"css({property_name}")
 
     def classes(self, *classes):
         return self.attribute(Attribute.CLASS).has_words(*classes)
@@ -526,10 +538,16 @@ class UiElementAssertion:
 
     @property
     def count(self):
+        def failsafe_count_elements():
+            try:
+                return self._ui_element._count_elements()
+            except:
+                return 0
+
         return QuantityAssertion[int](
             parent=self._ui_element,
-            actual_supplier=self._ui_element._count_elements,
-            name_supplier=lambda: f" count {Format.param(self._ui_element._count_elements())} ",
+            actual_supplier=failsafe_count_elements,
+            name_supplier=lambda: f" count {Format.param(failsafe_count_elements())} ",
             raise_exception=self._raise,
         )
 

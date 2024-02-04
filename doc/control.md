@@ -30,7 +30,7 @@ If you want to perform an action when the conditions failed, use the following c
 This will refresh the page until the text element is present.
 
 ```python
-retry(lambda: text_element.expect.count.be(1), lambda: text_element.webdriver.refresh())
+retry(lambda: text_element.expect.count.be(1), lambda e: text_element.webdriver.refresh())
 ```
 
 You can also tweak the execution a bit, by overriding timings for the sequence.
@@ -39,5 +39,5 @@ You can also tweak the execution a bit, by overriding timings for the sequence.
 from paf.control import change
 
 with change(retry_count=3, wait_after_fail=0):
-    retry(lambda: text_element.expect.count.be(1), lambda: text_element.webdriver.refresh())
+    retry(lambda: text_element.expect.count.be(1), lambda e: text_element.webdriver.refresh())
 ```
