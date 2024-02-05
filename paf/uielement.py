@@ -538,16 +538,10 @@ class UiElementAssertion:
 
     @property
     def count(self):
-        def failsafe_count_elements():
-            try:
-                return self._ui_element._count_elements()
-            except:
-                return 0
-
         return QuantityAssertion[int](
             parent=self._ui_element,
-            actual_supplier=failsafe_count_elements,
-            name_supplier=lambda: f" count {Format.param(failsafe_count_elements())} ",
+            actual_supplier=self._ui_element._count_elements,
+            name_supplier=lambda: f" count {Format.param(self._ui_element._count_elements())} ",
             raise_exception=self._raise,
         )
 
