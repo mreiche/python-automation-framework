@@ -325,9 +325,26 @@ def test_count_nonexistent_fails(finder: FinderPage):
             unknown.expect.count.be(1)
 
 
-def test_empty_ui_element():
+def test_inexistent_ui_element_wrapper():
     empty_ui_element = InexistentUiElement()
     empty_ui_element.expect.count.be(0)
+    assert empty_ui_element.webdriver is None
+    empty_ui_element.scroll_to_top()
+    empty_ui_element.scroll_into_view()
+    empty_ui_element.highlight()
+    empty_ui_element.click()
+    empty_ui_element.hover()
+    empty_ui_element.long_click()
+    empty_ui_element.double_click()
+    empty_ui_element.drag_and_drop_to(empty_ui_element)
+    empty_ui_element.send_keys("test")
+    empty_ui_element.type("test")
+    empty_ui_element.clear()
+    empty_ui_element.submit()
+    assert empty_ui_element.take_screenshot() is None
+    assert isinstance(empty_ui_element.find("#inexistent"), InexistentUiElement)
+    for e in empty_ui_element:
+        assert False
 
 
 def teardown_module():

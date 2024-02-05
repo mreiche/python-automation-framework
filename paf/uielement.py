@@ -236,7 +236,7 @@ class InexistentUiElement(UiElement):
         return self
 
     def __iter__(self) -> Iterator[T]:
-        pass
+        return [].__iter__()
 
     def find(self, by: Locator, name: str = None):
         return InexistentUiElement(name, self)
