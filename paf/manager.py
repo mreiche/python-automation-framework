@@ -93,15 +93,15 @@ class WebDriverManager:
         for webdriver in list(self._session_driver_map.values()):
             self.shutdown(webdriver)
 
-    def take_screenshot(self, webdriver: WebDriver) -> Path | None:
+    def take_screenshot(self, webdriver: WebDriver, file_name: str = None) -> Path | None:
         dir = Path(Property.env(Property.PAF_SCREENSHOTS_DIR))
-        title = webdriver.title
-        if empty(title):
-            title = webdriver.current_url
+        if empty(file_name):
+            title = webdriver.title
+            if empty(title):
+                title = webdriver.current_url
+            formatter = inject.instance(Formatter)
+            file_name = f"{webdriver.session_id}-{title}-{formatter.datetime(datetime.now())}.png"
 
-        formatter = inject.instance(Formatter)
-
-        file_name = f"{title}-{formatter.datetime(datetime.now())}.png"
         dir.mkdir(parents=True, exist_ok=True)
         path = dir / file_name
         if webdriver.save_screenshot(dir / file_name):

@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Type, TypeVar, List, Generic, Iterable, Iterator, Callable, ContextManager
 
 import inject
+from is_empty import empty
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By as SeleniumBy
 from selenium.webdriver.remote.webdriver import WebDriver
@@ -103,7 +104,7 @@ class PageObject(Generic[T]):
         pass
 
     @abstractmethod
-    def take_screenshot(self) -> Path | None:  # pragma: no cover
+    def take_screenshot(self, file_name: str = None) -> Path | None:  # pragma: no cover
         pass
 
 
@@ -348,11 +349,13 @@ class DefaultUiElement(UiElement):
         self._web_element_action_sequence(lambda x: x.send_keys(value), "send_keys")
         return self
 
-    def take_screenshot(self) -> Path | None:
+    def take_screenshot(self, file_name: str = None) -> Path | None:
         with self.find_web_element() as web_element:
             dir = Path(Property.env(Property.PAF_SCREENSHOTS_DIR))
-            formatter = inject.instance(Formatter)
-            file_name = f"{self.name}-{formatter.datetime(datetime.now())}.png"
+            if empty(file_name):
+                formatter = inject.instance(Formatter)
+                file_name = f"{self.webdriver.session_id}-{self.name}-{formatter.datetime(datetime.now())}.png"
+
             dir.mkdir(parents=True, exist_ok=True)
             path = dir / file_name
             if web_element.screenshot(str(path)):

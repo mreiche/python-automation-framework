@@ -33,6 +33,12 @@ def test_take_screenshot(manager: WebDriverManager):
 
     for webdriver in webdrivers:
         path = manager.take_screenshot(webdriver)
+        assert webdriver.session_id in path.name
+        assert path.exists()
+
+        path = manager.take_screenshot(webdriver, "test")
+        assert webdriver.session_id not in path.name
+        assert path.name == "test"
         assert path.exists()
 
 
