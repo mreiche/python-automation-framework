@@ -190,8 +190,15 @@ def test_form(finder: FinderPage):
 def test_screenshot(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/find-by-playground-test.html")
     p = finder.find(By.id("pre1").unique)
+
     path = p.take_screenshot()
-    assert path
+    assert finder.webdriver.session_id in path.name
+    assert path.exists()
+
+    path = p.take_screenshot("test")
+    assert finder.webdriver.session_id not in path.name
+    assert "test" in path.name
+    assert path.exists()
 
 
 def test_retry(finder: FinderPage):
