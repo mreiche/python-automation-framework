@@ -168,3 +168,4 @@ snapshot.snapshotItem(0).textContent
 - https://tecadmin.net/setup-selenium-chromedriver-on-ubuntu/
 - https://stackoverflow.com/questions/46052736/python-proxy-class
 - https://chromedriver.chromium.org/
+- Make stealth WebDriver: https://stackoverflow.com/questions/33225947/can-a-website-detect-when-you-are-using-selenium-with-chromedriver
