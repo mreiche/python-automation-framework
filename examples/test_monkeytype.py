@@ -14,7 +14,7 @@ def finder():
     yield finder
 
 
-def test_find(finder: FinderPage):
+def test_typespeed(finder: FinderPage):
     finder.open("https://monkeytype.com")
 
     input_container = finder.find("#wordsInput")
