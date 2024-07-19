@@ -17,7 +17,7 @@ jobs:
 
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/mreiche/paf-test-base:chrome-116
+      image: ghcr.io/mreiche/paf-test-base:latest
       credentials:
         username: mreiche
         password: ${{  secrets.DOCKER_CONTAINER_REGISTRY_TOKEN }}
@@ -30,7 +30,7 @@ jobs:
 #        python-version: "3.10"
     - name: Install dependencies
       run: |
-        pip3 install -r requirements.txt
+        pip install -r requirements.txt
 #    - name: List chromedriver
 #      run: |
 #        ls -lahF

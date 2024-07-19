@@ -126,7 +126,7 @@ pytest --cov=paf -n=4 test
 podman build -f ubuntu-base.Dockerfile --arch=amd64 -t paf-test-base:latest
 source build.env
 echo $DOCKER_CONTAINER_REGISTRY_TOKEN | podman login -u mreiche --password-stdin ghcr.io
-podman push paf-test-base:latest docker://ghcr.io/mreiche/paf-test-base:chrome-116
+podman push paf-test-base:latest docker://ghcr.io/mreiche/paf-test-base:latest
 ```
 
 #### Build test runner container (for testing)
