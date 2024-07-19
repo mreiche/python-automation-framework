@@ -152,7 +152,7 @@ class UiElement(
         return UiElementAssertion(self, raise_exception=False)
 
     @abstractmethod
-    def _find_web_elements(self) -> ContextManager[List[WebElement]]:
+    def _find_web_elements(self) -> ContextManager[List[WebElement]]: # pragma: no cover
         pass
 
     @contextmanager

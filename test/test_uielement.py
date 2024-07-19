@@ -348,6 +348,8 @@ def test_inexistent_ui_element_wrapper():
     empty_ui_element.type("test")
     empty_ui_element.clear()
     empty_ui_element.submit()
+    empty_ui_element.context_click()
+    assert isinstance(empty_ui_element[0], InexistentUiElement)
     assert empty_ui_element.take_screenshot() is None
     assert isinstance(empty_ui_element.find("#inexistent"), InexistentUiElement)
     for e in empty_ui_element:
