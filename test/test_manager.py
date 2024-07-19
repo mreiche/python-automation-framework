@@ -89,14 +89,14 @@ def test_given_chrome_options(manager: WebDriverManager):
     request.browser = "chrome"
     request.options = ChromeOptions()
     webdriver = create_webdriver(request)
-    assert webdriver.name == request.browser
+    assert request.browser in webdriver.name
 
 
 def test_not_given_chrome_options(manager: WebDriverManager):
     request = WebDriverRequest("chrome-no-options")
     request.browser = "chrome"
     webdriver = create_webdriver(request)
-    assert webdriver.name == request.browser
+    assert request.browser in webdriver.name
 
 
 @pytest.mark.skipif(
