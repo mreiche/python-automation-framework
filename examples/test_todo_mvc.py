@@ -62,7 +62,7 @@ def add_todos(count: int):
 
 
 def open_todo_app():
-    finder.open("https://todomvc.com/examples/vanillajs/")
+    finder.open("https://todomvc.com/examples/javascript-es6/dist/")
 
 
 def add_new_todo(*names):
