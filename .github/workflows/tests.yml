@@ -7,11 +7,13 @@ on:
   push:
     branches: [ "main" ]
     paths:
+      - .github/workflows/tests.yml
       - paf/**
       - test/**
   pull_request:
     branches: [ "main" ]
     paths:
+      - .github/workflows/tests.yml
       - paf/**
       - test/**
 
@@ -23,9 +25,9 @@ jobs:
 
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/mreiche/paf-test-base:latest
+      image: ghcr.io/mreiche/paf-test-base:main
       credentials:
-        username: mreiche
+        username: ${{ github.actor }}
         password: ${{  secrets.DOCKER_CONTAINER_REGISTRY_TOKEN }}
 
     steps:
