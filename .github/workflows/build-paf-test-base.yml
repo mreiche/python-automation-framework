@@ -1,5 +1,9 @@
 name: Build PAF test base image
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: paf-test-base:latest
+
 on:
   push:
     branches: [ "main" ]
@@ -15,6 +19,7 @@ on:
 permissions:
   contents: read
 
+# https://docs.github.com/en/actions/publishing-packages/publishing-docker-images#publishing-images-to-github-packages
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -29,9 +34,22 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.DOCKER_CONTAINER_REGISTRY_TOKEN }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
           file: ubuntu-base.Dockerfile
-          push: ${{ github.event.name == 'pull_request' && 'false' || 'true' }}
-          tags: mreiche/paf-test-base:latest
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
+          # ${{ github.event.name == 'pull_request' && 'false' || 'true' }}
