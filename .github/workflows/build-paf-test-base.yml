@@ -2,7 +2,7 @@ name: Build PAF test base image
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: paf-test-base
+  IMAGE_NAME: mreiche/paf-test-base
 
 on:
   push:
