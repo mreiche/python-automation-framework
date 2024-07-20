@@ -19,6 +19,7 @@ on:
 permissions:
   contents: read
 
+# https://github.com/marketplace/actions/build-and-push-docker-images
 # https://docs.github.com/en/actions/publishing-packages/publishing-docker-images#publishing-images-to-github-packages
 jobs:
   build:
