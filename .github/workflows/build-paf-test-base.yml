@@ -40,6 +40,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       - name: Build and push
+        id: push
         uses: docker/build-push-action@v6
         with:
           file: ubuntu-base.Dockerfile
