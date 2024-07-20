@@ -5,10 +5,12 @@ on:
     branches: [ "main" ]
     paths:
       - ubuntu-base.Dockerfile
+      - .github/workflows/build-paf-test-base.yml
   pull_request:
     branches: [ "main" ]
     paths:
       - ubuntu-base.Dockerfile
+      - .github/workflows/build-paf-test-base.yml
 
 permissions:
   contents: read
