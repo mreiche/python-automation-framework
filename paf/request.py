@@ -1,3 +1,4 @@
+import os
 import re
 from urllib.parse import urlparse, ParseResult
 
@@ -72,7 +73,7 @@ class WebDriverRequest:
 
     @property
     def window_size(self):
-        if not self._window_size:
+        if not self._window_size and Property.PAF_WINDOW_SIZE.name in os.environ:
             match = re.search("(\\d+)x(\\d+)", Property.env(Property.PAF_WINDOW_SIZE))
             groups = match.groups()
             self._window_size = Size(int(groups[0]), int(groups[1]))
