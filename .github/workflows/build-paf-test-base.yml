@@ -2,12 +2,12 @@ name: Build PAF test base image
 
 on:
   push:
-    branches: [ $default-branch ]
+    branches: [ "main" ]
     paths:
       - ubuntu-base.Dockerfile
       - .github/workflows/build-paf-test-base.yml
   pull_request:
-    branches: [ $default-branch ]
+    branches: [ "main" ]
     paths:
       - ubuntu-base.Dockerfile
       - .github/workflows/build-paf-test-base.yml
