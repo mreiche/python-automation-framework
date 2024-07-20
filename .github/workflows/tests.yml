@@ -6,8 +6,14 @@ name: Tests
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - paf
+      - test
   pull_request:
     branches: [ "main" ]
+    paths:
+      - paf
+      - test
 
 permissions:
   contents: read
