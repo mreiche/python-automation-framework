@@ -23,12 +23,13 @@ RUN curl -fLo chrome-headless.zip https://storage.googleapis.com/chrome-for-test
     && ln -s "/home/chromedriver-linux64/chromedriver" /usr/local/bin \
     && rm "chromedriver.zip" \
     && rm LATEST_RELEASE_STABLE
-    #&& chrome --no-sandbox --disable-gpu-sandbox
 
 RUN python3 -m venv venv \
     && curl -fLo selenium-server.jar https://github.com/SeleniumHQ/selenium/releases/download/selenium-4.9.0/selenium-server-4.9.0.jar \
     && java -jar selenium-server.jar standalone --version \
-    #&& chrome --version \
     && chromedriver --version \
     && python3 --version \
     && pip --version
+
+# This doesn't work
+#&& chrome --no-sandbox --disable-gpu-sandbox
