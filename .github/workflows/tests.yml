@@ -23,9 +23,9 @@ jobs:
 
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/mreiche/paf-test-base:latest
+      image: ghcr.io/mreiche/paf-test-base:main
       credentials:
-        username: mreiche
+        username: ${{ github.actor }}
         password: ${{  secrets.DOCKER_CONTAINER_REGISTRY_TOKEN }}
 
     steps:
