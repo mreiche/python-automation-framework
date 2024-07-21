@@ -8,13 +8,13 @@ RUN CHROME_HEADLESS_DEPS="libglib2.0-0 libnss3 libdbus-1-3 libatk1.0-0 libatk-br
     PYTHON="python3 python3-venv"; \
     apt -y update \
     && apt -y install ${TOOLS} ${SELENIUM} ${PYTHON} ${CHROME_HEADLESS_DEPS} \
-    && apt clean \
+    && apt clean
 
 ARG DOWNLOAD_ARCH="linux64"
 
 RUN curl -fLo LATEST_RELEASE_STABLE https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_STABLE \
     && export RELEASE=$(cat LATEST_RELEASE_STABLE) \
-    && echo "Using release: ${RELEASE}" \
+    && echo "Using release: ${RELEASE} for arch: ${DOWNLOAD_ARCH}" \
     && curl -fLo chrome-headless.zip https://storage.googleapis.com/chrome-for-testing-public/${RELEASE}/${DOWNLOAD_ARCH}/chrome-headless-shell-${DOWNLOAD_ARCH}.zip \
     && unzip chrome-headless.zip \
     && mv chrome-headless-shell-${DOWNLOAD_ARCH} /opt \
