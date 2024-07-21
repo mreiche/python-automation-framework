@@ -10,15 +10,19 @@ RUN CHROME_HEADLESS_DEPS="libglib2.0-0 libnss3 libdbus-1-3 libatk1.0-0 libatk-br
     && apt -y install ${TOOLS} ${SELENIUM} ${PYTHON} ${CHROME_HEADLESS_DEPS} \
     && apt clean
 
-RUN curl -fLo chrome-headless.zip https://storage.googleapis.com/chrome-for-testing-public/126.0.6478.182/linux64/chrome-headless-shell-linux64.zip \
+ARG DOWNLOAD_ARCH="linux64"
+
+RUN curl -fLo LATEST_RELEASE_STABLE https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_STABLE \
+    && export RELEASE=$(cat LATEST_RELEASE_STABLE) \
+    && echo "Using release: ${RELEASE} for arch: ${DOWNLOAD_ARCH}" \
+    && curl -fLo chrome-headless.zip https://storage.googleapis.com/chrome-for-testing-public/${RELEASE}/${DOWNLOAD_ARCH}/chrome-headless-shell-${DOWNLOAD_ARCH}.zip \
     && unzip chrome-headless.zip \
-    && mv chrome-headless-shell-linux64 /opt \
-    && ln -s /opt/chrome-headless-shell-linux64/chrome-headless-shell /usr/local/bin/chrome \
+    && mv chrome-headless-shell-${DOWNLOAD_ARCH} /opt \
+    && ln -s /opt/chrome-headless-shell-${DOWNLOAD_ARCH}/chrome-headless-shell /usr/local/bin/chrome \
     && rm chrome-headless.zip \
-    && curl -fLo LATEST_RELEASE_STABLE https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_STABLE \
-    && curl -fLo chromedriver.zip https://storage.googleapis.com/chrome-for-testing-public/`cat LATEST_RELEASE_STABLE`/linux64/chromedriver-linux64.zip \
+    && curl -fLo chromedriver.zip https://storage.googleapis.com/chrome-for-testing-public/${RELEASE}/${DOWNLOAD_ARCH}/chromedriver-${DOWNLOAD_ARCH}.zip \
     && unzip "chromedriver.zip" \
-    && ln -s "/home/chromedriver-linux64/chromedriver" /usr/local/bin \
+    && ln -s "/home/chromedriver-${DOWNLOAD_ARCH}/chromedriver" /usr/local/bin \
     && rm "chromedriver.zip" \
     && rm LATEST_RELEASE_STABLE
 
