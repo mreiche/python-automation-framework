@@ -26,7 +26,7 @@ jobs:
   run-tests:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/mreiche/paf-test-base:main
+      image: ghcr.io/mreiche/python-dind:main
       credentials:
         username: ${{ github.actor }}
         password: ${{  secrets.DOCKER_CONTAINER_REGISTRY_TOKEN }}
