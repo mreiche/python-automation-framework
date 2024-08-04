@@ -1,9 +1,10 @@
+from pathlib import Path
 from typing import Type
 
 from selenium.webdriver.support.color import Color
 
 from paf.common import HasParent, Locator
-from paf.types import COMPONENT, PAGE
+from paf.types import COMPONENT, PAGE, SUB_COMPONENT
 from paf.uielement import UiElement, PageObject, PageObjectList, UiElementTests, DefaultUiElement
 
 
@@ -53,7 +54,7 @@ class Component(PageObject[COMPONENT], PageObjectList[COMPONENT], HasParent, UiE
         component._parent = self._parent
         return component
 
-    def _create_component(self, component_class: Type[COMPONENT], ui_element: "UiElement") -> COMPONENT:
+    def _create_component(self, component_class: Type[SUB_COMPONENT], ui_element: "UiElement") -> SUB_COMPONENT:
         component = component_class(ui_element)
         component._parent = self
         return component
@@ -68,3 +69,6 @@ class Component(PageObject[COMPONENT], PageObjectList[COMPONENT], HasParent, UiE
     @property
     def wait_for(self):
         return self._ui_element.wait_for
+
+    def take_screenshot(self, file_name: str = None) -> Path | None:
+        return self._ui_element.take_screenshot(file_name)

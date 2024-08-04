@@ -3,6 +3,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.color import Color
 
 from paf.common import Point, Rect
+from paf.dom import Attribute
 
 
 def scroll_to_center(webdriver: WebDriver, web_element: WebElement, offset: Point):
@@ -33,7 +34,7 @@ def get_viewport(webdriver: WebDriver):
     return Rect(x=int(data[0]), y=int(data[1]), width=int(data[2]), height=int(data[3]))
 
 
-def highlight(webdriver:  WebDriver, web_element: WebElement, color: Color, timeout_ms: int = 2000):
+def highlight(webdriver: WebDriver, web_element: WebElement, color: Color, timeout_ms: int = 2000):
     webdriver.execute_script("""const element = arguments[0];
 const color = arguments[1];
 const timeout = arguments[2];
@@ -43,3 +44,8 @@ element.style.cssText += "outline: 5px solid " + color + " !important";
 window.setTimeout(function() {
     element.style.outline = origOutline;
 }, timeout);""", web_element, color.hex, timeout_ms)
+
+
+def set_attribute(webdriver: WebDriver, web_element: WebElement, attribute: str | Attribute, value: any):
+    webdriver.execute_script("""const element = arguments[0];
+element.setAttribute(arguments[1], arguments[2]);""", web_element, attribute, value)

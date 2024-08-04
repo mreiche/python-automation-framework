@@ -17,12 +17,11 @@ def create_webdriver(request: WebDriverRequest = None):
     if not request.browser:
         request.browser = "chrome"
 
-    if not request.window_size:
-        request.window_size = Size(1920, 1080)
-
     if os.getenv("PAF_TEST_HEADLESS") == "1":
         request.options = ChromeOptions()
         request.options.add_argument("--headless")
+        if not request.window_size:
+            request.window_size = Size(1920, 1080)
 
     if os.getenv("PAF_TEST_CONTAINER") == "1":
         request.options.add_argument("--disable-gpu")

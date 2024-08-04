@@ -1,56 +1,47 @@
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 
-name: Tests
+name: PAF tests
 
 on:
   push:
     branches: [ "main" ]
     paths:
+      - .github/workflows/tests.yml
       - paf/**
       - test/**
   pull_request:
     branches: [ "main" ]
     paths:
+      - .github/workflows/tests.yml
       - paf/**
       - test/**
 
 permissions:
   contents: read
+  checks: write
+  pull-requests: write
 
 jobs:
-  build:
-
+  run-tests:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/mreiche/paf-test-base:latest
+      image: ghcr.io/mreiche/paf-test-base:main
       credentials:
         username: ${{ github.actor }}
         password: ${{  secrets.DOCKER_CONTAINER_REGISTRY_TOKEN }}
 
     steps:
     - uses: actions/checkout@v3
-#    - name: Set up Python 3.10
-#      uses: actions/setup-python@v3
-#      with:
-#        python-version: "3.10"
-    - name: Install dependencies
-      run: |
-        pip install -r requirements.txt
-#    - name: List chromedriver
-#      run: |
-#        ls -lahF
-#        /home/chromedriver --version
-#    - name: Lint with flake8
-#      run: |
-#        # stop the build if there are Python syntax errors or undefined names
-#        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-#        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-#        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
+      env:
+        PAF_TEST_HEADLESS: 1
+        PAF_TEST_CONTAINER: 1
+        PAF_TEST_LOCAL_SELENIUM: 0
+        PAF_BROWSER_SETTING: chrome:113
       run: |
         java -jar /home/selenium-server.jar standalone --host 127.0.0.1 &
-        PAF_TEST_HEADLESS=1 PAF_TEST_CONTAINER=1 PAF_TEST_LOCAL_SELENIUM=0 PAF_BROWSER_SETTING=chrome:113 pytest --cov=paf -n=4 test
+        pytest --cov=paf -n=4 --junitxml=test-results/tests.xml test
     - name: Generate coverage report
       run: coverage xml
     - name: Upload coverage to Codecov
@@ -60,9 +51,9 @@ jobs:
         fail_ci_if_error: true
         files: ./coverage.xml
         verbose: true
-#    - name: Publish Test Results
-#      uses: EnricoMi/publish-unit-test-result-action@v2
-#      if: always()
-#      with:
-#        files: |
-#          test-results/**/*.xml
+    - name: Publish Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()
+      with:
+        files: |
+          test-results/**/*.xml

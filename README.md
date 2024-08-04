@@ -131,12 +131,9 @@ podman push paf-test-base:latest docker://ghcr.io/mreiche/paf-test-base:latest
 ```
 
 #### Build test runner container (for testing)
-```shell
-podman build -f test.Dockerfile --arch=amd64 -t paf-test:latest
-```
 Run tests within container
 ```shell
-podman run -e PAF_TEST_HEADLESS=1 -e PAF_TEST_CONTAINER=1 -e PAF_TEST_LOCAL_SELENIUM=0 paf-test:latest pytest --cov=paf -n=4 test
+podman run -e PAF_TEST_HEADLESS=1 -e PAF_TEST_CONTAINER=1 -e PAF_TEST_LOCAL_SELENIUM=0 paf-test-base:latest pytest --cov=paf -n=4 test
 ```
 
 #### Run local selenium server
