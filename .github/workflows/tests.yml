@@ -55,7 +55,7 @@ jobs:
         PAF_TEST_CONTAINER=1
         PAF_TEST_LOCAL_SELENIUM=0
         PAF_BROWSER_SETTING=chrome:113
-        pytest --cov=paf -n=4 --junitxml=path test-results/pytest.xml test
+        pytest --cov=paf -n=4 --junitxml=test-results/tests.xml test
     - name: Generate coverage report
       run: coverage xml
     - name: Upload coverage to Codecov
