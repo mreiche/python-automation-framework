@@ -51,10 +51,10 @@ jobs:
     - name: Test with pytest
       run: |
         java -jar /home/selenium-server.jar standalone --host 127.0.0.1 &
-        PAF_TEST_HEADLESS=1
-        PAF_TEST_CONTAINER=1
-        PAF_TEST_LOCAL_SELENIUM=0
-        PAF_BROWSER_SETTING=chrome:113
+        PAF_TEST_HEADLESS=1 \
+        PAF_TEST_CONTAINER=1 \
+        PAF_TEST_LOCAL_SELENIUM=0 \
+        PAF_BROWSER_SETTING=chrome:113 \
         pytest --cov=paf -n=4 --junitxml=test-results/tests.xml test
     - name: Generate coverage report
       run: coverage xml
