@@ -25,7 +25,7 @@ RUN curl -fLo LATEST_RELEASE_STABLE https://googlechromelabs.github.io/chrome-fo
     && ln -s "/home/chromedriver-${DOWNLOAD_ARCH}/chromedriver" /usr/local/bin \
     && rm "chromedriver.zip" \
     && rm LATEST_RELEASE_STABLE \
-    && curl -fLo selenium-server.jar https://github.com/SeleniumHQ/selenium/releases/download/selenium-4.9.0/selenium-server-4.9.0.jar \
+    && curl -fLo selenium-server.jar https://github.com/SeleniumHQ/selenium/releases/download/selenium-4.9.0/selenium-server-4.9.0.jar
 
 # Copy everything according .Dockerignore
 COPY . .
