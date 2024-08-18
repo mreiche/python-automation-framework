@@ -1,5 +1,4 @@
 import inject
-import pytest
 from selenium.webdriver import ChromeOptions
 
 from paf.manager import WebDriverManager
@@ -21,6 +20,12 @@ def test_hide_webdriver():
     request = WebDriverRequest("non-automated")
     request.browser = "chrome"
     options = ChromeOptions()
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-browser-side-navigation")
+    options.add_argument("disable-infobars")
+    options.add_argument("--disable-extensions")
     options.add_argument("--disable-blink-features=AutomationControlled")
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option('useAutomationExtension', False)
