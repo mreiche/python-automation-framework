@@ -5,7 +5,7 @@ WORKDIR /home
 RUN CHROME_HEADLESS_DEPS="libglib2.0-0 libnss3 libdbus-1-3 libatk1.0-0 libatk-bridge2.0-0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libxkbcommon0 libasound2"; \
     TOOLS="unzip curl"; \
     SELENIUM="default-jre-headless"; \
-    PYTHON="python3 python3-venv"; \
+    PYTHON="python3"; \
     apt -y update \
     && apt -y install ${TOOLS} ${SELENIUM} ${PYTHON} ${CHROME_HEADLESS_DEPS} \
     && apt clean
