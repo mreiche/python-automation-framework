@@ -29,9 +29,10 @@ RUN curl -fLo LATEST_RELEASE_STABLE https://googlechromelabs.github.io/chrome-fo
 # Copy everything according .Dockerignore
 COPY . .
 
-RUN apt -y update  \
+RUN python3 -m venv venv \
+    && source venv/bin/activate \
+    && apt -y update \
     && apt -y install python3-pip \
-    && python3 -m venv venv \
     && pip install --no-cache-dir -r requirements.txt \
     && apt -y purge python3-pip \
     && apt -y autopurge \
@@ -41,4 +42,4 @@ RUN curl -fLo selenium-server.jar https://github.com/SeleniumHQ/selenium/release
     && java -jar selenium-server.jar standalone --version \
     && chromedriver --version \
     && chrome --headless --no-sandbox --disable-gpu --disable-gpu-sandbox --dump-dom https://www.chromestatus.com/ \
-    && python3 --version
+    && python --version
