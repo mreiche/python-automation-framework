@@ -4,6 +4,7 @@ from selenium.webdriver import ChromeOptions
 from paf.manager import WebDriverManager
 from paf.request import WebDriverRequest
 from test import create_webdriver
+import logging
 
 
 def test_detect_webdriver():
@@ -32,6 +33,7 @@ def test_hide_webdriver():
 
     request.options = options
     webdriver = create_webdriver(request)
+    logging.info(f"Request {request}")
     webdriver.execute_cdp_cmd('Network.setUserAgentOverride', {"userAgent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.53 Safari/537.36'})
     webdriver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => false})")
     result = webdriver.execute_script("return navigator.webdriver")
