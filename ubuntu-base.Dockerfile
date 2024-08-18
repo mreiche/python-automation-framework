@@ -32,7 +32,7 @@ COPY . .
 
 RUN apt -y update \
     && apt -y install python3-pip \
-    && pip install --no-cache-dir -r requirements.txt \
+    && pip install --no-cache-dir -r requirements.txt --break-system-packages \
     && apt -y purge python3-pip \
     && apt -y autopurge \
     && apt clean \
