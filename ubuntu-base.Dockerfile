@@ -40,8 +40,5 @@ RUN apt -y update  \
 RUN curl -fLo selenium-server.jar https://github.com/SeleniumHQ/selenium/releases/download/selenium-4.9.0/selenium-server-4.9.0.jar \
     && java -jar selenium-server.jar standalone --version \
     && chromedriver --version \
+    && chrome --headless --no-sandbox --disable-gpu --disable-gpu-sandbox --dump-dom https://www.chromestatus.com/ \
     && python3 --version
-
-# This doesn't work
-# ./chrome-headless-shell --headless --no-sandbox --disable-gpu --disable-gpu-sandbox --dump-dom https://www.chromestatus.com/
-# chrome --no-sandbox --disable-gpu-sandbox
