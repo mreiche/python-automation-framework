@@ -83,3 +83,9 @@ class WebDriverRequest:
     @window_size.setter
     def window_size(self, size: Size):
         self._window_size = size
+
+    def __str__(self):
+        dict = self.__dict__
+        if self._options:
+            dict["_options"] = self._options.__dict__
+        return dict.__str__()
