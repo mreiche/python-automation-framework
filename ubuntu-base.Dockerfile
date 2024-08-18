@@ -1,8 +1,8 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 WORKDIR /home
 
-RUN CHROME_HEADLESS_DEPS="libglib2.0-0 libnss3 libdbus-1-3 libatk1.0-0 libatk-bridge2.0-0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libxkbcommon0 libasound2"; \
+RUN CHROME_HEADLESS_DEPS="libglib2.0-0 libnss3 libdbus-1-3 libatk1.0-0 libatk-bridge2.0-0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libxkbcommon0 libasound2-data"; \
     TOOLS="unzip curl"; \
     SELENIUM="default-jre-headless"; \
     PYTHON="python3"; \
@@ -32,7 +32,7 @@ COPY . .
 
 RUN apt -y update \
     && apt -y install python3-pip \
-    && pip install --no-cache-dir -r requirements.txt \
+    && pip install --no-cache-dir -r requirements.txt --break-system-packages \
     && apt -y purge python3-pip \
     && apt -y autopurge \
     && apt clean \
