@@ -10,11 +10,13 @@ on:
     paths:
       - ubuntu-base.Dockerfile
       - .github/workflows/build-paf-test-base.yml
+      - requirements.txt
   pull_request:
     branches: [ "main" ]
     paths:
       - ubuntu-base.Dockerfile
       - .github/workflows/build-paf-test-base.yml
+      - requirements.txt
 
 permissions:
   contents: read

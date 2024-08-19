@@ -24,6 +24,7 @@ permissions:
 
 jobs:
   run-tests:
+    name: "Run integration tests"
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/mreiche/paf-test-base:main
