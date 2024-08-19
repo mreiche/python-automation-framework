@@ -4,6 +4,9 @@
 name: PAF tests
 
 on:
+  workflow_run:
+    workflows: [ 'Build PAF test base image' ]
+    types: [ completed ]
   push:
     branches: [ "main" ]
     paths:
