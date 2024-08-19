@@ -29,11 +29,11 @@ jobs:
   run-tests:
     name: "Run integration tests"
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/mreiche/paf-test-base:main
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{  secrets.DOCKER_CONTAINER_REGISTRY_TOKEN }}
+#    container:
+#      image: ghcr.io/mreiche/paf-test-base:main
+#      credentials:
+#        username: ${{ github.actor }}
+#        password: ${{  secrets.DOCKER_CONTAINER_REGISTRY_TOKEN }}
 
     steps:
     - uses: actions/checkout@v3
@@ -43,12 +43,11 @@ jobs:
         PAF_TEST_CONTAINER: 1
         PAF_TEST_LOCAL_SELENIUM: 0
         PAF_BROWSER_SETTING: chrome
-        SE_OFFLINE: true
-        PAF_DRIVER_PATH: "/usr/local/bin/chromedriver"
-        PAF_BINARY_PATH: "/usr/local/bin/chrome"
-      run: |
-        java -jar /home/selenium-server.jar standalone --host 127.0.0.1 &
-        pytest --cov=paf -n=4 --junitxml=test-results/tests.xml test
+        #SE_OFFLINE: true
+        #PAF_DRIVER_PATH: "/usr/local/bin/chromedriver"
+        #PAF_BINARY_PATH: "/usr/local/bin/chrome"
+      # java -jar /home/selenium-server.jar standalone --host 127.0.0.1 &
+      run: pytest --cov=paf -n=4 --junitxml=test-results/tests.xml test
     - name: Generate coverage report
       run: coverage xml
     - name: Upload coverage to Codecov
