@@ -4,7 +4,9 @@ from typing import Type, TypeVar, Iterable, List
 
 import inject
 from is_empty import empty
-from selenium.webdriver import Chrome, Firefox, Edge, Safari, Remote, ChromeOptions, EdgeOptions, FirefoxOptions, WPEWebKitOptions
+import selenium.webdriver as webdriver
+from selenium.webdriver.common import service as webdriver_service
+from selenium.webdriver import ChromeService, Chrome, Firefox, Edge, Safari, Remote, ChromeOptions, EdgeOptions, FirefoxOptions, WPEWebKitOptions
 from selenium.webdriver.common.options import BaseOptions
 from selenium.webdriver.remote.webdriver import WebDriver, BaseWebDriver
 from paf.common import Property, Formatter
@@ -32,37 +34,49 @@ class WebDriverManager:
         if session_name in self._session_driver_map:
             return self._session_driver_map[session_name]
 
-        webdriver = None
-        webdriver_class: Type[BaseWebDriver] = None
-        options: BaseOptions = None
+        driver = None
+        driver_class: Type[BaseWebDriver]
+        options: BaseOptions
+        service: webdriver_service.Service
 
         if request.browser in ["chrome"]:
-            options = self._get_options(request, ChromeOptions)
-            webdriver_class = Chrome
+            options = self._get_options(request, webdriver.ChromeOptions)
+            service_class = webdriver.ChromeService
+            driver_class = webdriver.Chrome
         elif request.browser in ["firefox"]:
-            options = self._get_options(request, FirefoxOptions)
-            webdriver_class = Firefox
+            options = self._get_options(request, webdriver.FirefoxOptions)
+            service_class = webdriver.FirefoxService
+            driver_class = webdriver.Firefox
         elif request.browser in ["edge"]:
-            options = self._get_options(request, EdgeOptions)
-            webdriver_class = Edge
+            options = self._get_options(request, webdriver.EdgeOptions)
+            service_class = webdriver.EdgeService
+            driver_class = webdriver.Edge
         elif request.browser in ["safari"]:
-            options = self._get_options(request, WPEWebKitOptions)
-            webdriver_class = Safari
+            options = self._get_options(request, webdriver.SafariOptions)
+            service_class = webdriver.SafariService
+            driver_class = webdriver.Safari
         else:
             raise Exception("No browser specified")
 
         if request.browser_version:
             options.set_capability("browserVersion", request.browser_version)
-            # options.set_capability("platformName", "Windows XP")
 
         if request.server_url:
-            webdriver = Remote(command_executor=request.server_url.geturl(), options=options)
-        elif webdriver_class:
-            webdriver = webdriver_class(options=options)
+            driver = webdriver.Remote(command_executor=request.server_url.geturl(), options=options)
+        elif driver_class:
+            service_options = {}
+            if Property.PAF_DRIVER_PATH.value:
+                service_options["executable_path"] = Property.PAF_DRIVER_PATH.value
 
-        self.introduce_webdriver(webdriver, request)
+            if Property.PAF_BINARY_PATH.value:
+                options.binary_location = Property.PAF_BINARY_PATH.value
 
-        return webdriver
+            service = service_class(**service_options)
+            driver = driver_class(options=options, service=service)
+
+        self.introduce_webdriver(driver, request)
+
+        return driver
 
     def introduce_webdriver(self, webdriver: WebDriver, request: WebDriverRequest):
         self._session_driver_map[request.session_name] = webdriver
