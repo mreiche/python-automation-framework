@@ -2,18 +2,17 @@ import asyncio
 import os
 import shutil
 from pathlib import Path
-from typing import List
+from urllib.parse import ParseResult
 
 import inject
 import pytest
+from selenium.webdriver import ChromeOptions
 from selenium.webdriver.remote.webdriver import WebDriver
 
 from paf.common import Property
 from paf.manager import WebDriverManager
 from paf.request import WebDriverRequest
 from test import create_webdriver
-from selenium.webdriver import ChromeOptions
-from urllib.parse import ParseResult
 
 
 @pytest.fixture
