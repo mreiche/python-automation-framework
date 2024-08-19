@@ -4,6 +4,9 @@
 name: PAF tests
 
 on:
+  workflow_run:
+    workflows: [ 'Build PAF test base image' ]
+    types: [ completed ]
   push:
     branches: [ "main" ]
     paths:
@@ -24,6 +27,7 @@ permissions:
 
 jobs:
   run-tests:
+    name: "Run integration tests"
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/mreiche/paf-test-base:main
@@ -39,6 +43,9 @@ jobs:
         PAF_TEST_CONTAINER: 1
         PAF_TEST_LOCAL_SELENIUM: 0
         PAF_BROWSER_SETTING: chrome
+        SE_OFFLINE: true
+        PAF_DRIVER_PATH: "/usr/local/bin/chromedriver"
+        PAF_BINARY_PATH: "/usr/local/bin/chrome"
       run: |
         java -jar /home/selenium-server.jar standalone --host 127.0.0.1 &
         pytest --cov=paf -n=4 --junitxml=test-results/tests.xml test

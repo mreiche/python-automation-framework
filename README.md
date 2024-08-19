@@ -76,6 +76,8 @@ element.expect.text.be("Search")
 * `PAF_SEQUENCE_RETRY_COUNT=3`: Retry count for every sequence action.
 * `PAF_DEMO_MODE=0`: Enables the demo mode by highlighting actions and assertions.
 * `PAF_SELENIUM_SERVER_URL=http://127.0.0.1:4444`: Uses Selenium server if set.
+* `PAF_DRIVER_PATH`: Path to Webdriver binary
+* `PAF_BINARY_PATH`: Path to User agent's binary
 
 ## Examples
 
