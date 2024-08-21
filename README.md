@@ -1,5 +1,5 @@
 [![Pypi](https://img.shields.io/pypi/v/python-automation-framework.svg)](https://pypi.org/project/python-automation-framework)
-![Tests Status](https://github.com/mreiche/python-automation-framework/actions/workflows/tests.yml/badge.svg)
+![Tests Status](https://github.com/mreiche/python-automation-framework/actions/workflows/integration-tests.yml/badge.svg)
 [![Code Coverage Status](https://codecov.io/github/mreiche/python-automation-framework/branch/main/graph/badge.svg)](https://app.codecov.io/github/mreiche/python-automation-framework)
 
 
