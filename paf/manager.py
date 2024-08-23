@@ -85,10 +85,17 @@ class WebDriverManager:
             #LOG.info(f"Set window size {request.window_size} on {webdriver.name}")
             webdriver.set_window_rect(0, 0, request.window_size.width, request.window_size.height)
 
-    def has_webdriver(self, session_name):
+    def __map_session_name(self, session_name_or_request: str | WebDriverRequest) -> str:
+        if isinstance(session_name_or_request, WebDriverRequest):
+            session_name_or_request = session_name_or_request.session_name
+        return session_name_or_request
+
+    def has_webdriver(self, session_name_or_request: str | WebDriverRequest):
+        session_name = self.__map_session_name(session_name_or_request)
         return session_name in self._session_driver_map
 
-    def shutdown_session(self, session_name: str):
+    def shutdown_session(self, session_name_or_request: str | WebDriverRequest):
+        session_name = self.__map_session_name(session_name_or_request)
         if session_name in self._session_driver_map:
             self.shutdown(self._session_driver_map[session_name])
         else:

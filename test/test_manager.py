@@ -44,7 +44,9 @@ def test_take_screenshot(manager: WebDriverManager):
 def test_shutdown_by_session_key(manager: WebDriverManager):
     request = WebDriverRequest("test")
     create_webdriver(request)
-    manager.shutdown_session(request.session_name)
+    assert manager.has_webdriver(request)
+    manager.shutdown_session(request)
+    assert manager.has_webdriver(request.session_name) is False
 
 
 def test_shutdown_unknown_session_fails(manager: WebDriverManager):
