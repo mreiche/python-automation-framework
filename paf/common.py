@@ -60,14 +60,14 @@ class HasParent(HasName, ABC):
 
 @dataclass()
 class Point:
-    x: int = 0
-    y: int = 0
+    x: float = 0
+    y: float = 0
 
 
 @dataclass()
 class Size:
-    width: int = 0
-    height: int = 0
+    width: float = 0
+    height: float = 0
 
 
 class Rect(Point, Size):
@@ -77,7 +77,7 @@ class Rect(Point, Size):
         rect = web_element.rect
         return Rect(rect["x"], rect["y"], rect["width"], rect["height"])
 
-    def __init__(self, x: int = 0, y: int = 0, width: int = 0, height: int = 0):
+    def __init__(self, x: float = 0, y: float = 0, width: float = 0, height: float = 0):
         self.x = x
         self.y = y
         self.width = width

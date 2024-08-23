@@ -31,7 +31,7 @@ window.scrollTo({ left: element.offsetLeft+left, top: element.offsetTop+top });"
 def get_viewport(webdriver: WebDriver):
     data = webdriver.execute_script("return [window.pageXOffset.toString(), window.pageYOffset.toString(), window.innerWidth.toString(), window.innerHeight.toString()];")
     assert isinstance(data, list)
-    return Rect(x=int(data[0]), y=int(data[1]), width=int(data[2]), height=int(data[3]))
+    return Rect(x=float(data[0]), y=float(data[1]), width=float(data[2]), height=float(data[3]))
 
 
 def highlight(webdriver: WebDriver, web_element: WebElement, color: Color, timeout_ms: int = 2000):
