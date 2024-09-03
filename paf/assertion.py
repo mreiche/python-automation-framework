@@ -112,6 +112,9 @@ class BinaryAssertion(AbstractAssertion[ACTUAL_TYPE]):
     def be(self, expected: any) -> bool:
         return self._test_sequence(lambda actual: actual == expected, lambda: f"to be {Format.param(expected)}")
 
+    def not_be(self, expected: any) -> bool:
+        return self._test_sequence(lambda actual: actual != expected, lambda: f"not to be {Format.param(expected)}")
+
 
 class QuantityAssertion(BinaryAssertion[ACTUAL_TYPE]):
     def map(self, mapper: Mapper):
@@ -121,8 +124,7 @@ class QuantityAssertion(BinaryAssertion[ACTUAL_TYPE]):
             name_supplier=lambda: f"mapped ",
         )
 
-    def not_be(self, expected: any) -> bool:
-        return self._test_sequence(lambda actual: actual != expected, lambda: f"not to be {Format.param(expected)}")
+
 
     def between(self, lower: Number, higher: Number):
         return BinaryAssertion(
