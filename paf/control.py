@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from time import sleep, time
 from typing import Callable, Optional
 
-from paf.common import Property
+from paf.common import Property, RetryException
 from paf.types import Consumer
 
 
@@ -51,15 +51,6 @@ class Sequence:
     def count(self):
         return self._count
 
-
-class RetryException(Exception):
-    def __init__(self, sequence: Sequence, exception: Exception):
-        prefix = f"{exception}"
-        if len(prefix) > 0:
-            prefix += f" "
-        super().__init__(f"{prefix}after {sequence.count} retries ({round(sequence.duration, 2)} seconds)")
-
-
 @contextmanager
 def change(
     retry_count: int = None,
@@ -100,4 +91,4 @@ def retry(action: Callable, on_fail: Consumer[Exception] = None):
     sequence.run(_run)
 
     if exception is not None:
-        raise RetryException(sequence, exception)
+        raise RetryException(exception, count=sequence.count, duration=sequence.duration)

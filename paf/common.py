@@ -135,12 +135,12 @@ class Formatter:
 
 class NotFoundException(Exception):
     def __init__(self):
-        super().__init__(f"Element not found")
+        super().__init__(f"Not found")
 
 
 class NotUniqueException(Exception):
     def __init__(self):
-        super().__init__(f"Element not unique")
+        super().__init__(f"Not unique")
 
 
 class WebdriverRetainer(ABC):
@@ -148,6 +148,34 @@ class WebdriverRetainer(ABC):
     @abstractmethod
     def webdriver(self):  # pragma: no cover
         pass
+
+
+class RetryException(Exception):
+    def __init__(self, exception: Exception, count: int = 0, duration: float = 0):
+        self._count = count
+        self._duration = duration
+        if isinstance(exception, RetryException):
+            self._nested_exception = exception._nested_exception
+        else:
+            self._nested_exception = exception
+
+    @property
+    def count(self):
+        return self._count
+
+    @property
+    def duration(self):
+        return self._duration
+
+    @property
+    def nested_exception(self):
+        return self._nested_exception
+
+    def __str__(self):
+        prefix = f"{self._nested_exception}"
+        if len(prefix) > 0:
+            prefix += " "
+        return f"{prefix}after {self._count} retries ({round(self._duration, 2)} seconds)"
 
 
 def inject_config(binder: inject.Binder):

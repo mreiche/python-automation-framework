@@ -1,5 +1,3 @@
-import logging
-
 import inject
 import pytest
 from selenium.webdriver.support.color import Color

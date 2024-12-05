@@ -19,6 +19,10 @@ class Format:
             return f"[{value}]"
 
 
+class AssertionErrorWrapper(RetryException, AssertionError):
+    pass
+
+
 class AbstractAssertion(Generic[ACTUAL_TYPE], HasParent, ABC):
     def __init__(
         self,
@@ -69,7 +73,7 @@ class AbstractAssertion(Generic[ACTUAL_TYPE], HasParent, ABC):
 
         try:
             def perform_test():
-                assert test(self.actual)
+                assert test(self.actual), "Expected"
 
             retry(perform_test, lambda e: listener.assertion_failed(self, self._find_closest_ui_element(), e))
             listener.assertion_passed(self, self._find_closest_ui_element())
@@ -84,7 +88,7 @@ class AbstractAssertion(Generic[ACTUAL_TYPE], HasParent, ABC):
                 if additional_subject:
                     subject += additional_subject()
 
-                raise AssertionError(f"Expected {subject} {e}")
+                raise AssertionErrorWrapper(AssertionError(f"{e.nested_exception} {subject}"), count=e.count, duration=e.duration)
             return False
 
     @property
@@ -123,8 +127,6 @@ class QuantityAssertion(BinaryAssertion[ACTUAL_TYPE]):
             actual_supplier=lambda: mapper(self._actual_supplier()),
             name_supplier=lambda: f"mapped ",
         )
-
-
 
     def between(self, lower: Number, higher: Number):
         return BinaryAssertion(

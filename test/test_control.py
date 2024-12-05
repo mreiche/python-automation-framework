@@ -1,8 +1,5 @@
-import asyncio
 import dataclasses
 from time import sleep
-
-import pytest
 
 from paf.common import Property
 from paf.control import change, get_config, retry
