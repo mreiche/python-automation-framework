@@ -282,7 +282,7 @@ def test_uninitialized_ui_element_fails(finder: FinderPage):
         ui_element = DefaultUiElement(By.id("id"))
         ui_element.click()
 
-    assert "initialized without WebDriver nor UiElement" in e.value.args[0]
+    assert "initialized without WebDriver nor UiElement" in f"{e.value}"
 
 
 def test_action_on_non_interactable_fails(finder: FinderPage):

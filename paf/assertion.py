@@ -125,7 +125,7 @@ class QuantityAssertion(BinaryAssertion[ACTUAL_TYPE]):
         return self.__class__(
             parent=self,
             actual_supplier=lambda: mapper(self._actual_supplier()),
-            name_supplier=lambda: f"mapped",
+            name_supplier=lambda: f" mapped ",
         )
 
     def between(self, lower: Number, higher: Number):
