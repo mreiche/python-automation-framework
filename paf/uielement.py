@@ -16,7 +16,7 @@ from selenium.webdriver.support.color import Color
 import paf.javascript as script
 from paf.assertion import StringAssertion, Format, BinaryAssertion, QuantityAssertion, RectAssertion, ASSERTION
 from paf.common import HasParent, Locator, Point, Rect, Property, Formatter, NotFoundException, NotUniqueException, \
-    WebdriverRetainer, RetryException
+    WebdriverRetainer, RetryException, SubjectException
 from paf.control import retry
 from paf.dom import Attribute
 from paf.listener import Listener
@@ -337,9 +337,9 @@ class DefaultUiElement(UiElement):
         try:
             retry(_sequence, lambda e: listener.action_failed(action_name, self, e))
             listener.action_passed(action_name, self)
-        except RetryException as exception:
+        except SubjectException as exception:
+            exception.add_subject(self.name_path)
             listener.action_failed_finally(action_name, self, exception)
-            raise RetryException(Exception(f"{exception.nested_exception} {self.name_path}"), count=exception.count, duration=exception.duration)
 
     def click(self):
         self._web_element_action_sequence(lambda x: x.click(), "click")

@@ -79,16 +79,16 @@ class AbstractAssertion(Generic[ACTUAL_TYPE], HasParent, ABC):
             listener.assertion_passed(self, self._find_closest_ui_element())
             return True
 
-        except RetryException as e:
-            listener.assertion_failed_finally(self, self._find_closest_ui_element(), e)
+        except RetryException as exception:
+            exception.add_subject(self.name_path)
+            if additional_subject:
+                exception.add_subject(additional_subject())
+            #exception.update_sequence(sequence)
+            listener.assertion_failed_finally(self, self._find_closest_ui_element(), exception)
 
             if self._raise:
-                subject = self.name_path
-
-                if additional_subject:
-                    subject += additional_subject()
-
-                raise AssertionErrorWrapper(AssertionError(f"{e.nested_exception} {subject}"), count=e.count, duration=e.duration)
+                raise AssertionErrorWrapper(exception)
+                #AssertionErrorWrapper(AssertionError(f"{exception.enclosed_exception} {subject}"), sequence)
             return False
 
     @property
