@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from time import sleep, time
 from typing import Callable, Optional
 
-from paf.common import Property
+from paf.common import Property, RetryException, Sequence
 from paf.types import Consumer
 
 
@@ -25,39 +25,6 @@ def get_config():
 def __set_config(config: Config):
     global __config
     __config = config
-
-
-class Sequence:
-    def __init__(self, retry_count: int = 3, wait_after_fail: float = 0.2):
-        self._max = retry_count
-        self._wait = wait_after_fail
-        self._count = 0
-        self._start_time = 0
-
-    def run(self, sequence: Callable[[], bool]):
-        self._start_time = time()
-        while True:
-            if sequence() or self._count >= self._max:
-                break
-
-            self._count += 1
-            sleep(self._wait)
-
-    @property
-    def duration(self):
-        return time() - self._start_time
-
-    @property
-    def count(self):
-        return self._count
-
-
-class RetryException(Exception):
-    def __init__(self, sequence: Sequence, exception: Exception):
-        prefix = f"{exception}"
-        if len(prefix) > 0:
-            prefix += f" "
-        super().__init__(f"{prefix}after {sequence.count} retries ({round(sequence.duration, 2)} seconds)")
 
 
 @contextmanager
@@ -100,4 +67,4 @@ def retry(action: Callable, on_fail: Consumer[Exception] = None):
     sequence.run(_run)
 
     if exception is not None:
-        raise RetryException(sequence, exception)
+        raise RetryException(exception, sequence)

@@ -16,7 +16,7 @@ from selenium.webdriver.support.color import Color
 import paf.javascript as script
 from paf.assertion import StringAssertion, Format, BinaryAssertion, QuantityAssertion, RectAssertion, ASSERTION
 from paf.common import HasParent, Locator, Point, Rect, Property, Formatter, NotFoundException, NotUniqueException, \
-    WebdriverRetainer
+    WebdriverRetainer, RetryException, SubjectException
 from paf.control import retry
 from paf.dom import Attribute
 from paf.listener import Listener
@@ -337,9 +337,10 @@ class DefaultUiElement(UiElement):
         try:
             retry(_sequence, lambda e: listener.action_failed(action_name, self, e))
             listener.action_passed(action_name, self)
-        except Exception as exception:
+        except SubjectException as exception:
+            exception.add_subject(self.name_path)
             listener.action_failed_finally(action_name, self, exception)
-            raise Exception(f"{self.name_path}: {exception}")
+            raise exception
 
     def click(self):
         self._web_element_action_sequence(lambda x: x.click(), "click")
@@ -479,7 +480,7 @@ class UiElementAssertion:
         return assertion_class(
             parent=self._ui_element,
             actual_supplier=_map,
-            name_supplier=lambda: f".{property_name} {Format.param(_map_failsafe())} ",
+            name_supplier=lambda: f".{property_name} {Format.param(_map_failsafe())}",
             raise_exception=self._raise,
         )
 
@@ -544,7 +545,7 @@ class UiElementAssertion:
         return QuantityAssertion[int](
             parent=self._ui_element,
             actual_supplier=self._ui_element._count_elements,
-            name_supplier=lambda: f" count {Format.param(self._ui_element._count_elements())} ",
+            name_supplier=lambda: f" count {Format.param(self._ui_element._count_elements())}",
             raise_exception=self._raise,
         )
 

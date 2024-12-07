@@ -19,6 +19,10 @@ class Format:
             return f"[{value}]"
 
 
+class AssertionErrorWrapper(RetryException, AssertionError):
+    pass
+
+
 class AbstractAssertion(Generic[ACTUAL_TYPE], HasParent, ABC):
     def __init__(
         self,
@@ -69,22 +73,22 @@ class AbstractAssertion(Generic[ACTUAL_TYPE], HasParent, ABC):
 
         try:
             def perform_test():
-                assert test(self.actual)
+                assert test(self.actual), "Expected"
 
             retry(perform_test, lambda e: listener.assertion_failed(self, self._find_closest_ui_element(), e))
             listener.assertion_passed(self, self._find_closest_ui_element())
             return True
 
-        except RetryException as e:
-            listener.assertion_failed_finally(self, self._find_closest_ui_element(), e)
+        except RetryException as exception:
+            exception.add_subject(self.name_path)
+            if additional_subject:
+                exception.add_subject(additional_subject())
+            #exception.update_sequence(sequence)
+            listener.assertion_failed_finally(self, self._find_closest_ui_element(), exception)
 
             if self._raise:
-                subject = self.name_path
-
-                if additional_subject:
-                    subject += additional_subject()
-
-                raise AssertionError(f"Expected {subject} {e}")
+                raise AssertionErrorWrapper(exception)
+                #AssertionErrorWrapper(AssertionError(f"{exception.enclosed_exception} {subject}"), sequence)
             return False
 
     @property
@@ -121,44 +125,42 @@ class QuantityAssertion(BinaryAssertion[ACTUAL_TYPE]):
         return self.__class__(
             parent=self,
             actual_supplier=lambda: mapper(self._actual_supplier()),
-            name_supplier=lambda: f"mapped ",
+            name_supplier=lambda: f" mapped ",
         )
-
-
 
     def between(self, lower: Number, higher: Number):
         return BinaryAssertion(
             parent=self,
             actual_supplier=lambda: lower <= self._actual_supplier() <= higher,
-            name_supplier=lambda: f"between {Format.param(lower)} and {Format.param(higher)} ",
+            name_supplier=lambda: f"between {Format.param(lower)} and {Format.param(higher)}",
         )
 
     def greater_than(self, expected: Number):
         return BinaryAssertion(
             parent=self,
             actual_supplier=lambda: self._actual_supplier() > expected,
-            name_supplier=lambda: f"greater than {Format.param(expected)} ",
+            name_supplier=lambda: f"greater than {Format.param(expected)}",
         )
 
     def lower_than(self, expected: Number):
         return BinaryAssertion(
             parent=self,
             actual_supplier=lambda: self._actual_supplier() < expected,
-            name_supplier=lambda: f"lower than {Format.param(expected)} ",
+            name_supplier=lambda: f"lower than {Format.param(expected)}",
         )
 
     def greater_equal_than(self, expected: Number):
         return BinaryAssertion(
             parent=self,
             actual_supplier=lambda: self._actual_supplier() >= expected,
-            name_supplier=lambda: f"greater equal than {Format.param(expected)} ",
+            name_supplier=lambda: f"greater equal than {Format.param(expected)}",
         )
 
     def lower_equal_than(self, expected: Number):
         return BinaryAssertion(
             parent=self,
             actual_supplier=lambda: self._actual_supplier() <= expected,
-            name_supplier=lambda: f"lower equal than {Format.param(expected)} ",
+            name_supplier=lambda: f"lower equal than {Format.param(expected)}",
         )
 
 
@@ -167,21 +169,21 @@ class StringAssertion(QuantityAssertion[str]):
         return BinaryAssertion(
             parent=self,
             actual_supplier=lambda: str(self._actual_supplier()).startswith(expected),
-            name_supplier=lambda: f"starts with {Format.param(expected)} ",
+            name_supplier=lambda: f"starts with {Format.param(expected)}",
         )
 
     def ends_with(self, expected: str):
         return BinaryAssertion(
             parent=self,
             actual_supplier=lambda: str(self._actual_supplier()).endswith(expected),
-            name_supplier=lambda: f"ends with {Format.param(expected)} ",
+            name_supplier=lambda: f"ends with {Format.param(expected)}",
         )
 
     def contains(self, expected: str):
         return BinaryAssertion(
             parent=self,
             actual_supplier=lambda: str(self._actual_supplier()).find(expected) >= 0,
-            name_supplier=lambda: f"contains {Format.param(expected)} ",
+            name_supplier=lambda: f"contains {Format.param(expected)}",
         )
 
     def matches(self, regex: str | re.Pattern):
@@ -191,7 +193,7 @@ class StringAssertion(QuantityAssertion[str]):
         return BinaryAssertion(
             parent=self,
             actual_supplier=lambda: regex.search(self._actual_supplier()) is not None,
-            name_supplier=lambda: f"matches {Format.param(regex.pattern)} ",
+            name_supplier=lambda: f"matches {Format.param(regex.pattern)}",
         )
 
     def has_words(self, *words: any):
@@ -201,7 +203,7 @@ class StringAssertion(QuantityAssertion[str]):
         return BinaryAssertion(
             parent=self,
             actual_supplier=lambda: regex.search(self._actual_supplier()) is not None,
-            name_supplier=lambda: f"has words {Format.param(pattern)} ",
+            name_supplier=lambda: f"has words {Format.param(pattern)}",
         )
 
     @property
@@ -209,7 +211,7 @@ class StringAssertion(QuantityAssertion[str]):
         return QuantityAssertion(
             parent=self,
             actual_supplier=lambda: len(self._actual_supplier()),
-            name_supplier=lambda: f"length {Format.param(len(self._actual_supplier()))} ",
+            name_supplier=lambda: f"length {Format.param(len(self._actual_supplier()))}",
         )
 
 

@@ -8,7 +8,7 @@ from paf.control import change, retry
 from paf.locator import By
 from paf.manager import WebDriverManager
 from paf.page import PageFactory, FinderPage
-from paf.uielement import UiElement, InexistentUiElement, DefaultUiElement
+from paf.uielement import InexistentUiElement, DefaultUiElement
 from paf.xpath import XPath
 from test import create_webdriver
 
@@ -282,7 +282,7 @@ def test_uninitialized_ui_element_fails(finder: FinderPage):
         ui_element = DefaultUiElement(By.id("id"))
         ui_element.click()
 
-    assert "initialized without WebDriver nor UiElement" in e.value.args[0]
+    assert "initialized without WebDriver nor UiElement" in f"{e.value}"
 
 
 def test_action_on_non_interactable_fails(finder: FinderPage):
@@ -308,7 +308,7 @@ def test_not_unique_fails(finder: FinderPage):
     btn.click()
 
     events = finder.find("#events")
-    with pytest.raises(Exception, match=re.escape("Expected UiElement(By.css selector(#events))[0] > UiElement(By.tag name(p))[0].text *undefined* to be [click] Element not unique after 0 retries")):
+    with pytest.raises(Exception, match=re.escape("Not unique UiElement(By.css selector(#events))[0] > UiElement(By.tag name(p))[0].text *undefined* to be [click] after 0 retries")):
         with change(retry_count=0):
             p = events.find(By.tag_name("p").unique)
             p.expect.text.be("click")
@@ -317,7 +317,7 @@ def test_not_unique_fails(finder: FinderPage):
 def test_highlight_nonexistent_fails(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
 
-    with pytest.raises(Exception, match=re.escape("UiElement(By.css selector(#unkown))[0]: Element not found after 0 retries")):
+    with pytest.raises(Exception, match=re.escape("Not found UiElement(By.css selector(#unkown))[0] after 0 retries")):
         with change(retry_count=0):
             unknown = finder.find("#unkown")
             unknown.highlight()

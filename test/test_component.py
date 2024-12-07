@@ -3,9 +3,7 @@ from functools import cache
 
 import inject
 import pytest
-from selenium.webdriver.remote.webelement import WebElement
 
-from paf import javascript
 from paf.component import Component
 from paf.locator import By
 from paf.manager import WebDriverManager

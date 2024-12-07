@@ -1,5 +1,3 @@
-import logging
-
 import inject
 import pytest
 from selenium.webdriver.support.color import Color
@@ -63,7 +61,7 @@ def test_highlight_not_found_log(finder: FinderPage, listener: Listener, caplog)
 
     assert len(caplog.records) == 1
     for record in caplog.records:
-        assert "Cannot highlight UiElement(By.css selector(#inexistent))[0]: Element not found" in record.message
+        assert "Cannot highlight UiElement(By.css selector(#inexistent))[0]: Not found" in record.message
 
 
 def test_highlight_action_success_skips_highlighting(finder: FinderPage, listener: Listener):

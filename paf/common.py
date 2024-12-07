@@ -3,7 +3,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-
+from time import sleep, time
+from typing import Callable, Optional
 import inject
 from selenium.webdriver.remote.webelement import WebElement
 
@@ -135,12 +136,12 @@ class Formatter:
 
 class NotFoundException(Exception):
     def __init__(self):
-        super().__init__(f"Element not found")
+        super().__init__(f"Not found")
 
 
 class NotUniqueException(Exception):
     def __init__(self):
-        super().__init__(f"Element not unique")
+        super().__init__(f"Not unique")
 
 
 class WebdriverRetainer(ABC):
@@ -148,6 +149,74 @@ class WebdriverRetainer(ABC):
     @abstractmethod
     def webdriver(self):  # pragma: no cover
         pass
+
+
+class SubjectException(Exception):
+
+    def __init__(self, exception: Exception):
+        # if isinstance(exception, EncloseException):
+        #     self._enclosed_exception = exception._enclosed_exception
+        # else:
+        self._subjects = []
+        if isinstance(exception, SubjectException):
+            self._subjects.extend(exception._subjects)
+        else:
+            self.add_subject(f"{exception}")
+        #self._enclosed_exception = exception
+
+    def add_subject(self, subject: str):
+        self._subjects.append(subject)
+
+    #@property
+    #def enclosed_exception(self):
+        #return self._enclosed_exception
+
+
+class Sequence:
+    def __init__(self, retry_count: int = 3, wait_after_fail: float = 0.2):
+        self._max = retry_count
+        self._wait = wait_after_fail
+        self._count = 0
+        self._start_time = 0
+
+    def run(self, sequence: Callable[[], bool]):
+        self._start_time = time()
+        while True:
+            if sequence() or self._count >= self._max:
+                break
+
+            self._count += 1
+            sleep(self._wait)
+
+    @property
+    def duration(self):
+        return time() - self._start_time
+
+    @property
+    def count(self):
+        return self._count
+
+
+class RetryException(SubjectException):
+    def __init__(self, exception: Exception, sequence: Sequence = None):
+        super().__init__(exception)
+
+        if sequence:
+            self._count = sequence.count
+            self._duration = sequence.duration
+        elif isinstance(exception, RetryException):
+            self._count = exception._count
+            self._duration = exception._duration
+        #self.update_sequence(sequence)
+
+    #def update_sequence(self, sequence: Sequence):
+
+    def __str__(self):
+        #prefix = f"{self._enclosed_exception}"
+        prefix = " ".join(self._subjects)
+        if len(prefix) > 0:
+            prefix += " "
+        return f"{prefix}after {self._count} retries ({round(self._duration, 2)} seconds)"
 
 
 def inject_config(binder: inject.Binder):
