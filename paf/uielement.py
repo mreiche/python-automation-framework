@@ -340,6 +340,7 @@ class DefaultUiElement(UiElement):
         except SubjectException as exception:
             exception.add_subject(self.name_path)
             listener.action_failed_finally(action_name, self, exception)
+            raise exception
 
     def click(self):
         self._web_element_action_sequence(lambda x: x.click(), "click")
@@ -479,7 +480,7 @@ class UiElementAssertion:
         return assertion_class(
             parent=self._ui_element,
             actual_supplier=_map,
-            name_supplier=lambda: f".{property_name} {Format.param(_map_failsafe())} ",
+            name_supplier=lambda: f".{property_name} {Format.param(_map_failsafe())}",
             raise_exception=self._raise,
         )
 
@@ -544,7 +545,7 @@ class UiElementAssertion:
         return QuantityAssertion[int](
             parent=self._ui_element,
             actual_supplier=self._ui_element._count_elements,
-            name_supplier=lambda: f" count {Format.param(self._ui_element._count_elements())} ",
+            name_supplier=lambda: f" count {Format.param(self._ui_element._count_elements())}",
             raise_exception=self._raise,
         )
 
