@@ -7,17 +7,10 @@ from selenium.webdriver.support.color import Color
 from paf.control import change, retry
 from paf.locator import By
 from paf.manager import WebDriverManager
-from paf.page import PageFactory, FinderPage
+from paf.page import FinderPage
 from paf.uielement import InexistentUiElement, DefaultUiElement
 from paf.xpath import XPath
-from test import create_webdriver
-
-
-@pytest.fixture
-def finder():
-    page_factory = inject.instance(PageFactory)
-    finder = page_factory.create_page(FinderPage, create_webdriver())
-    yield finder
+from test import finder
 
 
 def test_basics(finder: FinderPage):

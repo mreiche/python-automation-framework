@@ -7,6 +7,7 @@ from typing import Type, TypeVar, List, Generic, Iterable, Iterator, Callable, C
 
 import inject
 from is_empty import empty
+from selenium.common import NoSuchShadowRootException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By as SeleniumBy
 from selenium.webdriver.remote.webdriver import WebDriver
@@ -305,7 +306,14 @@ class DefaultUiElement(UiElement):
                     self._webdriver.switch_to.frame(web_element)
                     web_elements = self._webdriver.find_elements(self._by.by, self._by.value)
                 else:
-                    web_elements = web_element.find_elements(self._by.by, self.__relative_selector(self._by))
+                    web_element_context = web_element
+                    try:
+                        web_element_context = web_element.shadow_root
+                    except NoSuchShadowRootException as e:
+                        pass
+
+                    web_elements = web_element_context.find_elements(self._by.by, self.__relative_selector(self._by))
+
                 yield self._filter_web_elements(web_elements)
 
         elif self._webdriver:

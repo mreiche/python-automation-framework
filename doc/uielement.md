@@ -155,19 +155,24 @@ for item in ui_element:
     pass
 ```
 
-## Frames support
-
-*UiElements* switch automatically to the frame's content.
-
+## Shadow root support
+When you identify shadow root elements, the `find()` method will search within the element's shadow root. 
 ```python
 from paf.page import FinderPage
 
 finder: FinderPage
 
+element_with_shadow_root = finder.find("my-shadow-root-component")
+element_with_shadow_root.find("h1").expect.text.be("Component headline")
+```
+
+## Frames support
+When you identify frame elements, the `find()` method will automatically switch to the frame's context.
+
+```python
 frame = finder.find("frame")
 frame.find("div").expect.text.be("Text in frame")
 ```
-
 
 ## Inexistent elements
 

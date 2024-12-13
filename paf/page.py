@@ -59,6 +59,9 @@ class BasePage(HasName):
         actions = ActionChains(self._webdriver)
         actions.scroll_by_amount(x, y).perform()
 
+    def get_dom(self) -> str:
+        return self.webdriver.execute_script("return document.documentElement.outerHTML")
+
 
 class FinderPage(BasePage):
     def find(self, by: Locator, name: str = None) -> UiElement:

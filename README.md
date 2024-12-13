@@ -64,7 +64,6 @@ element.expect.text.be("Search")
 ### Missing features (tdb)
 
 - Rect assertions
-- ShadowRoot support
 - Drag & Drop over frames
 
 ## Environment variables
