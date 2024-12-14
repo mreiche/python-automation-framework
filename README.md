@@ -159,7 +159,7 @@ snapshot.snapshotItem(0).textContent
     ```
 3. Publish library
     ```shell
-    twine upload dist/python-automation-framework-[version].tar.gz
+    twine upload dist/python_automation_framework-[version].tar.gz
     ```
 
 ### References
