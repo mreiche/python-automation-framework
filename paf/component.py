@@ -9,10 +9,18 @@ from paf.uielement import UiElement, PageObject, PageObjectList, UiElementTests,
 
 
 class Component(PageObject[COMPONENT], PageObjectList[COMPONENT], HasParent, UiElementTests):
-
     def __init__(self, ui_element: UiElement):
         self._ui_element = ui_element
+        self.__parent = ui_element._parent
         ui_element._parent = self
+
+    @property
+    def _parent(self):
+        return self.__parent
+
+    @_parent.setter
+    def _parent(self, parent: HasParent):
+        self.__parent = parent
 
     def highlight(self, color: Color = Color.from_string("#0f0"), seconds: float = 2):
         self._ui_element.highlight(color, seconds)

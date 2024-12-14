@@ -1,11 +1,20 @@
 import os
 
 import inject
+import pytest
 from selenium.webdriver import ChromeOptions
 
 from paf.common import Size
 from paf.manager import WebDriverManager
+from paf.page import PageFactory, FinderPage
 from paf.request import WebDriverRequest
+
+
+@pytest.fixture
+def finder():
+    page_factory = inject.instance(PageFactory)
+    finder = page_factory.create_page(FinderPage, create_webdriver())
+    yield finder
 
 
 def create_webdriver(request: WebDriverRequest = None):

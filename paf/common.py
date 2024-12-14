@@ -4,7 +4,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from time import sleep, time
-from typing import Callable, Optional
+from typing import Callable
+
 import inject
 from selenium.webdriver.remote.webelement import WebElement
 
@@ -23,13 +24,15 @@ class HasName(ABC):
 
 
 class HasParent(HasName, ABC):
-    # @property
-    # def _parent(self):
-    #     return self.__parent
-    #
-    # @_parent.setter
-    # def _parent(self, parent: "HasParent"):
-    #     self.__parent = parent
+    @property
+    @abstractmethod
+    def _parent(self):  # pragma: no cover
+        pass
+
+    @_parent.setter
+    @abstractmethod
+    def _parent(self, parent: "HasParent"):  # pragma: no cover
+        pass
 
     @property
     def name_path(self):
@@ -42,27 +45,35 @@ class HasParent(HasName, ABC):
             nonlocal name_path
             name_path = inst.name + name_path
             if isinstance(inst, (UiElement, Component, Page)) \
-                and isinstance(inst, HasParent) \
-                and isinstance(inst._parent, (UiElement, Component, Page)):
+                    and isinstance(inst, HasParent) \
+                    and isinstance(inst._parent, (UiElement, Component, Page)):
                 name_path = " > " + name_path
-            return True
 
         self._trace_path(_trace)
         return name_path
 
     def _trace_path(self, consumer: Predicate[HasName]):
         inst = self
-        while isinstance(inst, HasName):
-            if not consumer(inst) or not isinstance(inst, HasParent):
+        while inst is not None:
+            if consumer(inst) is False or isinstance(inst, HasParent) is False:
                 break
 
             inst = inst._parent
+
+    def get_path(self) -> list["HasParent"]:
+        path = []
+        self._trace_path(path.append)
+        return path
 
 
 @dataclass()
 class Point:
     x: float = 0
     y: float = 0
+
+    def add(self, point: "Point"):
+        self.x += point.x
+        self.y += point.y
 
 
 @dataclass()

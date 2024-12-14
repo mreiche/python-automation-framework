@@ -2,7 +2,7 @@ from typing import Callable, TypeVar
 
 T = TypeVar('T')
 R = TypeVar('R')
-Predicate = Callable[[T], bool]
+Predicate = Callable[[T], bool | None]
 Supplier = Callable[[], T]
 Mapper = Callable[[T], R]
 Number = float | int

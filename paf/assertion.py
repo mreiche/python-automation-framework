@@ -36,10 +36,14 @@ class AbstractAssertion(Generic[ACTUAL_TYPE], HasParent, ABC):
         if parent and isinstance(parent, AbstractAssertion):
             self._raise = parent._raise
 
-        self._parent = parent
+        self.__parent = parent
         self._actual_supplier = actual_supplier
         self._name_supplier = name_supplier
         self._used = False
+
+    @property
+    def _parent(self):
+        return self.__parent
 
     @property
     def name(self):

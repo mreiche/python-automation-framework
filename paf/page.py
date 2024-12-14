@@ -73,7 +73,7 @@ class Page(BasePage):
 
     def _create_component(self, component_class: Type[COMPONENT], ui_element: "UiElement") -> COMPONENT:
         component = component_class(ui_element)
-        component._parent = self
+        component.__parent = self
         return component
 
     def _create_page(self, page_class: Type[PAGE]) -> PAGE:

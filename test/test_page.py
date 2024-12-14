@@ -2,37 +2,35 @@ import re
 
 import inject
 import pytest
+from selenium.webdriver.remote.webdriver import WebDriver
 
 from paf.control import change
 from paf.manager import WebDriverManager
-from paf.page import PageFactory, Page
+from paf.page import PageFactory, Page, FinderPage
 from paf.request import WebDriverRequest
 from test import create_webdriver
-from selenium.webdriver.remote.webdriver import WebDriver
+from test import finder
 
 
-@pytest.fixture
-def page():
-    yield inject.instance(PageFactory).create_page(Page, create_webdriver())
-
-
-def test_assertions(page: Page):
-    page.open("https://testpages.herokuapp.com")
-    assert page.wait_for.url.be("https://testpages.eviltester.com/styled/index.html")
+def test_assertions(finder: FinderPage):
+    finder.open("https://testpages.herokuapp.com")
+    assert finder.wait_for.url.be("https://testpages.eviltester.com/styled/index.html")
 
     expected_title = "Web Testing and Automation Practice Application Pages"
 
-    page.expect.title.be(expected_title)
-    assert page.name == "Page"
-    assert str(page) == page.name
-    assert page.webdriver.title == expected_title
+    finder.expect.title.be(expected_title)
+    assert finder.name == "FinderPage"
+    assert str(finder) == finder.name
+    assert finder.webdriver.title == expected_title
 
-    with pytest.raises(AssertionError, match=re.escape("Expected Page.url [https://testpages.eviltester.com/styled/index.html] ends with [index.html] to be [False]")):
+    with pytest.raises(AssertionError, match=re.escape("Expected FinderPage.url [https://testpages.eviltester.com/styled/index.html] ends with [index.html] to be [False]")):
         with change(retry_count=0):
-            page.expect.url.ends_with("index.html").be(False)
+            finder.expect.url.ends_with("index.html").be(False)
 
 
-def test_create_page_from_page(page: Page):
+def test_create_page_from_page():
+    page_factory = inject.instance(PageFactory)
+    page = page_factory.create_page(Page)
     other_page = page._create_page(Page)
     assert isinstance(other_page, Page)
     assert page.webdriver == other_page.webdriver
@@ -47,12 +45,12 @@ def test_create_page_without_webdriver():
     assert isinstance(page.webdriver, WebDriver)
 
 
-def test_scroll_until_visible(page: Page):
-    page.open("https://testpages.herokuapp.com/styled/find-by-playground-test.html")
-    p = page._find("#p41")
+def test_scroll_until_visible(finder: FinderPage):
+    finder.open("https://testpages.herokuapp.com/styled/find-by-playground-test.html")
+    p = finder._find("#p41")
     height = p.expect.bounds.actual.height
     while p.wait_for.fully_visible(False):
-        page.scroll_by(y=height)
+        finder.scroll_by(y=height)
 
     p.expect.fully_visible(True)
 
