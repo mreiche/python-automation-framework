@@ -1,14 +1,14 @@
 from datetime import datetime
 from pathlib import Path
-from typing import Type, TypeVar, Iterable, List
+from typing import Type, TypeVar, List
 
 import inject
-from is_empty import empty
 import selenium.webdriver as webdriver
+from is_empty import empty
 from selenium.webdriver.common import service as webdriver_service
-from selenium.webdriver import ChromeService, Chrome, Firefox, Edge, Safari, Remote, ChromeOptions, EdgeOptions, FirefoxOptions, WPEWebKitOptions
 from selenium.webdriver.common.options import BaseOptions
 from selenium.webdriver.remote.webdriver import WebDriver, BaseWebDriver
+
 from paf.common import Property, Formatter
 from paf.request import WebDriverRequest
 

@@ -29,6 +29,7 @@ def test_basics(finder: FinderPage):
     assert p2.name == "UiElement(By.css selector(#para2))[0]"
     assert p2.name_path == "UiElement(By.css selector(.centered))[0] > " + p2.name
     assert p_name.name == "paragraph"
+    assert len(p2.get_path()) == 2
 
 
 # def test_rect():

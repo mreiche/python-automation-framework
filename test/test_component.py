@@ -56,7 +56,7 @@ def test_component_name_path(components_page: ComponentsPage):
 
 def test_component_name(components_page: ComponentsPage):
     component = components_page.custom_component.type
-    assert str(component) == "UiElement(By.id(input))[0]"
+    assert component.__str__() == "UiElement(By.id(input))[0]"
 
 
 def test_component_list_name(components_page: ComponentsPage):

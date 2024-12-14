@@ -118,9 +118,9 @@ References: https://www.nextgenerationautomation.com/post/python-test-automation
 ## Developer area
 
 ### Testing
-#### Run the tests on you local machine
+#### Run the tests on your local machine
 ```shell
-pytest --cov=paf -n=4 test
+PAF_TEST_HEADLESS=1 PAF_TEST_LOCAL_SELENIUM=0 pytest --cov=paf -n=4 test
 ```
 
 #### Build test base container (for use in GitHub Actions)

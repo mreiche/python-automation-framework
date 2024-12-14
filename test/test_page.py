@@ -30,10 +30,12 @@ def test_assertions(finder: FinderPage):
 
 def test_create_page_from_page():
     page_factory = inject.instance(PageFactory)
+    webdriver = create_webdriver(WebDriverRequest())
     page = page_factory.create_page(Page)
     other_page = page._create_page(Page)
     assert isinstance(other_page, Page)
     assert page.webdriver == other_page.webdriver
+    assert page.webdriver == webdriver
 
 
 def test_create_page_without_webdriver():
