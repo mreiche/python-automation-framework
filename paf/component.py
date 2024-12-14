@@ -11,15 +11,16 @@ from paf.uielement import UiElement, PageObject, PageObjectList, UiElementTests,
 class Component(PageObject[COMPONENT], PageObjectList[COMPONENT], HasParent, UiElementTests):
     def __init__(self, ui_element: UiElement):
         self._ui_element = ui_element
+        self.__parent = ui_element._parent
         ui_element._parent = self
 
     @property
     def _parent(self):
-        return self._ui_element._parent
+        return self.__parent
 
     @_parent.setter
     def _parent(self, parent: HasParent):
-        self._ui_element._parent = parent
+        self.__parent = parent
 
     def highlight(self, color: Color = Color.from_string("#0f0"), seconds: float = 2):
         self._ui_element.highlight(color, seconds)
@@ -63,7 +64,7 @@ class Component(PageObject[COMPONENT], PageObjectList[COMPONENT], HasParent, UiE
 
     def _create_component(self, component_class: Type[SUB_COMPONENT], ui_element: "UiElement") -> SUB_COMPONENT:
         component = component_class(ui_element)
-        component.__parent = self
+        component._parent = self
         return component
 
     def _create_page(self, page_class: Type[PAGE]) -> PAGE:

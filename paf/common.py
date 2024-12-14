@@ -4,7 +4,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from time import sleep, time
-from typing import Callable, Optional
+from typing import Callable
+
 import inject
 from selenium.webdriver.remote.webelement import WebElement
 
@@ -40,22 +41,21 @@ class HasParent(HasName, ABC):
         from paf.uielement import UiElement
         name_path = ""
 
-        def _trace(inst: HasParent):
+        def _trace(inst: HasName):
             nonlocal name_path
             name_path = inst.name + name_path
             if isinstance(inst, (UiElement, Component, Page)) \
-                and isinstance(inst, HasParent) \
-                and isinstance(inst._parent, (UiElement, Component, Page)):
+                    and isinstance(inst, HasParent) \
+                    and isinstance(inst._parent, (UiElement, Component, Page)):
                 name_path = " > " + name_path
-            return True
 
         self._trace_path(_trace)
         return name_path
 
-    def _trace_path(self, consumer: Predicate["HasParent"]):
+    def _trace_path(self, consumer: Predicate[HasName]):
         inst = self
-        while isinstance(inst, HasParent):
-            if consumer(inst) is False or not isinstance(inst, HasParent):
+        while inst is not None:
+            if consumer(inst) is False or isinstance(inst, HasParent) is False:
                 break
 
             inst = inst._parent
