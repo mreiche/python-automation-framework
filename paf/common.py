@@ -23,13 +23,15 @@ class HasName(ABC):
 
 
 class HasParent(HasName, ABC):
-    # @property
-    # def _parent(self):
-    #     return self.__parent
-    #
-    # @_parent.setter
-    # def _parent(self, parent: "HasParent"):
-    #     self.__parent = parent
+    @property
+    @abstractmethod
+    def _parent(self):  # pragma: no cover
+        pass
+
+    @_parent.setter
+    @abstractmethod
+    def _parent(self, parent: "HasParent"):  # pragma: no cover
+        pass
 
     @property
     def name_path(self):
@@ -38,7 +40,7 @@ class HasParent(HasName, ABC):
         from paf.uielement import UiElement
         name_path = ""
 
-        def _trace(inst: HasName):
+        def _trace(inst: HasParent):
             nonlocal name_path
             name_path = inst.name + name_path
             if isinstance(inst, (UiElement, Component, Page)) \
@@ -50,19 +52,28 @@ class HasParent(HasName, ABC):
         self._trace_path(_trace)
         return name_path
 
-    def _trace_path(self, consumer: Predicate[HasName]):
+    def _trace_path(self, consumer: Predicate["HasParent"]):
         inst = self
-        while isinstance(inst, HasName):
-            if not consumer(inst) or not isinstance(inst, HasParent):
+        while isinstance(inst, HasParent):
+            if consumer(inst) is False or not isinstance(inst, HasParent):
                 break
 
             inst = inst._parent
+
+    def get_path(self) -> list["HasParent"]:
+        path = []
+        self._trace_path(path.append)
+        return path
 
 
 @dataclass()
 class Point:
     x: float = 0
     y: float = 0
+
+    def add(self, point: "Point"):
+        self.x += point.x
+        self.y += point.y
 
 
 @dataclass()

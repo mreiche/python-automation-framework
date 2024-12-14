@@ -140,6 +140,21 @@ class UiElement(
         else:
             return f"UiElement({self._by.__str__()})[{self._index}]"
 
+    @property
+    @abstractmethod
+    def _name(self) -> str:   # pragma: no cover
+        pass
+
+    @property
+    @abstractmethod
+    def _index(self) -> int:   # pragma: no cover
+        pass
+
+    @property
+    @abstractmethod
+    def _by(self) -> Locator:  # pragma: no cover
+        pass
+
     @abstractmethod
     def find(self, by: Locator, name: str = None) -> "UiElement":  # pragma: no cover
         pass
@@ -153,7 +168,7 @@ class UiElement(
         return UiElementAssertion(self, raise_exception=False)
 
     @abstractmethod
-    def _find_web_elements(self) -> ContextManager[List[WebElement]]: # pragma: no cover
+    def _find_web_elements(self) -> ContextManager[List[WebElement]]:  # pragma: no cover
         pass
 
     @contextmanager
@@ -180,13 +195,35 @@ class InteractiveUiElement(PageObject["InteractiveUiElement"], UiElementTests, U
     pass
 
 
-class InexistentUiElement(UiElement):
-
+class AbstractUiElement(UiElement, ABC):
     def __init__(self, name: str = None, parent: object = None):
-        self._name = name
-        self._parent = parent
-        self._by = By.id(None)
-        self._index = 0
+        self.__name = name
+        self.__parent = parent
+
+    @property
+    def _name(self) -> Locator:
+        return self.__name
+
+    @property
+    def _parent(self):
+        return self.__parent
+
+    @_parent.setter
+    def _parent(self, parent: HasParent):
+        self.__parent = parent
+
+
+class InexistentUiElement(AbstractUiElement):
+    def __init__(self, name: str = None, parent: object = None):
+        super().__init__(name, parent)
+
+    @property
+    def _by(self) -> Locator:
+        return By.id(None)
+
+    @property
+    def _index(self) -> int:
+        return 0
 
     @property
     def webdriver(self):
@@ -201,7 +238,7 @@ class InexistentUiElement(UiElement):
     def highlight(self, color: Color = Color.from_string("#0f0"), seconds: float = 2):
         pass
 
-    def take_screenshot(self) -> Path | None:
+    def take_screenshot(self, file_name: str = None) -> Path | None:
         pass
 
     def click(self):
@@ -248,8 +285,7 @@ class InexistentUiElement(UiElement):
         yield []
 
 
-class DefaultUiElement(UiElement):
-
+class DefaultUiElement(AbstractUiElement):
     def __init__(
             self,
             by: Locator,
@@ -267,10 +303,17 @@ class DefaultUiElement(UiElement):
 
         self._webdriver = webdriver
         self._ui_element = ui_element
-        self._by = by
-        self._index = index
-        self._parent = parent
-        self._name = name
+        self.__by = by
+        self.__index = index
+        super().__init__(name, parent)
+
+    @property
+    def _index(self) -> int:
+        return self.__index
+
+    @property
+    def _by(self) -> Locator:
+        return self.__by
 
     @property
     def webdriver(self):
@@ -513,12 +556,18 @@ class UiElementAssertion:
         if isinstance(attribute, Attribute):
             attribute = attribute.value
 
-        return self._map_web_element_property(StringAssertion, lambda x: x.get_attribute(attribute),
-                                              f"attribute({attribute})")
+        return self._map_web_element_property(
+            StringAssertion,
+            lambda x: x.get_attribute(attribute),
+            f"attribute({attribute})"
+        )
 
     def css(self, property_name: str):
-        return self._map_web_element_property(StringAssertion, lambda x: x.value_of_css_property(property_name),
-                                              f"css({property_name}")
+        return self._map_web_element_property(
+            StringAssertion,
+            lambda x: x.value_of_css_property(property_name),
+            f"css({property_name}"
+        )
 
     def classes(self, *classes):
         return self.attribute(Attribute.CLASS).has_words(*classes)

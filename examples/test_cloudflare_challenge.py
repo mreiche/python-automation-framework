@@ -1,11 +1,15 @@
+import logging
+
 import inject
 import pytest
-from selenium.webdriver.remote.webelement import WebElement
+import undetected_chromedriver as uc
+from selenium.webdriver import ActionChains
 
-from paf.control import change
-from paf.locator import By
+from paf.common import Point
 from paf.manager import WebDriverManager
 from paf.page import PageFactory, FinderPage
+from paf.request import WebDriverRequest
+from paf.uielement import UiElement
 from paf.xpath import XPath
 from test import create_webdriver
 
@@ -20,7 +24,7 @@ def finder():
 # https://www.zenrows.com/blog/selenium-cloudflare-bypass
 def test_bypass_cloudflare_challenge(finder: FinderPage):
     finder.open("https://www.scrapingcourse.com/cloudflare-challenge")
-    iframe_div = finder.find(
+    shadow_root_div = finder.find(
         XPath.at("div")
         .classes("main-content")
         .select("div")
@@ -29,23 +33,44 @@ def test_bypass_cloudflare_challenge(finder: FinderPage):
         .select("div/div")
     )
 
-    label = iframe_div.find("iframe").find("body").find("#content").find("label").click()
+    finder.webdriver.execute_script("""
+var cursorX;
+var cursorY;
+document.onmousemove = function(e) {
+    console.log(e.pageX, e.pageY)
+}
+""")
 
-    pass
+    if shadow_root_div.wait_for.displayed(True):
+        iframe = shadow_root_div.find("iframe")
+        shadow_root_body = iframe.find("body")
+        label = shadow_root_body.find("#content").find("label")
+        if label.wait_for.displayed(True):
+            label.highlight()
+            point = Point()
+            for element in label.get_path():
+                if isinstance(element, UiElement):
+                    rect = element.expect.bounds.actual
+                    point.add(rect)
+                    logging.info(f"{rect.__dict__} - {point.__dict__}")
 
-    # non_shadow_root = finder.find("body")
-    # if non_shadow_root.wait_for.displayed(True):
-    #     with non_shadow_root.find_web_element() as web_element:
-    #         ret = web_element.shadow_root
-    #         pass
+            with label.find_web_element() as web_element:
+                ActionChains(shadow_root_div.webdriver).move_to_element_with_offset(web_element, 1,1).click().perform()
 
-    # if iframe_div.wait_for.displayed(True):
-    #     with iframe_div.find_web_element() as web_element:
-    #         web_element: WebElement
-    #         web_element.shadow_root
-        #return web_element.w.execute_script('return arguments[0].shadowRoot', web_element)
-        #web_element.getShadowRoot()
-    #iframe = iframe_div.find("iframe")
-    #checkbox = iframe.find(XPath.at("div").id("content").select("checkbox"))
-    #iframe = finder.find(By.xpath("/html/body/div[1]/div/div[1]/div/div//iframe"))
-    pass
+
+def test_undetected_chromedriver():
+    driver = uc.Chrome(
+        use_subprocess=False,
+        headless=False,
+    )
+    manager = inject.instance(WebDriverManager)
+    request = WebDriverRequest("undetected")
+    manager.introduce_webdriver(driver, request)
+    page_factory = inject.instance(PageFactory)
+    finder = page_factory.create_page(FinderPage, manager.get_webdriver(request))
+    finder.open("https://www.scrapingcourse.com/cloudflare-challenge")
+    finder.find("#main-content").expect.text.contains("You bypassed the Cloudflare challenge!").be(True)
+
+
+def teardown_module():
+    inject.instance(WebDriverManager).shutdown_all()

@@ -126,7 +126,7 @@ if ui_element.wait_for.enabled.be(True):
 
 ## Reading values
 
-You can also read the actual value of the assertions.
+You can also read the actual value of the assertion without any checks.
 
 ```python
 text = ui_element.expect.text.actual
@@ -152,6 +152,13 @@ You can also iterate over all found items:
 
 ```python
 for item in ui_element:
+    pass
+```
+
+## Tracing the elements hiearchy
+
+```python
+for element in ui_element.get_path():
     pass
 ```
 
