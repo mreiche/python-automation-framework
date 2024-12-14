@@ -33,6 +33,9 @@ class MyComponent(Component["MyComponent"]):
     def type(self):
         return self._find(By.id("input"))
 
+    def goto_page(self) -> ComponentsPage:
+        return self._create_page(ComponentsPage).open("https://testpages.herokuapp.com/styled/tag/dynamic-table.html")
+
 
 class TableCell(Component["TableCell"]):
     pass
@@ -101,6 +104,20 @@ def test_component_scrolling(components_page: ComponentsPage):
     rows.first.expect.visible(False)
     rows.first.scroll_to_top()
     rows.last.expect.visible(False)
+
+
+def test_cover_component_api(components_page: ComponentsPage):
+    component = components_page.custom_component.last
+    goto_page = component.goto_page()
+    assert isinstance(goto_page, ComponentsPage)
+
+    component.wait_for.displayed(True)
+
+    component_name = component.__str__()
+    assert len(component_name) > 0
+
+    path = component.take_screenshot("component.png")
+    assert path.exists()
 
 
 def teardown_module():
