@@ -1,13 +1,11 @@
 import os
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from time import sleep, time
-from typing import Callable
+from typing import Callable, Self
 
 import inject
-from selenium.webdriver.remote.webelement import WebElement
 
 from paf.locator import By
 from paf.types import Predicate
@@ -66,50 +64,116 @@ class HasParent(HasName, ABC):
         return path
 
 
-@dataclass()
-class Point:
-    x: float = 0
-    y: float = 0
+class Vector(ABC):
+    def __init__(self, x: float = 0, y: float = 0):
+        self._x = x
+        self._y = y
 
-    def add(self, point: "Point"):
-        self.x += point.x
-        self.y += point.y
+    def __add__(self, vec: "Vector") -> Self:
+        return self.__class__(self._x + vec._x, self._y + vec._y)
+
+    def __sub__(self, vec: "Vector") -> Self:
+        return self.__class__(self._x - vec._x, self._y - vec._y)
+
+    def __str__(self):
+        return f"{self.__class__.__name__}({self.__dict__()})"
+
+    @abstractmethod
+    def __dict__(self):  # pragma: no cover
+        pass
+
+class Point(Vector):
+    @property
+    def x(self):
+        return self._x
+
+    @property
+    def y(self):
+        return self._y
+
+    def __dict__(self):
+        return {"x": self._x, "y": self._y}
+
+class Size(Vector):
+    def __init__(self, width: float = 0, height: float = 0):
+        super().__init__(width, height)
+
+    @property
+    def width(self):
+        return self._x
+
+    @property
+    def height(self):
+        return self._y
+
+    def __dict__(self):
+        return {"width": self._x, "height": self._y}
 
 
-@dataclass()
-class Size:
-    width: float = 0
-    height: float = 0
-
-
-class Rect(Point, Size):
+class Rect:
 
     @staticmethod
-    def from_web_element(web_element: WebElement):
-        rect = web_element.rect
+    def from_rect_dict(rect: dict):
         return Rect(rect["x"], rect["y"], rect["width"], rect["height"])
 
-    def __init__(self, x: float = 0, y: float = 0, width: float = 0, height: float = 0):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
+    def __init__(
+        self,
+        x: float = 0,
+        y: float = 0,
+        width: float = 0,
+        height: float = 0,
+        position: Point = None,
+        size: Size = None,
+    ):
+        if position:
+            self.__pos = position
+        else:
+            self.__pos = Point(x,y)
+
+        if size:
+            self.__size = size
+        else:
+            self.__size = Size(width, height)
+
+    @property
+    def origin(self):
+        return self.__pos
+
+    @property
+    def size(self):
+        return self.__size
+
+    @property
+    def x(self):
+        return self.left
+
+    @property
+    def y(self):
+        return self.top
+
+    @property
+    def width(self):
+        return self.size.width
+
+    @property
+    def height(self):
+        return self.size.height
 
     @property
     def left(self):
-        return self.x
+        return self.origin.x
 
     @property
     def top(self):
-        return self.y
+        return self.origin.y
 
     @property
     def right(self):
-        return self.left + self.width
+        return self.left + self.size.width
 
     @property
     def bottom(self):
-        return self.top + self.height
+        return self.top + self.size.height
 
     def contains(self, rect: "Rect"):
         return rect.left >= self.left \
@@ -123,10 +187,18 @@ class Rect(Point, Size):
             and rect.top <= self.bottom \
             and rect.bottom >= self.top
 
+    def __dict__(self):
+        return {"x": self.origin.x, "y": self.origin.y, "width": self.size.width, "height": self.size.height}
+
+    def __str__(self):
+        return f"{self.__class__.__name__}({self.__dict__()})"
+
 
 class Property(Enum):
     PAF_SCREENSHOTS_DIR = "screenshots"
     PAF_WINDOW_SIZE = "1920x1080"
+    PAF_WINDOW_POSITION = "0x0"
+    PAF_WINDOW_MAXIMIZE = False
     PAF_BROWSER_SETTING = "chrome"
     PAF_SEQUENCE_WAIT_AFTER_FAIL = 0.3
     PAF_SEQUENCE_RETRY_COUNT = 3

@@ -1,5 +1,4 @@
 from functools import cache
-from time import sleep
 
 import inject
 from selenium.webdriver import Keys

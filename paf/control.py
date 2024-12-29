@@ -2,7 +2,6 @@ import dataclasses
 import threading
 from contextlib import contextmanager
 from dataclasses import dataclass
-from time import sleep, time
 from typing import Callable, Optional
 
 from paf.common import Property, RetryException, Sequence

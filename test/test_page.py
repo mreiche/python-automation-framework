@@ -4,12 +4,13 @@ import inject
 import pytest
 from selenium.webdriver.remote.webdriver import WebDriver
 
+from paf.common import Point, Size
 from paf.control import change
 from paf.manager import WebDriverManager
 from paf.page import PageFactory, Page, FinderPage
 from paf.request import WebDriverRequest
 from test import create_webdriver
-from test import finder
+from test import finder, page_factory
 
 
 def test_assertions(finder: FinderPage):
@@ -28,8 +29,7 @@ def test_assertions(finder: FinderPage):
             finder.expect.url.ends_with("index.html").be(False)
 
 
-def test_create_page_from_page():
-    page_factory = inject.instance(PageFactory)
+def test_create_page_from_page(page_factory: PageFactory):
     webdriver = create_webdriver(WebDriverRequest())
     page = page_factory.create_page(Page)
     other_page = page._create_page(Page)
@@ -38,8 +38,7 @@ def test_create_page_from_page():
     assert page.webdriver == webdriver
 
 
-def test_create_page_without_webdriver():
-    page_factory = inject.instance(PageFactory)
+def test_create_page_without_webdriver(page_factory: PageFactory):
     webdriver = create_webdriver(WebDriverRequest())
     page = page_factory.create_page(Page)
     assert page.webdriver == webdriver
@@ -55,6 +54,20 @@ def test_scroll_until_visible(finder: FinderPage):
         finder.scroll_by(y=height)
 
     p.expect.fully_visible(True)
+
+
+def test_absolute_viewport(page_factory: PageFactory):
+    request = WebDriverRequest("viewport")
+    request.window_position = Point(10, 20)
+    request.window_size = Size(1024, 768)
+    webdriver = create_webdriver(request)
+    finder = page_factory.create_page(FinderPage, webdriver)
+    viewport = finder.get_absolute_viewport()
+
+    assert viewport.origin.x >= request.window_position.x
+    assert viewport.origin.y >= request.window_position.y
+    assert viewport.size.width <= request.window_size.width
+    assert viewport.size.height <= request.window_size.height
 
 
 def teardown_module():

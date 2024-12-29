@@ -69,7 +69,9 @@ element.expect.text.be("Search")
 ## Environment variables
 
 * `PAF_BROWSER_SETTING=chrome:90`: Sets the requested browser name and it's version.
-* `PAF_WINDOW_SIZE=1920x1080`: Sets the browsers default window size.
+* `PAF_WINDOW_SIZE=1920x1080`: Sets the browsers initial window size.
+* `PAF_WINDOW_POSITION=0x0`: Place the initial window to a different location/screen.
+* `PAF_WINDOW_MAXIMIZE=False`: Maximize the initial window.
 * `PAF_SCREENSHOTS_DIR=screenshots`: Sets the screenshots' directory.
 * `PAF_SEQUENCE_WAIT_AFTER_FAIL=0.3`: Wait in seconds whenever a sequence action fails. 
 * `PAF_SEQUENCE_RETRY_COUNT=3`: Retry count for every sequence action.

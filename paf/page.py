@@ -4,8 +4,9 @@ import inject
 from selenium.webdriver import ActionChains
 from selenium.webdriver.remote.webdriver import WebDriver
 
+from paf import javascript
 from paf.assertion import StringAssertion, Format
-from paf.common import HasName, Locator
+from paf.common import HasName, Locator, Rect
 from paf.manager import WebDriverManager
 from paf.request import WebDriverRequest
 from paf.types import PAGE, COMPONENT
@@ -58,6 +59,12 @@ class BasePage(HasName):
     def scroll_by(self, x: int = 0, y: int = 0):
         actions = ActionChains(self._webdriver)
         actions.scroll_by_amount(x, y).perform()
+
+    def get_absolute_viewport(self):
+        window_rect = Rect.from_rect_dict(self.webdriver.get_window_rect())
+        viewport = javascript.get_viewport(self.webdriver)
+        viewport_origin = window_rect.size - viewport.size
+        return Rect(position=window_rect.origin + viewport_origin, size=viewport.size)
 
 
 class FinderPage(BasePage):

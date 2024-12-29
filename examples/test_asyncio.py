@@ -1,5 +1,4 @@
 import asyncio
-import logging
 
 import inject
 import pytest
@@ -9,8 +8,6 @@ from paf.manager import WebDriverManager
 from paf.page import PageFactory
 from paf.request import WebDriverRequest
 from test import create_webdriver
-
-LOGGER = logging.getLogger(__name__)
 
 
 @pytest.mark.asyncio

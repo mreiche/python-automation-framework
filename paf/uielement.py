@@ -3,7 +3,7 @@ from abc import abstractmethod, ABC
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
-from typing import Type, TypeVar, List, Generic, Iterable, Iterator, Callable, ContextManager
+from typing import Type, TypeVar, List, Generic, Iterable, Iterator, ContextManager
 
 import inject
 from is_empty import empty
@@ -17,12 +17,12 @@ from selenium.webdriver.support.color import Color
 import paf.javascript as script
 from paf.assertion import StringAssertion, Format, BinaryAssertion, QuantityAssertion, RectAssertion, ASSERTION
 from paf.common import HasParent, Locator, Point, Rect, Property, Formatter, NotFoundException, NotUniqueException, \
-    WebdriverRetainer, RetryException, SubjectException
+    WebdriverRetainer, SubjectException
 from paf.control import retry
 from paf.dom import Attribute
 from paf.listener import Listener
 from paf.locator import By
-from paf.types import Mapper, R, Consumer
+from paf.types import Mapper, Consumer
 from paf.xpath import XPath
 
 
@@ -581,7 +581,7 @@ class UiElementAssertion:
     def _visible(self, expected: bool, fully: bool = False):
         def _map(web_element: WebElement):
             viewport = script.get_viewport(self._ui_element.webdriver)
-            bounds = Rect.from_web_element(web_element)
+            bounds = Rect.from_rect_dict(web_element.rect)
             if fully:
                 return viewport.contains(bounds)
             else:
@@ -608,4 +608,4 @@ class UiElementAssertion:
 
     @property
     def bounds(self):
-        return self._map_web_element_property(RectAssertion, lambda x: Rect.from_web_element(x), "bounds")
+        return self._map_web_element_property(RectAssertion, lambda web_element: Rect.from_rect_dict(web_element.rect), "bounds")
