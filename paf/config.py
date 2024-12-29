@@ -1,9 +1,9 @@
 from inject import Binder
 
+import paf.common
+import paf.control
 import paf.manager
 import paf.page
-import paf.control
-import paf.common
 from paf.common import Property
 from paf.listener import Listener, HighlightListener
 

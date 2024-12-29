@@ -9,7 +9,7 @@ from selenium.webdriver.common import service as webdriver_service
 from selenium.webdriver.common.options import BaseOptions
 from selenium.webdriver.remote.webdriver import WebDriver, BaseWebDriver
 
-from paf.common import Property, Formatter, Point
+from paf.common import Property, Formatter
 from paf.request import WebDriverRequest
 
 OPTION = TypeVar("OPTION")

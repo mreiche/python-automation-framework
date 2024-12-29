@@ -1,4 +1,3 @@
-import logging
 import random
 import time
 from functools import cache
@@ -7,10 +6,7 @@ import inject
 import pyautogui
 import pytest
 import undetected_chromedriver as uc
-from selenium.webdriver import ActionChains
 from selenium.webdriver.common.actions.action_builder import ActionBuilder
-from selenium.webdriver.remote.webdriver import WebDriver
-from selenium.webdriver.remote.webelement import WebElement
 
 from paf import control
 from paf.common import Point, Rect, Size
@@ -159,11 +155,8 @@ def test_bypass_cloudflare_gitlab_undetected(cloudflare_undetected: CloudflarePa
 #     def _rand_time():
 #         return (random.random()*2)+0.3
 #
-#     def _click_selenium(pos: Point):
-#         ActionChains(finder.webdriver).move_by_offset(pos.x,pos.y).click().perform()
-#
-#     #def _click_pyautogui(pos: Point):
-#         #pyautogui.click(x=-1110, y=558, clicks=1, duration=_rand_time(), tween=pyautogui.easeInOutQuad)
+#     def _click_pyautogui(pos: Point):
+#         pyautogui.click(x=-1110, y=558, clicks=1, duration=_rand_time(), tween=pyautogui.easeInOutQuad)
 #
 #     _init_position()
 #     label_position = get_label_viewport_position(shadow_root_div)

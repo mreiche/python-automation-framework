@@ -1,15 +1,11 @@
 import os
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from time import sleep, time
 from typing import Callable, Self
 
 import inject
-from pygments.unistring import xid_start
-from selenium.webdriver.remote.webdriver import WebDriver
-from selenium.webdriver.remote.webelement import WebElement
 
 from paf.locator import By
 from paf.types import Predicate

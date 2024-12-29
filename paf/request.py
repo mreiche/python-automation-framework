@@ -5,7 +5,7 @@ from urllib.parse import urlparse, ParseResult
 from is_empty import empty
 from selenium.webdriver.common.options import BaseOptions
 
-from paf.common import Size, Property, Point, Rect
+from paf.common import Size, Property, Point
 
 
 def _read_coordinates(input_string: str) -> tuple[int, int]:
