@@ -9,7 +9,7 @@ from selenium.webdriver.common import service as webdriver_service
 from selenium.webdriver.common.options import BaseOptions
 from selenium.webdriver.remote.webdriver import WebDriver, BaseWebDriver
 
-from paf.common import Property, Formatter
+from paf.common import Property, Formatter, Point
 from paf.request import WebDriverRequest
 
 OPTION = TypeVar("OPTION")
@@ -81,9 +81,14 @@ class WebDriverManager:
     def introduce_webdriver(self, webdriver: WebDriver, request: WebDriverRequest):
         self._session_driver_map[request.session_name] = webdriver
 
-        if request.window_size:
-            #LOG.info(f"Set window size {request.window_size} on {webdriver.name}")
-            webdriver.set_window_rect(0, 0, request.window_size.width, request.window_size.height)
+        if request.window_position:
+            webdriver.set_window_position(request.window_position.x, request.window_position.y)
+
+        if request.window_maximize:
+            webdriver.maximize_window()
+
+        elif request.window_size:
+            webdriver.set_window_size(request.window_size.width, request.window_size.height)
 
     def __map_session_name(self, session_name_or_request: str | WebDriverRequest) -> str:
         if isinstance(session_name_or_request, WebDriverRequest):

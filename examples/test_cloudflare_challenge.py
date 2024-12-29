@@ -1,11 +1,17 @@
 import logging
+import random
+import time
 
 import inject
+import pyautogui
 import pytest
 import undetected_chromedriver as uc
 from selenium.webdriver import ActionChains
+from selenium.webdriver.common.actions.action_builder import ActionBuilder
+from selenium.webdriver.remote.webdriver import WebDriver
+from selenium.webdriver.remote.webelement import WebElement
 
-from paf.common import Point
+from paf.common import Point, Rect, Size
 from paf.manager import WebDriverManager
 from paf.page import PageFactory, FinderPage
 from paf.request import WebDriverRequest
@@ -17,46 +23,101 @@ from test import create_webdriver
 @pytest.fixture
 def finder():
     page_factory = inject.instance(PageFactory)
-    finder = page_factory.create_page(FinderPage, create_webdriver())
+    request = WebDriverRequest("cloudflare")
+    request.window_position = Point(-1024,0)
+    request.window_maximize = True
+    finder = page_factory.create_page(FinderPage, create_webdriver(request))
     yield finder
 
 
-# https://www.zenrows.com/blog/selenium-cloudflare-bypass
-def test_bypass_cloudflare_challenge(finder: FinderPage):
-    finder.open("https://www.scrapingcourse.com/cloudflare-challenge")
-    shadow_root_div = finder.find(
+def connect_mouse_move_event(webdriver: WebDriver, web_element: WebElement, prefix: str=""):
+    webdriver.execute_script("""
+    const element = arguments[0];
+    const prefix = arguments[1];
+    document.onmousemove = function(e) {
+        console.log(prefix + " move", e.pageX, e.pageY)
+    }
+    document.onclick = function(e) {
+        console.log(prefix + "click", e.pageX, e.pageY)
+    }
+    """, web_element, prefix)
+
+def get_shadow_root_div(finder: FinderPage):
+    return finder.find(
         XPath.at("div")
         .classes("main-content")
         .select("div")
         .attribute("style")
         .be("display: grid;")
         .select("div/div")
-    )
+        , "shadow_root_div")
 
-    finder.webdriver.execute_script("""
-var cursorX;
-var cursorY;
-document.onmousemove = function(e) {
-    console.log(e.pageX, e.pageY)
-}
-""")
+def get_viewport_label_position(shadow_root_div: UiElement):
+    iframe = shadow_root_div.find("iframe")
+    shadow_root_body = iframe.find("body")
 
-    if shadow_root_div.wait_for.displayed(True):
-        iframe = shadow_root_div.find("iframe")
-        shadow_root_body = iframe.find("body")
-        label = shadow_root_body.find("#content").find("label")
-        if label.wait_for.displayed(True):
-            label.highlight()
-            point = Point()
-            for element in label.get_path():
-                if isinstance(element, UiElement):
-                    rect = element.expect.bounds.actual
-                    point.add(rect)
-                    logging.info(f"{rect.__dict__} - {point.__dict__}")
+    point = Point()
+    label = shadow_root_body.find("#content").find("label")
+    if label.wait_for.displayed(True):
+        for element in label.get_path():
+            if element == shadow_root_div:
+                break
+            elif isinstance(element, UiElement):
+                rect = element.expect.bounds.actual
+                point = point + rect.origin
 
-            with label.find_web_element() as web_element:
-                ActionChains(shadow_root_div.webdriver).move_to_element_with_offset(web_element, 1,1).click().perform()
+    label_size = label.expect.bounds.actual.size
+    return point + Size(label_size.width / 2, label_size.height / 2)
 
+
+# https://www.zenrows.com/blog/selenium-cloudflare-bypass
+def test_bypass_cloudflare_challenge(finder: FinderPage):
+    finder.open("https://www.scrapingcourse.com/cloudflare-challenge")
+    shadow_root_div = get_shadow_root_div(finder)
+
+    def _click_position(pos: Point):
+        action = ActionBuilder(finder.webdriver)
+        action.pointer_action.move_to_location(pos.x, pos.y)
+        action.pointer_action.click()
+        action.perform()
+
+    _click_position(get_viewport_label_position(shadow_root_div))
+
+    pass
+
+def test_bypass_cloudflare_challenge_pyautogui(finder: FinderPage):
+    finder.open("https://www.scrapingcourse.com/cloudflare-challenge")
+    shadow_root_div = get_shadow_root_div(finder)
+
+    def _init_position():
+        rect = finder.get_absolute_viewport()
+        logging.info(f"Init: {rect}")
+        _move_mouse_to(rect.origin)
+
+    def _move_mouse_to(pos: Point):
+        duration = _rand_time()
+        pyautogui.moveTo(x=pos.x, y=pos.y, duration=duration, tween=pyautogui.easeInOutQuad)
+        time.sleep(duration)
+        logging.info("Moved")
+
+    #def _move_mouse_by(pos: Point):
+    #    pyautogui.moveRel(xOffset=pos.x, yOffset=pos.y, duration=_rand_time(), tween=pyautogui.easeInOutQuad)
+    #    logging.info("Moved")
+
+    def _rand_time():
+        return (random.random()*2)+0.3
+
+    def _click_selenium(pos: Point):
+        ActionChains(finder.webdriver).move_by_offset(pos.x,pos.y).click().perform()
+
+    #def _click_pyautogui(pos: Point):
+        #pyautogui.click(x=-1110, y=558, clicks=1, duration=_rand_time(), tween=pyautogui.easeInOutQuad)
+
+    _init_position()
+    label_position = get_viewport_label_position(shadow_root_div)
+    _click_selenium(label_position)
+
+    pass
 
 def test_undetected_chromedriver():
     driver = uc.Chrome(

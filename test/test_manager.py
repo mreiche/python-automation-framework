@@ -9,10 +9,11 @@ import pytest
 from selenium.webdriver import ChromeOptions
 from selenium.webdriver.remote.webdriver import WebDriver
 
-from paf.common import Property
+from paf.common import Property, Size, Rect, Point
 from paf.manager import WebDriverManager
+from paf.page import PageFactory, FinderPage
 from paf.request import WebDriverRequest
-from test import create_webdriver
+from test import create_webdriver, finder
 
 
 @pytest.fixture
@@ -122,6 +123,30 @@ def test_unknown_browser_fails(manager: WebDriverManager):
         manager.get_webdriver(request)
 
     assert "No browser specified" in e.value.args[0]
+
+
+def test_window_size_and_position(finder: FinderPage):
+    request = WebDriverRequest("position")
+    request.window_position = Point(30, 40)
+    request.window_size = Size(1024, 768)
+    webdriver = create_webdriver(request)
+    window_rect = Rect.from_rect_dict(webdriver.get_window_rect())
+
+    assert window_rect.origin.x == 30
+    assert window_rect.origin.y == 40
+    assert window_rect.size.width == 1024
+    assert window_rect.size.height == 768
+
+
+def test_window_maximize():
+    request = WebDriverRequest("maximize")
+    request.window_maximize = True
+    webdriver = create_webdriver(request)
+    window_rect = Rect.from_rect_dict(webdriver.get_window_rect())
+    assert window_rect.origin.x >= 0
+    assert window_rect.origin.y >= 0
+    assert window_rect.size.width > 1
+    assert window_rect.size.height > 1
 
 
 def first_task():

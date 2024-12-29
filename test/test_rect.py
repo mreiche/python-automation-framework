@@ -10,8 +10,7 @@ def test_rect(finder: FinderPage):
     finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
     p = finder.find("#para1")
     rect = p.expect.bounds.actual
-    point = Point(10, 20)
-    point.add(rect)
+    point = rect.origin + Point(10, 20)
 
     assert point.x > 10
     assert point.y > 20
