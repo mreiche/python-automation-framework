@@ -57,6 +57,8 @@ jobs:
     - name: Generate coverage report
       run: coverage xml
     - name: Upload coverage to Codecov
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       uses: codecov/codecov-action@v3
       continue-on-error: true
       with:
