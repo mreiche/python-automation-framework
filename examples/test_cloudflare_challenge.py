@@ -63,11 +63,11 @@ class CloudflarePage(Page):
         return self.shadow_root_div.wait_for.displayed(True)
 
     def is_waiting_for_confirmation(self):
-        return self.label.wait_for.displayed(True)
+        return self.confirmation_label.wait_for.displayed(True)
 
     @property
     @cache
-    def label(self):
+    def confirmation_label(self):
         iframe = self.shadow_root_div.find("iframe")
         shadow_root_body = iframe.find("body")
         label = shadow_root_body.find("#content").find("label")
@@ -75,7 +75,7 @@ class CloudflarePage(Page):
 
     def get_label_viewport_position(self):
         point = Point()
-        label = self.label
+        label = self.confirmation_label
         shadow_root_div = self.shadow_root_div
         for element in label.get_path():
             if element == shadow_root_div:
