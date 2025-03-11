@@ -7,12 +7,12 @@ from paf.common import Property
 from paf.listener import HighlightListener, ActionListener, AssertionListener
 from paf.manager import WebDriverManager
 from paf.page import PageFactory, FinderPage
-from test import create_webdriver
+from test import get_webdriver
 
 
 @pytest.fixture
 def finder():
-    finder = inject.instance(PageFactory).create_page(FinderPage, create_webdriver())
+    finder = inject.instance(PageFactory).create_page(FinderPage, get_webdriver())
     finder.open("https://testpages.herokuapp.com/styled/key-click-display-test.html")
     yield finder
 

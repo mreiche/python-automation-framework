@@ -14,7 +14,7 @@ from paf.listener import WebDriverManagerListener
 from paf.manager import WebDriverManager
 from paf.page import PageFactory, FinderPage
 from paf.request import WebDriverRequest
-from test import create_webdriver, finder
+from test import get_webdriver, finder
 import paf.config
 
 @pytest.fixture
@@ -28,7 +28,7 @@ def test_manager_singleton(manager: WebDriverManager):
 
 
 def test_take_screenshot(manager: WebDriverManager):
-    create_webdriver()
+    get_webdriver()
     webdrivers = manager.webdrivers
     assert isinstance(webdrivers, list)
 
@@ -45,7 +45,7 @@ def test_take_screenshot(manager: WebDriverManager):
 
 def test_shutdown_by_session_key(manager: WebDriverManager):
     request = WebDriverRequest("test")
-    create_webdriver(request)
+    get_webdriver(request)
     assert manager.has_webdriver(request)
     manager.shutdown_session(request)
     assert manager.has_webdriver(request.session_name) is False
@@ -67,7 +67,7 @@ def test_take_screenshot_fails_read_only(monkeypatch, manager: WebDriverManager)
     dir = Path(Property.env(Property.PAF_SCREENSHOTS_DIR))
     dir.mkdir(parents=True, exist_ok=True)
     os.chmod(dir, 555)
-    webdriver = create_webdriver()
+    webdriver = get_webdriver()
     path = manager.take_screenshot(webdriver)
     assert path is None
     os.chmod(dir, 775)
@@ -75,14 +75,14 @@ def test_take_screenshot_fails_read_only(monkeypatch, manager: WebDriverManager)
 
 
 def test_take_screenshot_fails_invalid_session(manager: WebDriverManager):
-    webdriver = create_webdriver()
+    webdriver = get_webdriver()
     manager.shutdown(webdriver)
     with pytest.raises(Exception):
         manager.take_screenshot(webdriver)
 
 
 def test_empty_request(manager: WebDriverManager):
-    webdriver = create_webdriver()
+    webdriver = get_webdriver()
     assert isinstance(webdriver, WebDriver)
     assert manager.has_webdriver("test")
 
@@ -91,14 +91,14 @@ def test_given_chrome_options(manager: WebDriverManager):
     request = WebDriverRequest("chrome-with-options")
     request.browser = "chrome"
     request.options = ChromeOptions()
-    webdriver = create_webdriver(request)
+    webdriver = get_webdriver(request)
     assert request.browser in webdriver.name
 
 
 def test_not_given_chrome_options(manager: WebDriverManager):
     request = WebDriverRequest("chrome-no-options")
     request.browser = "chrome"
-    webdriver = create_webdriver(request)
+    webdriver = get_webdriver(request)
     assert request.browser in webdriver.name
 
 
@@ -112,7 +112,7 @@ def test_remote_webdriver(monkeypatch):
     request.browser = "chrome"
     request.options = ChromeOptions()
     assert isinstance(request.server_url, ParseResult)
-    webdriver = create_webdriver(request)
+    webdriver = get_webdriver(request)
     assert webdriver.name == request.browser
 
 
@@ -130,7 +130,7 @@ def test_window_size_and_position(finder: FinderPage):
     request = WebDriverRequest("position")
     request.window_position = Point(30, 40)
     request.window_size = Size(1024, 768)
-    webdriver = create_webdriver(request)
+    webdriver = get_webdriver(request)
     window_rect = Rect.from_rect_dict(webdriver.get_window_rect())
 
     assert window_rect.origin.x == 30
@@ -142,7 +142,7 @@ def test_window_size_and_position(finder: FinderPage):
 def test_window_maximize():
     request = WebDriverRequest("maximize")
     request.window_maximize = True
-    webdriver = create_webdriver(request)
+    webdriver = get_webdriver(request)
     window_rect = Rect.from_rect_dict(webdriver.get_window_rect())
     assert window_rect.origin.x >= 0
     assert window_rect.origin.y >= 0
@@ -206,7 +206,7 @@ def test_listener():
     assert listener.create_called == False
     assert listener.introduce_called == False
     assert listener.introduced_called == False
-    manager.get_webdriver(request)
+    get_webdriver(request)
     assert listener.create_called == True
     assert listener.introduce_called == True
     assert listener.introduced_called == True
@@ -214,7 +214,7 @@ def test_listener():
     listener.create_called = False
     listener.introduce_called = False
     listener.introduced_called = False
-    manager.get_webdriver(request)
+    get_webdriver(request)
     assert listener.create_called == False
     assert listener.introduce_called == False
     assert listener.introduced_called == False

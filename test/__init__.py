@@ -17,11 +17,11 @@ def page_factory():
 @pytest.fixture
 def finder():
     page_factory = inject.instance(PageFactory)
-    finder = page_factory.create_page(FinderPage, create_webdriver())
+    finder = page_factory.create_page(FinderPage, get_webdriver())
     yield finder
 
 
-def create_webdriver(request: WebDriverRequest = None):
+def get_webdriver(request: WebDriverRequest = None):
     manager = inject.instance(WebDriverManager)
 
     if not request:
@@ -37,7 +37,7 @@ def create_webdriver(request: WebDriverRequest = None):
         if not request.window_size:
             request.window_size = Size(1920, 1080)
 
-    #options.add_argument(f"--user-data-dir=/tmp/chromedriver-{request.session_name}")
+    #options.add_argument(f"--user-data-dir=/tmp/chromedriver-{request.session_name}")  # Strange behaviour in xdist
     options.add_argument("--disable-search-engine-choice-screen")
     options.add_argument("--disable-extensions")
 
