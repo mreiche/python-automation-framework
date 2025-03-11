@@ -20,7 +20,7 @@ from paf.common import HasParent, Locator, Point, Rect, Property, Formatter, Not
     WebdriverRetainer, SubjectException
 from paf.control import retry
 from paf.dom import Attribute
-from paf.listener import Listener
+from paf.listener import Listener, ActionListener
 from paf.locator import By
 from paf.types import Mapper, Consumer
 from paf.xpath import XPath
@@ -379,18 +379,18 @@ class DefaultUiElement(AbstractUiElement):
     #             raise NotFoundException()
 
     def _web_element_action_sequence(self, action: Consumer[WebElement], action_name: str):
-        listener = inject.instance(Listener)
+        action_listener = inject.instance(ActionListener)
 
         def _sequence():
             with self.find_web_element() as web_element:
                 action(web_element)
 
         try:
-            retry(_sequence, lambda e: listener.action_failed(action_name, self, e))
-            listener.action_passed(action_name, self)
+            retry(_sequence, lambda e: action_listener.action_failed(action_name, self, e))
+            action_listener.action_passed(action_name, self)
         except SubjectException as exception:
             exception.add_subject(self.name_path)
-            listener.action_failed_finally(action_name, self, exception)
+            action_listener.action_failed_finally(action_name, self, exception)
             raise exception
 
     def click(self):

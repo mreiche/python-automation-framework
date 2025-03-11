@@ -10,11 +10,12 @@ from selenium.webdriver import ChromeOptions
 from selenium.webdriver.remote.webdriver import WebDriver
 
 from paf.common import Property, Size, Rect, Point
+from paf.listener import WebDriverManagerListener
 from paf.manager import WebDriverManager
 from paf.page import PageFactory, FinderPage
 from paf.request import WebDriverRequest
 from test import create_webdriver, finder
-
+import paf.config
 
 @pytest.fixture
 def manager():
@@ -167,6 +168,67 @@ async def test_thread_singleton():
     managers = await asyncio.gather(*tasks)
     assert managers[0] == managers[1]
 
+
+
+def test_listener():
+
+    class WebDriverManagerTestListener(WebDriverManagerListener):
+        def __init__(self):
+            self.close_called = False
+            self.create_called = False
+            self.closed_called = False
+            self.introduce_called = False
+            self.introduced_called = False
+
+        def webdriver_close(self, webdriver: WebDriver):
+            self.close_called = True
+        def webdriver_create(self, webdriver: WebDriver):
+            self.create_called = True
+        def webdriver_introduce(self, webdriver: WebDriver):
+            self.introduce_called = True
+        def webdriver_introduced(self, webdriver: WebDriver):
+            self.introduced_called = True
+        def webdriver_closed(self, webdriver: WebDriver):
+            self.closed_called = True
+
+
+    def _inject(binder: inject.Binder):
+        paf.config.inject(binder)
+        binder.bind(WebDriverManagerListener, WebDriverManagerTestListener())
+
+    inject.clear_and_configure(_inject)
+    listener: WebDriverManagerTestListener = inject.instance(WebDriverManagerListener)
+    assert isinstance(listener, WebDriverManagerListener)
+
+    request = WebDriverRequest("listener")
+
+    manager = inject.instance(WebDriverManager)
+    assert listener.create_called == False
+    assert listener.introduce_called == False
+    assert listener.introduced_called == False
+    manager.get_webdriver(request)
+    assert listener.create_called == True
+    assert listener.introduce_called == True
+    assert listener.introduced_called == True
+
+    listener.create_called = False
+    listener.introduce_called = False
+    listener.introduced_called = False
+    manager.get_webdriver(request)
+    assert listener.create_called == False
+    assert listener.introduce_called == False
+    assert listener.introduced_called == False
+
+    assert listener.close_called == False
+    assert listener.closed_called == False
+    manager.shutdown_session(request)
+    assert listener.close_called == True
+    assert listener.closed_called == True
+
+    listener.closed_called = False
+    with pytest.raises(Exception, match="Unknown session: listener"):
+        manager.shutdown_session(request)
+    assert listener.closed_called == False
 
 def teardown_module():
     inject.instance(WebDriverManager).shutdown_all()

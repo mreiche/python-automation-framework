@@ -9,6 +9,7 @@ from paf.manager import WebDriverManager
 from paf.page import PageFactory, FinderPage
 from paf.request import WebDriverRequest
 
+
 @pytest.fixture()
 def page_factory():
     yield inject.instance(PageFactory)
