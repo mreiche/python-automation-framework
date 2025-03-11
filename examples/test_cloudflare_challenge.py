@@ -15,7 +15,7 @@ from paf.page import PageFactory, FinderPage, Page
 from paf.request import WebDriverRequest
 from paf.uielement import UiElement
 from paf.xpath import XPath
-from test import create_webdriver
+from test import get_webdriver
 
 
 @pytest.fixture
@@ -24,7 +24,7 @@ def cloudflare():
     request = WebDriverRequest("cloudflare")
     request.window_position = Point(-1024,0)
     request.window_maximize = True
-    page = page_factory.create_page(CloudflarePage, create_webdriver(request))
+    page = page_factory.create_page(CloudflarePage, get_webdriver(request))
     yield page
 
 

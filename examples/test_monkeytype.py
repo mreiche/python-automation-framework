@@ -4,13 +4,13 @@ import pytest
 from paf.control import change
 from paf.manager import WebDriverManager
 from paf.page import PageFactory, FinderPage
-from test import create_webdriver
+from test import get_webdriver
 
 
 @pytest.fixture
 def finder():
     page_factory = inject.instance(PageFactory)
-    finder = page_factory.create_page(FinderPage, create_webdriver())
+    finder = page_factory.create_page(FinderPage, get_webdriver())
     yield finder
 
 

@@ -3,14 +3,14 @@ from selenium.webdriver import ChromeOptions
 
 from paf.manager import WebDriverManager
 from paf.request import WebDriverRequest
-from test import create_webdriver
+from test import get_webdriver
 import logging
 
 
 def test_detect_webdriver():
     request = WebDriverRequest("automated")
     request.browser = "chrome"
-    webdriver = create_webdriver(request)
+    webdriver = get_webdriver(request)
     result = webdriver.execute_script("return navigator.webdriver")
     assert result is True
 
@@ -32,7 +32,7 @@ def test_hide_webdriver():
     options.add_experimental_option('useAutomationExtension', False)
 
     request.options = options
-    webdriver = create_webdriver(request)
+    webdriver = get_webdriver(request)
     logging.info(f"Request {request}")
     webdriver.execute_cdp_cmd('Network.setUserAgentOverride', {"userAgent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.53 Safari/537.36'})
     webdriver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => false})")

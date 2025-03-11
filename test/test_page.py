@@ -9,7 +9,7 @@ from paf.control import change
 from paf.manager import WebDriverManager
 from paf.page import PageFactory, Page, FinderPage
 from paf.request import WebDriverRequest
-from test import create_webdriver
+from test import get_webdriver
 from test import finder, page_factory
 
 
@@ -30,7 +30,7 @@ def test_assertions(finder: FinderPage):
 
 
 def test_create_page_from_page(page_factory: PageFactory):
-    webdriver = create_webdriver(WebDriverRequest())
+    webdriver = get_webdriver(WebDriverRequest())
     page = page_factory.create_page(Page)
     other_page = page._create_page(Page)
     assert isinstance(other_page, Page)
@@ -39,7 +39,7 @@ def test_create_page_from_page(page_factory: PageFactory):
 
 
 def test_create_page_without_webdriver(page_factory: PageFactory):
-    webdriver = create_webdriver(WebDriverRequest())
+    webdriver = get_webdriver(WebDriverRequest())
     page = page_factory.create_page(Page)
     assert page.webdriver == webdriver
     assert isinstance(page, Page)
@@ -60,7 +60,7 @@ def test_absolute_viewport(page_factory: PageFactory):
     request = WebDriverRequest("viewport")
     request.window_position = Point(10, 20)
     request.window_size = Size(1024, 768)
-    webdriver = create_webdriver(request)
+    webdriver = get_webdriver(request)
     finder = page_factory.create_page(FinderPage, webdriver)
     viewport = finder.get_absolute_viewport()
 

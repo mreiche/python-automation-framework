@@ -7,7 +7,7 @@ from examples.test_google import StartPage
 from paf.manager import WebDriverManager
 from paf.page import PageFactory
 from paf.request import WebDriverRequest
-from test import create_webdriver
+from test import get_webdriver
 
 
 @pytest.mark.asyncio
@@ -26,7 +26,7 @@ async def test_run_in_tasks():
 
 def run_google_search(i: int):
     request = WebDriverRequest(f"asyncio{i}")
-    webdriver = create_webdriver(request)
+    webdriver = get_webdriver(request)
     page_factory = inject.instance(PageFactory)
     webdriver_manager = inject.instance(WebDriverManager)
 

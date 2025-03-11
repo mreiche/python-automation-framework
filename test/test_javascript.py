@@ -5,7 +5,7 @@ import paf.javascript as javascript
 from paf.manager import WebDriverManager
 from paf.page import FinderPage
 from paf.request import WebDriverRequest
-from test import create_webdriver
+from test import get_webdriver
 from test import finder
 
 
@@ -13,7 +13,7 @@ def test_viewport():
     request = WebDriverRequest()
     request.browser = "chrome"
     request.window_size = Size(1024, 768)
-    webdriver = create_webdriver(request)
+    webdriver = get_webdriver(request)
     viewport = javascript.get_viewport(webdriver)
     assert isinstance(viewport, Rect)
     assert viewport.top == 0
