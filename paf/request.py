@@ -1,6 +1,7 @@
 import os
 import re
 from urllib.parse import urlparse, ParseResult
+from warnings import deprecated
 
 from is_empty import empty
 from selenium.webdriver.common.options import BaseOptions
@@ -20,8 +21,8 @@ def _is_true(input_string: str) -> bool:
 
 
 class WebDriverRequest:
-    def __init__(self, session_name: str = "default"):
-        self._session_name = session_name
+    def __init__(self, name: str = "default"):
+        self.__name = name
         self._window_size: Size = None
         self._window_position: Point = None
         self._window_maximize = None
@@ -53,8 +54,13 @@ class WebDriverRequest:
         self._server_url = url
 
     @property
+    @deprecated("Use name property instead")
     def session_name(self):
-        return self._session_name
+        return self.name
+
+    @property
+    def name(self):
+        return self.__name
 
     def __detect_browser(self):
         match = re.search("(\\w+)(?::(\\w+))?", Property.env(Property.PAF_BROWSER_SETTING))

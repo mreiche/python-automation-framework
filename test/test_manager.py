@@ -48,7 +48,7 @@ def test_shutdown_by_session_key(manager: WebDriverManager):
     get_webdriver(request)
     assert manager.has_webdriver(request)
     manager.shutdown_session(request)
-    assert manager.has_webdriver(request.session_name) is False
+    assert manager.has_webdriver(request.name) is False
 
 
 def test_shutdown_unknown_session_fails(manager: WebDriverManager):
@@ -85,6 +85,7 @@ def test_empty_request(manager: WebDriverManager):
     webdriver = get_webdriver()
     assert isinstance(webdriver, WebDriver)
     assert manager.has_webdriver("test")
+    assert manager.get_request_name(webdriver) == "test"
 
 
 def test_given_chrome_options(manager: WebDriverManager):
@@ -93,6 +94,8 @@ def test_given_chrome_options(manager: WebDriverManager):
     request.options = ChromeOptions()
     webdriver = get_webdriver(request)
     assert request.browser in webdriver.name
+    assert request.session_name == request.name
+    assert manager.get_request_name(webdriver) == request.name
 
 
 def test_not_given_chrome_options(manager: WebDriverManager):

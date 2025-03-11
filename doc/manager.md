@@ -38,6 +38,10 @@ Request a WebDriver with another request name
 ```python
 request = WebDriverRequest("another")
 webdriver = manager.get_webdriver(request)
+
+# Get the request name of a WebDriver sessions
+name = manager.get_request_name(webdriver)
+assert name == "another"
 ```
 
 ## Connect to Selenium
@@ -69,7 +73,7 @@ request = WebDriverRequest()
 webdriver = manager.get_webdriver()
 
 manager.shutdown(webdriver)
-manager.shutdown_session(request.session_name)
+manager.shutdown_session(request.name)
 manager.shutdown_all()
 ```
 

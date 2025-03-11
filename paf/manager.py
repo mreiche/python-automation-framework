@@ -31,7 +31,7 @@ class WebDriverManager:
         return options
 
     def get_webdriver(self, request: WebDriverRequest) -> WebDriver:
-        session_name = request.session_name
+        session_name = request.name
         if session_name in self._session_driver_map:
             return self._session_driver_map[session_name]
 
@@ -84,11 +84,12 @@ class WebDriverManager:
         return driver
 
     def introduce_webdriver(self, webdriver: WebDriver, request: WebDriverRequest):
+        self.__set_request_name(webdriver, request)
         listener = inject.instance(WebDriverManagerListener)
         if listener:
             listener.webdriver_introduce(webdriver)
 
-        self._session_driver_map[request.session_name] = webdriver
+        self._session_driver_map[request.name] = webdriver
 
         if request.window_position:
             webdriver.set_window_position(request.window_position.x, request.window_position.y)
@@ -104,7 +105,7 @@ class WebDriverManager:
 
     def __map_session_name(self, session_name_or_request: str | WebDriverRequest) -> str:
         if isinstance(session_name_or_request, WebDriverRequest):
-            session_name_or_request = session_name_or_request.session_name
+            session_name_or_request = session_name_or_request.name
         return session_name_or_request
 
     def has_webdriver(self, session_name_or_request: str | WebDriverRequest):
@@ -158,6 +159,11 @@ class WebDriverManager:
     def webdrivers(self) -> List[WebDriver]:
         return list(self._session_driver_map.values())
 
+    def get_request_name(self, webdriver: WebDriver):
+        return webdriver.capabilities.get("paf:requestName")
+
+    def __set_request_name(self, webdriver: WebDriver, request: WebDriverRequest):
+        webdriver.capabilities.setdefault("paf:requestName", request.name)
 
 def inject_config(binder: inject.Binder):
     binder.bind(WebDriverManager, WebDriverManager())
