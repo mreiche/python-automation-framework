@@ -57,7 +57,7 @@ element.expect.text.be("Search")
 - [Components](doc/components.md)
 - [Managing WebDrivers](doc/manager.md)
 - [Execution controlling](doc/control.md)
-- [Inject listener](doc/listeners.md)
+- [Inject listeners](doc/listeners.md)
 
 ### Missing features (tdb)
 
