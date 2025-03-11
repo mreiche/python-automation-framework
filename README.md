@@ -49,8 +49,6 @@ element.expect.text.be("Search")
    brew|choco|apt install chromedriver
    ```
 
-- Python 3.10 (or higher).
-
 ## Feature list
 
 - [UiElements](doc/uielement.md)
