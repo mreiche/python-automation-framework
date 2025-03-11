@@ -181,14 +181,19 @@ def test_listener():
             self.introduced_called = False
 
         def webdriver_close(self, webdriver: WebDriver):
+            assert isinstance(webdriver, WebDriver)
             self.close_called = True
-        def webdriver_create(self, webdriver: WebDriver):
+        def webdriver_create(self, request: WebDriverRequest):
+            assert isinstance(request, WebDriverRequest)
             self.create_called = True
         def webdriver_introduce(self, webdriver: WebDriver):
+            assert isinstance(webdriver, WebDriver)
             self.introduce_called = True
         def webdriver_introduced(self, webdriver: WebDriver):
+            assert isinstance(webdriver, WebDriver)
             self.introduced_called = True
         def webdriver_closed(self, webdriver: WebDriver):
+            assert isinstance(webdriver, WebDriver)
             self.closed_called = True
 
 
