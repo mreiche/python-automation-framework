@@ -37,7 +37,7 @@ def create_webdriver(request: WebDriverRequest = None):
         if not request.window_size:
             request.window_size = Size(1920, 1080)
 
-    #options.add_argument(f"--user-data-dir=/tmp/chromedriver-{request.session_name}")
+    options.add_argument(f"--user-data-dir=/tmp/chromedriver-{request.session_name}")
     options.add_argument("--disable-search-engine-choice-screen")
     options.add_argument("--disable-extensions")
 
