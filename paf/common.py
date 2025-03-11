@@ -211,6 +211,11 @@ class Property(Enum):
     def env(prop: "Property") -> any:
         return os.getenv(prop.name, prop.value)
 
+    @staticmethod
+    def is_true(prop: "Property") -> bool:
+        val = Property.env(prop)
+        return val and str.lower(val) in ("1", "on", "true", "enabled")
+
 
 class Formatter:
     def datetime(self, date: datetime):

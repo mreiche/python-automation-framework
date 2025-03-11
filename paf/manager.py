@@ -10,6 +10,7 @@ from selenium.webdriver.common.options import BaseOptions
 from selenium.webdriver.remote.webdriver import WebDriver, BaseWebDriver
 
 from paf.common import Property, Formatter
+from paf.listener import WebDriverManagerListener
 from paf.request import WebDriverRequest
 
 OPTION = TypeVar("OPTION")
@@ -61,6 +62,10 @@ class WebDriverManager:
         if request.browser_version:
             options.set_capability("browserVersion", request.browser_version)
 
+        listener = inject.instance(WebDriverManagerListener)
+        if listener:
+            listener.webdriver_create(request)
+
         if request.server_url:
             driver = webdriver.Remote(command_executor=request.server_url.geturl(), options=options)
         elif driver_class:
@@ -79,6 +84,10 @@ class WebDriverManager:
         return driver
 
     def introduce_webdriver(self, webdriver: WebDriver, request: WebDriverRequest):
+        listener = inject.instance(WebDriverManagerListener)
+        if listener:
+            listener.webdriver_introduce(webdriver)
+
         self._session_driver_map[request.session_name] = webdriver
 
         if request.window_position:
@@ -89,6 +98,9 @@ class WebDriverManager:
 
         elif request.window_size:
             webdriver.set_window_size(request.window_size.width, request.window_size.height)
+
+        if listener:
+            listener.webdriver_introduced(webdriver)
 
     def __map_session_name(self, session_name_or_request: str | WebDriverRequest) -> str:
         if isinstance(session_name_or_request, WebDriverRequest):
@@ -107,6 +119,10 @@ class WebDriverManager:
             raise Exception(f"Unknown session: {session_name}")
 
     def shutdown(self, webdriver: WebDriver):
+        listener = inject.instance(WebDriverManagerListener)
+        if listener:
+            listener.webdriver_close(webdriver)
+
         webdriver.quit()
         webdrivers = list(self._session_driver_map.values())
         index = webdrivers.index(webdriver)
@@ -114,6 +130,9 @@ class WebDriverManager:
         session_keys = list(self._session_driver_map.keys())
         key = session_keys[index]
         self._session_driver_map.pop(key)
+
+        if listener:
+            listener.webdriver_closed(webdriver)
 
     def shutdown_all(self):
         for webdriver in list(self._session_driver_map.values()):

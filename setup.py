@@ -14,5 +14,6 @@ setup(
     url="https://github.com/mreiche/python-automation-framework",
     author="Mike Reiche",
     packages=["paf"],
-    install_requires=["inject>=4.3.1", "selenium>=4.8.3", "is-empty>=1.0.1"],
+    install_requires=["inject>=4.3.1", "selenium>=4.23.1", "is-empty>=1.0.1"],
+    python_requires=">=3.13",
 )

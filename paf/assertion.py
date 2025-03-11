@@ -72,15 +72,15 @@ class AbstractAssertion(Generic[ACTUAL_TYPE], HasParent, ABC):
         test: Predicate[ACTUAL_TYPE],
         additional_subject: Supplier = None,
     ) -> bool:
-        from paf.listener import Listener
-        listener = inject.instance(Listener)
+        from paf.listener import AssertionListener
+        assertion_listener = inject.instance(AssertionListener)
 
         try:
             def perform_test():
                 assert test(self.actual), "Expected"
 
-            retry(perform_test, lambda e: listener.assertion_failed(self, self._find_closest_ui_element(), e))
-            listener.assertion_passed(self, self._find_closest_ui_element())
+            retry(perform_test, lambda e: assertion_listener.assertion_failed(self, self._find_closest_ui_element(), e))
+            assertion_listener.assertion_passed(self, self._find_closest_ui_element())
             return True
 
         except RetryException as exception:
@@ -88,7 +88,7 @@ class AbstractAssertion(Generic[ACTUAL_TYPE], HasParent, ABC):
             if additional_subject:
                 exception.add_subject(additional_subject())
             #exception.update_sequence(sequence)
-            listener.assertion_failed_finally(self, self._find_closest_ui_element(), exception)
+            assertion_listener.assertion_failed_finally(self, self._find_closest_ui_element(), exception)
 
             if self._raise:
                 raise AssertionErrorWrapper(exception)
