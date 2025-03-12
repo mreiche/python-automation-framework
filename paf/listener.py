@@ -67,15 +67,10 @@ class Listener(ActionListener, AssertionListener):
 class WebDriverManagerListener:
     def webdriver_create(self, request: WebDriverRequest):  # pragma: no cover
         pass
-    def webdriver_introduce(self, webdriver: WebDriver):
-        pass
+    def webdriver_introduce(self, webdriver: WebDriver) -> any:
+        return webdriver
     def webdriver_introduced(self, webdriver: WebDriver):  # pragma: no cover
         pass
-    def webdriver_close(self, webdriver: WebDriver):  # pragma: no cover
-        pass
-    def webdriver_closed(self, webdriver: WebDriver):  # pragma: no cover
-        pass
-
 
 class HighlightListener(ActionListener, AssertionListener):
 
