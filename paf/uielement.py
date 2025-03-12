@@ -1,4 +1,5 @@
 import math
+import time
 from abc import abstractmethod, ABC
 from contextlib import contextmanager
 from datetime import datetime
@@ -18,9 +19,9 @@ import paf.javascript as script
 from paf.assertion import StringAssertion, Format, BinaryAssertion, QuantityAssertion, RectAssertion, ASSERTION
 from paf.common import HasParent, Locator, Point, Rect, Property, Formatter, NotFoundException, NotUniqueException, \
     WebdriverRetainer, SubjectException
-from paf.control import retry
+from paf.control import retry, get_config
 from paf.dom import Attribute
-from paf.listener import Listener, ActionListener
+from paf.listener import ActionListener
 from paf.locator import By
 from paf.types import Mapper, Consumer
 from paf.xpath import XPath
@@ -397,10 +398,6 @@ class DefaultUiElement(AbstractUiElement):
         self._web_element_action_sequence(lambda x: x.click(), "click")
         return self
 
-    def send_keys(self, value: str):
-        self._web_element_action_sequence(lambda x: x.send_keys(value), "send_keys")
-        return self
-
     def take_screenshot(self, file_name: str = None) -> Path | None:
         with self.find_web_element() as web_element:
             dir = Path(Property.env(Property.PAF_SCREENSHOTS_DIR))
@@ -415,10 +412,27 @@ class DefaultUiElement(AbstractUiElement):
             else:
                 return None
 
+    def __send_keys(self, web_element: WebElement, value: str):
+        config = get_config()
+
+        if config.execution_speed is None:
+            web_element.send_keys(value)
+        else:
+            for char in value:
+                time.sleep(config.execution_speed.get_random())
+                web_element.send_keys(char)
+
+    def send_keys(self, value: str):
+        def _action(web_element: WebElement):
+            self.__send_keys(web_element, value)
+
+        self._web_element_action_sequence(_action, "send_keys")
+        return self
+
     def type(self, value: str):
         def _action(web_element: WebElement):
             web_element.clear()
-            web_element.send_keys(value)
+            self.__send_keys(web_element, value)
             assert web_element.get_attribute("value") == value
 
         self._web_element_action_sequence(_action, "type")

@@ -1,4 +1,5 @@
 import os
+import random
 from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
@@ -283,6 +284,24 @@ class Sequence:
     @property
     def count(self):
         return self._count
+
+
+class ExecutionSpeed:
+    slow: "ExecutionSpeed" = None
+    fast: "ExecutionSpeed" = None
+    very_slow: "ExecutionSpeed" = None
+    def __init__(self, min: float, max: float = None):
+        if max is None:
+            max = min + 0.1
+        self.__min = min
+        self.__max = max
+
+    def get_random(self):
+        return self.__min + ((self.__max - self.__min) * random.random())
+
+ExecutionSpeed.slow = ExecutionSpeed(min=0.1, max = 0.3)
+ExecutionSpeed.fast = ExecutionSpeed(min=0.01, max = 0.1)
+ExecutionSpeed.very_slow = ExecutionSpeed(min=0.5, max = 0.8)
 
 
 class RetryException(SubjectException):

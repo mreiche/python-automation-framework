@@ -4,7 +4,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Callable, Optional
 
-from paf.common import Property, RetryException, Sequence
+from paf.common import Property, RetryException, Sequence, ExecutionSpeed
 from paf.types import Consumer
 
 
@@ -12,7 +12,7 @@ from paf.types import Consumer
 class Config(threading.local):
     retry_count: int = Property.env(Property.PAF_SEQUENCE_RETRY_COUNT)
     wait_after_fail: float = Property.env(Property.PAF_SEQUENCE_WAIT_AFTER_FAIL)
-
+    execution_speed: ExecutionSpeed = None
 
 __config = Config()
 
@@ -30,6 +30,7 @@ def __set_config(config: Config):
 def change(
     retry_count: int = None,
     wait_after_fail: float = None,
+    execution_speed: ExecutionSpeed = None,
 ):
     config_backup = get_config()
     scope_config = dataclasses.replace(config_backup)
@@ -40,6 +41,9 @@ def change(
 
     if wait_after_fail is not None:
         scope_config.wait_after_fail = wait_after_fail
+
+    if execution_speed is not None:
+        scope_config.execution_speed = execution_speed
 
     try:
         yield
