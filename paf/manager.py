@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Type, TypeVar, List
 
 import inject
-import selenium.webdriver as webdriver
+import selenium
 from is_empty import empty
 from selenium.webdriver.common import service as webdriver_service
 from selenium.webdriver.common.options import BaseOptions
@@ -35,27 +35,27 @@ class WebDriverManager:
         if session_name in self._session_driver_map:
             return self._session_driver_map[session_name]
 
-        driver = None
-        driver_class: Type[BaseWebDriver]
+        webdriver = None
+        webdriver_class: Type[BaseWebDriver]
         options: BaseOptions
         service: webdriver_service.Service
 
         if request.browser in ["chrome"]:
-            options = self._get_options(request, webdriver.ChromeOptions)
-            service_class = webdriver.ChromeService
-            driver_class = webdriver.Chrome
+            options = self._get_options(request, selenium.webdriver.ChromeOptions)
+            service_class = selenium.webdriver.ChromeService
+            webdriver_class = selenium.webdriver.Chrome
         elif request.browser in ["firefox"]:
-            options = self._get_options(request, webdriver.FirefoxOptions)
-            service_class = webdriver.FirefoxService
-            driver_class = webdriver.Firefox
+            options = self._get_options(request, selenium.webdriver.FirefoxOptions)
+            service_class = selenium.webdriver.FirefoxService
+            webdriver_class = selenium.webdriver.Firefox
         elif request.browser in ["edge"]:
-            options = self._get_options(request, webdriver.EdgeOptions)
-            service_class = webdriver.EdgeService
-            driver_class = webdriver.Edge
+            options = self._get_options(request, selenium.webdriver.EdgeOptions)
+            service_class = selenium.webdriver.EdgeService
+            webdriver_class = selenium.webdriver.Edge
         elif request.browser in ["safari"]:
-            options = self._get_options(request, webdriver.SafariOptions)
-            service_class = webdriver.SafariService
-            driver_class = webdriver.Safari
+            options = self._get_options(request, selenium.webdriver.SafariOptions)
+            service_class = selenium.webdriver.SafariService
+            webdriver_class = selenium.webdriver.Safari
         else:
             raise Exception("No browser specified")
 
@@ -67,8 +67,8 @@ class WebDriverManager:
             listener.webdriver_create(request)
 
         if request.server_url:
-            driver = webdriver.Remote(command_executor=request.server_url.geturl(), options=options)
-        elif driver_class:
+            webdriver = selenium.webdriver.Remote(command_executor=request.server_url.geturl(), options=options)
+        elif webdriver_class:
             service_options = {}
             if Property.PAF_DRIVER_PATH.value:
                 service_options["executable_path"] = Property.PAF_DRIVER_PATH.value
@@ -77,17 +77,18 @@ class WebDriverManager:
                 options.binary_location = Property.PAF_BINARY_PATH.value
 
             service = service_class(**service_options)
-            driver = driver_class(options=options, service=service)
+            webdriver = webdriver_class(options=options, service=service)
 
-        self.introduce_webdriver(driver, request)
+        webdriver = self.introduce_webdriver(webdriver, request)
 
-        return driver
+        return webdriver
 
-    def introduce_webdriver(self, webdriver: WebDriver, request: WebDriverRequest):
+    def introduce_webdriver(self, webdriver: WebDriver, request: WebDriverRequest) -> WebDriver:
         self.__set_request_name(webdriver, request)
         listener = inject.instance(WebDriverManagerListener)
         if listener:
-            listener.webdriver_introduce(webdriver)
+            webdriver = listener.webdriver_introduce(webdriver)
+            assert webdriver is not None
 
         self._session_driver_map[request.name] = webdriver
 
@@ -102,6 +103,8 @@ class WebDriverManager:
 
         if listener:
             listener.webdriver_introduced(webdriver)
+
+        return webdriver
 
     def __map_session_name(self, session_name_or_request: str | WebDriverRequest) -> str:
         if isinstance(session_name_or_request, WebDriverRequest):
@@ -120,10 +123,6 @@ class WebDriverManager:
             raise Exception(f"Unknown session: {session_name}")
 
     def shutdown(self, webdriver: WebDriver):
-        listener = inject.instance(WebDriverManagerListener)
-        if listener:
-            listener.webdriver_close(webdriver)
-
         webdriver.quit()
         webdrivers = list(self._session_driver_map.values())
         index = webdrivers.index(webdriver)
@@ -131,9 +130,6 @@ class WebDriverManager:
         session_keys = list(self._session_driver_map.keys())
         key = session_keys[index]
         self._session_driver_map.pop(key)
-
-        if listener:
-            listener.webdriver_closed(webdriver)
 
     def shutdown_all(self):
         for webdriver in list(self._session_driver_map.values()):
@@ -160,6 +156,8 @@ class WebDriverManager:
         return list(self._session_driver_map.values())
 
     def get_request_name(self, webdriver: WebDriver):
+        #if isinstance(webdriver, EventFiringWebDriver):
+        #    webdriver = webdriver.wrapped_driver
         return webdriver.capabilities.get("paf:requestName")
 
     def __set_request_name(self, webdriver: WebDriver, request: WebDriverRequest):
