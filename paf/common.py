@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
 from time import sleep, time
-from typing import Callable, Self
+from typing import Callable, Self, TypedDict, Literal
 
 import inject
 
@@ -325,6 +325,16 @@ class RetryException(SubjectException):
             prefix += " "
         return f"{prefix}after {self._count} retries ({round(self._duration, 2)} seconds)"
 
+
+class Cookie(TypedDict, total=False):
+    domain: str
+    expiry: int
+    httpOnly: bool
+    name: str
+    path: str
+    sameSite: Literal["Strict", "Lax", "None"]
+    secure: bool
+    value: str
 
 def inject_config(binder: inject.Binder):
     binder.bind(Formatter, Formatter())
