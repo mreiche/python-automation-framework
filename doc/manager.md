@@ -61,8 +61,8 @@ from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.service import Service
 
 webdriver = Chrome(Service(executable_path="/opt/chromedriver"))
-request = WebDriverRequest()
-manager.introduce_webdriver(webdriver, request)
+# Make sure you update your webdriver reference
+webdriver = manager.introduce_webdriver(webdriver, WebDriverRequest())
 ```
 You can also use the [WebDriverManagerListener interface](listeners.md).
 

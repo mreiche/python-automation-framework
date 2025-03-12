@@ -1,4 +1,5 @@
 import asyncio
+import math
 import os
 import shutil
 from pathlib import Path
@@ -10,7 +11,7 @@ from selenium.webdriver import ChromeOptions
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.abstract_event_listener import AbstractEventListener
 
-from paf.common import Property, Size, Rect, Point
+from paf.common import Property, Size, Rect, Point, Cookie
 from paf.listener import WebDriverManagerListener
 from paf.manager import WebDriverManager
 from paf.page import PageFactory, FinderPage
@@ -18,6 +19,8 @@ from paf.request import WebDriverRequest
 from test import get_webdriver, finder, page_factory, test_uielement
 import paf.config
 from selenium.webdriver.support.event_firing_webdriver import EventFiringWebDriver
+from datetime import datetime as dt
+import datetime
 
 @pytest.fixture
 def manager():
@@ -218,7 +221,7 @@ def test_listener():
     assert listener.introduce_called == False
     assert listener.introduced_called == False
 
-def test_event_firing_webdriver(page_factory: PageFactory):
+def test_event_firing_webdriver(manager: WebDriverManager, page_factory: PageFactory):
     class EventFiringWebDriverListener(WebDriverManagerListener, AbstractEventListener):
         def __init__(self):
             self.close_called = False
@@ -245,7 +248,6 @@ def test_event_firing_webdriver(page_factory: PageFactory):
     inject.clear_and_configure(_inject)
     listener: EventFiringWebDriverListener = inject.instance(WebDriverManagerListener)
     request = WebDriverRequest("events")
-    manager = inject.instance(WebDriverManager)
     webdriver = get_webdriver(request)
     assert isinstance(webdriver, EventFiringWebDriver)
     assert manager.get_request_name(webdriver) == request.name

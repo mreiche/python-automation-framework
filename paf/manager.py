@@ -9,7 +9,7 @@ from selenium.webdriver.common import service as webdriver_service
 from selenium.webdriver.common.options import BaseOptions
 from selenium.webdriver.remote.webdriver import WebDriver, BaseWebDriver
 
-from paf.common import Property, Formatter
+from paf.common import Property, Formatter, Cookie
 from paf.listener import WebDriverManagerListener
 from paf.request import WebDriverRequest
 
@@ -156,8 +156,6 @@ class WebDriverManager:
         return list(self._session_driver_map.values())
 
     def get_request_name(self, webdriver: WebDriver):
-        #if isinstance(webdriver, EventFiringWebDriver):
-        #    webdriver = webdriver.wrapped_driver
         return webdriver.capabilities.get("paf:requestName")
 
     def __set_request_name(self, webdriver: WebDriver, request: WebDriverRequest):
