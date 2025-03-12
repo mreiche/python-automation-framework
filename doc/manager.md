@@ -64,6 +64,7 @@ webdriver = Chrome(Service(executable_path="/opt/chromedriver"))
 request = WebDriverRequest()
 manager.introduce_webdriver(webdriver, request)
 ```
+You can also use the [WebDriverManagerListener interface](listeners.md).
 
 
 ## Shutdown WebDriver sessions
