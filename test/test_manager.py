@@ -1,5 +1,4 @@
 import asyncio
-import math
 import os
 import shutil
 from pathlib import Path
@@ -10,17 +9,16 @@ import pytest
 from selenium.webdriver import ChromeOptions
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.abstract_event_listener import AbstractEventListener
+from selenium.webdriver.support.event_firing_webdriver import EventFiringWebDriver
 
-from paf.common import Property, Size, Rect, Point, Cookie
+import paf.config
+from paf.common import Property, Size, Rect, Point
 from paf.listener import WebDriverManagerListener
 from paf.manager import WebDriverManager
 from paf.page import PageFactory, FinderPage
 from paf.request import WebDriverRequest
 from test import get_webdriver, finder, page_factory, test_uielement
-import paf.config
-from selenium.webdriver.support.event_firing_webdriver import EventFiringWebDriver
-from datetime import datetime as dt
-import datetime
+
 
 @pytest.fixture
 def manager():
@@ -176,8 +174,12 @@ async def test_thread_singleton():
     managers = await asyncio.gather(*tasks)
     assert managers[0] == managers[1]
 
-def test_listener():
+def test_managers_are_identical(manager: WebDriverManager):
+    manager2 = inject.instance(WebDriverManager)
+    assert manager is manager2
 
+
+def test_listener():
     class WebDriverManagerTestListener(WebDriverManagerListener, AbstractEventListener):
         def __init__(self):
             self.create_called = False
@@ -221,7 +223,7 @@ def test_listener():
     assert listener.introduce_called == False
     assert listener.introduced_called == False
 
-def test_event_firing_webdriver(manager: WebDriverManager, page_factory: PageFactory):
+def test_event_firing_webdriver(page_factory: PageFactory):
     class EventFiringWebDriverListener(WebDriverManagerListener, AbstractEventListener):
         def __init__(self):
             self.close_called = False
@@ -246,6 +248,9 @@ def test_event_firing_webdriver(manager: WebDriverManager, page_factory: PageFac
         binder.bind(WebDriverManagerListener, EventFiringWebDriverListener())
 
     inject.clear_and_configure(_inject)
+
+    # We need to get the manager here, because inject config has changed
+    manager = inject.instance(WebDriverManager)
     listener: EventFiringWebDriverListener = inject.instance(WebDriverManagerListener)
     request = WebDriverRequest("events")
     webdriver = get_webdriver(request)
