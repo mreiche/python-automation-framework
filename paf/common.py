@@ -1,4 +1,5 @@
 import os
+import random
 from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import Enum
@@ -82,6 +83,7 @@ class Vector(ABC):
     def __dict__(self):  # pragma: no cover
         pass
 
+
 class Point(Vector):
     @property
     def x(self):
@@ -93,6 +95,7 @@ class Point(Vector):
 
     def __dict__(self):
         return {"x": self._x, "y": self._y}
+
 
 class Size(Vector):
     def __init__(self, width: float = 0, height: float = 0):
@@ -117,18 +120,18 @@ class Rect:
         return Rect(rect["x"], rect["y"], rect["width"], rect["height"])
 
     def __init__(
-        self,
-        x: float = 0,
-        y: float = 0,
-        width: float = 0,
-        height: float = 0,
-        position: Point = None,
-        size: Size = None,
+            self,
+            x: float = 0,
+            y: float = 0,
+            width: float = 0,
+            height: float = 0,
+            position: Point = None,
+            size: Size = None,
     ):
         if position:
             self.__pos = position
         else:
-            self.__pos = Point(x,y)
+            self.__pos = Point(x, y)
 
         if size:
             self.__size = size
@@ -250,14 +253,14 @@ class SubjectException(Exception):
             self._subjects.extend(exception._subjects)
         else:
             self.add_subject(f"{exception}")
-        #self._enclosed_exception = exception
+        # self._enclosed_exception = exception
 
     def add_subject(self, subject: str):
         self._subjects.append(subject)
 
-    #@property
-    #def enclosed_exception(self):
-        #return self._enclosed_exception
+    # @property
+    # def enclosed_exception(self):
+    # return self._enclosed_exception
 
 
 class Sequence:
@@ -285,6 +288,29 @@ class Sequence:
         return self._count
 
 
+class ExecutionSpeed:
+    slow: "ExecutionSpeed" = None
+    fast: "ExecutionSpeed" = None
+    very_slow: "ExecutionSpeed" = None
+    pause: "ExecutionSpeed" = None
+    instant = None
+
+    def __init__(self, min: float, max: float = None):
+        if max is None:
+            max = min
+        self.__min = min
+        self.__max = max
+
+    def get_random(self):
+        return self.__min + ((self.__max - self.__min) * random.random())
+
+
+ExecutionSpeed.slow = ExecutionSpeed(min=0.1, max=0.3)
+ExecutionSpeed.fast = ExecutionSpeed(min=0.01, max=0.1)
+ExecutionSpeed.very_slow = ExecutionSpeed(min=0.5, max=0.8)
+ExecutionSpeed.pause = ExecutionSpeed(min=3, max=4)
+
+
 class RetryException(SubjectException):
     def __init__(self, exception: Exception, sequence: Sequence = None):
         super().__init__(exception)
@@ -295,12 +321,12 @@ class RetryException(SubjectException):
         elif isinstance(exception, RetryException):
             self._count = exception._count
             self._duration = exception._duration
-        #self.update_sequence(sequence)
+        # self.update_sequence(sequence)
 
-    #def update_sequence(self, sequence: Sequence):
+    # def update_sequence(self, sequence: Sequence):
 
     def __str__(self):
-        #prefix = f"{self._enclosed_exception}"
+        # prefix = f"{self._enclosed_exception}"
         prefix = " ".join(self._subjects)
         if len(prefix) > 0:
             prefix += " "
@@ -316,6 +342,7 @@ class Cookie(TypedDict, total=False):
     sameSite: Literal["Strict", "Lax", "None"]
     secure: bool
     value: str
+
 
 def inject_config(binder: inject.Binder):
     binder.bind(Formatter, Formatter())

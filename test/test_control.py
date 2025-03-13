@@ -1,12 +1,13 @@
 import dataclasses
 from time import sleep
 
-from paf.common import Property
+from paf.common import Property, ExecutionSpeed
 from paf.control import change, get_config, retry
-
+from paf.page import FinderPage
+from test.test_uielement import test_form
+from test import finder
 
 def test_change():
-
     backup_config = dataclasses.replace(get_config())
     assert backup_config.retry_count != 99
     assert backup_config.wait_after_fail != 99
@@ -40,3 +41,12 @@ def test_change_second():
         sleep(0.1)
         config = get_config()
         assert config.retry_count == 99
+
+
+def test_execution_speed(finder: FinderPage):
+    with change(execution_speed=ExecutionSpeed.fast):
+        test_form(finder)
+
+def test_execution_speed_random():
+    execution_speed = ExecutionSpeed(min=1)
+    assert execution_speed.get_random() == 1
