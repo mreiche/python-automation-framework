@@ -41,3 +41,15 @@ from paf.control import change
 with change(retry_count=3, wait_after_fail=0):
     retry(lambda: text_element.expect.count.be(1), lambda e: text_element.webdriver.refresh())
 ```
+
+## Execution speed (experimental)
+
+You can change the execution speed of several actions like:
+
+```python
+from paf.control import change, ExecutionSpeed
+
+with change(execution_speed=ExecutionSpeed.fast):
+    element.type("Hello World")
+    element.click()
+```
