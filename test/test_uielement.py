@@ -350,5 +350,20 @@ def test_inexistent_ui_element_wrapper():
         assert False
 
 
+def test_web_element_keeps_unchanged(finder: FinderPage):
+    finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
+    p = finder.find("#para1")
+    with p.find_web_element() as web_element:
+        id_before = web_element.id
+
+    with p.find_web_element() as web_element:
+        assert web_element.id == id_before
+
+def test_shadow_root_access(finder: FinderPage):
+    finder.open("https://practice.expandtesting.com/shadowdom")
+    shadow_host = finder.find("#shadow-host")
+    my_btn = shadow_host.find("#my-btn")
+    my_btn.expect.text.be("This button is inside a Shadow DOM.")
+
 def teardown_module():
     inject.instance(WebDriverManager).shutdown_all()

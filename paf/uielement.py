@@ -11,6 +11,7 @@ from is_empty import empty
 from selenium.common import NoSuchShadowRootException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By as SeleniumBy
+from selenium.webdriver.remote.shadowroot import ShadowRoot
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.color import Color
@@ -306,6 +307,8 @@ class DefaultUiElement(AbstractUiElement):
         self._ui_element = ui_element
         self.__by = by
         self.__index = index
+        self.__web_element_id = None
+        self.__has_shadow_root = None
         super().__init__(name, parent)
 
     @property
@@ -341,6 +344,21 @@ class DefaultUiElement(AbstractUiElement):
         else:
             return web_elements
 
+    def __detect_shadow_root(self, ui_element: "DefaultUiElement", web_element: WebElement) -> WebElement|ShadowRoot:
+        if ui_element.__web_element_id != web_element.id:
+            ui_element.__web_element_id = web_element.id
+            try:
+                web_element_context = web_element.shadow_root
+                ui_element.__has_shadow_root = True
+                return web_element_context
+            except NoSuchShadowRootException as e:
+                ui_element.__has_shadow_root = False
+                return web_element
+        elif ui_element.__has_shadow_root:
+            return web_element.shadow_root
+        else:
+            return web_element
+
     @contextmanager
     def _find_web_elements(self) -> ContextManager[List[WebElement]]:
         if self._ui_element:
@@ -350,13 +368,8 @@ class DefaultUiElement(AbstractUiElement):
                     self._webdriver.switch_to.frame(web_element)
                     web_elements = self._webdriver.find_elements(self._by.by, self._by.value)
                 else:
-                    web_element_context = web_element
-                    try:
-                        web_element_context = web_element.shadow_root
-                    except NoSuchShadowRootException as e:
-                        pass
-
-                    web_elements = web_element_context.find_elements(self._by.by, self.__relative_selector(self._by))
+                    web_element = self.__detect_shadow_root(self._ui_element, web_element)
+                    web_elements = web_element.find_elements(self._by.by, self.__relative_selector(self._by))
 
                 yield self._filter_web_elements(web_elements)
 
@@ -367,19 +380,7 @@ class DefaultUiElement(AbstractUiElement):
         else:
             raise Exception(f"{self.name_path} initialized without WebDriver nor UiElement")
 
-    # @contextmanager
-    # def find_web_element(self) -> ContextManager[WebElement]:
-    #     pass
-    #     with self._find_web_elements() as web_elements:
-    #         count = len(web_elements)
-    #         if self._by.is_unique and count != 1:
-    #             raise NotUniqueException()
-    #         elif count > self._index:
-    #             yield web_elements[self._index]
-    #         else:
-    #             raise NotFoundException()
-
-    def _web_element_action_sequence(self, action: Consumer[WebElement], action_name: str):
+    def __web_element_action_sequence(self, action: Consumer[WebElement], action_name: str):
         action_listener = inject.instance(ActionListener)
 
         def _sequence():
@@ -393,10 +394,6 @@ class DefaultUiElement(AbstractUiElement):
             exception.add_subject(self.name_path)
             action_listener.action_failed_finally(action_name, self, exception)
             raise exception
-
-    def click(self):
-        self._web_element_action_sequence(lambda x: x.click(), "click")
-        return self
 
     def take_screenshot(self, file_name: str = None) -> Path | None:
         with self.find_web_element() as web_element:
@@ -426,7 +423,22 @@ class DefaultUiElement(AbstractUiElement):
         def _action(web_element: WebElement):
             self.__send_keys(web_element, value)
 
-        self._web_element_action_sequence(_action, "send_keys")
+        self.__web_element_action_sequence(_action, "send_keys")
+        return self
+
+    def __create_action_chain(self):
+        actions = ActionChains(self._webdriver)
+        config = get_config()
+        if config.execution_speed:
+            actions = actions.pause(config.execution_speed.get_random())
+        return actions
+
+    def click(self):
+        def _action(web_element: WebElement):
+            actions = self.__create_action_chain()
+            actions.click(web_element).perform()
+
+        self.__web_element_action_sequence(_action, "click")
         return self
 
     def type(self, value: str):
@@ -435,36 +447,36 @@ class DefaultUiElement(AbstractUiElement):
             self.__send_keys(web_element, value)
             assert web_element.get_attribute("value") == value
 
-        self._web_element_action_sequence(_action, "type")
+        self.__web_element_action_sequence(_action, "type")
         return self
 
     def hover(self):
         def _action(web_element: WebElement):
-            actions = ActionChains(self._webdriver)
+            actions = self.__create_action_chain()
             actions.move_to_element(web_element).perform()
 
-        self._web_element_action_sequence(_action, "hover")
+        self.__web_element_action_sequence(_action, "hover")
 
     def context_click(self):
         def _action(web_element: WebElement):
-            actions = ActionChains(self._webdriver)
+            actions = self.__create_action_chain()
             actions.context_click(web_element).perform()
 
-        self._web_element_action_sequence(_action, "context_click")
+        self.__web_element_action_sequence(_action, "context_click")
 
     def long_click(self):
         def _action(web_element: WebElement):
-            actions = ActionChains(self._webdriver)
+            actions = self.__create_action_chain()
             actions.click_and_hold(web_element).perform()
 
-        self._web_element_action_sequence(_action, "long_click")
+        self.__web_element_action_sequence(_action, "long_click")
 
     def double_click(self):
         def _action(web_element: WebElement):
-            actions = ActionChains(self._webdriver)
+            actions = self.__create_action_chain()
             actions.double_click(web_element).perform()
 
-        self._web_element_action_sequence(_action, "double_click")
+        self.__web_element_action_sequence(_action, "double_click")
 
     def drag_and_drop_to(self, target_ui_element: "UiElement"):
         def _action(web_element: WebElement):
@@ -472,33 +484,33 @@ class DefaultUiElement(AbstractUiElement):
                 actions = ActionChains(self._webdriver)
                 actions.drag_and_drop(web_element, target).perform()
 
-        self._web_element_action_sequence(_action, "drag_and_drop_to")
+        self.__web_element_action_sequence(_action, "drag_and_drop_to")
 
     def clear(self):
-        self._web_element_action_sequence(lambda x: x.clear(), "clear")
+        self.__web_element_action_sequence(lambda x: x.clear(), "clear")
         return self
 
     def submit(self):
-        self._web_element_action_sequence(lambda x: x.submit(), "submit")
+        self.__web_element_action_sequence(lambda x: x.submit(), "submit")
         return self
 
     def scroll_into_view(self, x: int = 0, y: int = 0):
         def _action(web_element: WebElement):
             script.scroll_to_center(self._webdriver, web_element, Point(x, y))
 
-        self._web_element_action_sequence(_action, "scroll_into_view")
+        self.__web_element_action_sequence(_action, "scroll_into_view")
 
     def scroll_to_top(self, x: int = 0, y: int = 0):
         def _action(web_element: WebElement):
             script.scroll_to_top(self._webdriver, web_element, Point(x, y))
 
-        self._web_element_action_sequence(_action, "scroll_to_top")
+        self.__web_element_action_sequence(_action, "scroll_to_top")
 
     def highlight(self, color: Color = Color.from_string("#0f0"), seconds: float = 2):
         def _action(web_element: WebElement):
             script.highlight(self._webdriver, web_element, color, math.floor(seconds * 1000))
 
-        self._web_element_action_sequence(_action, "highlight")
+        self.__web_element_action_sequence(_action, "highlight")
 
     def __iter__(self):
         for i in range(self._count_elements()):
