@@ -28,6 +28,16 @@ def test_window_size(monkeypatch):
     assert request.window_size.width == 1024
     assert request.window_size.height == 768
 
+def test_window_position(monkeypatch):
+    monkeypatch.setenv('PAF_WINDOW_POSITION', '8x15')
+    request = WebDriverRequest()
+    assert request.window_position.x == 8
+    assert request.window_position.y == 15
+
+def test_window_maximize(monkeypatch):
+    monkeypatch.setenv('PAF_WINDOW_MAXIMIZE', 'true')
+    request = WebDriverRequest()
+    assert request.window_maximize is True
 
 def test_server_url(monkeypatch):
     monkeypatch.setenv('PAF_SELENIUM_SERVER_URL', "http://127.0.0.1:4444")

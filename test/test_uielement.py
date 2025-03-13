@@ -169,6 +169,7 @@ def test_form(finder: FinderPage):
 
     username = finder.find(By.name("username"))
     username.expect.enabled(True)
+    username.hover()
     username.send_keys("My Name")
     username.expect.value.be("My Name")
     username.clear()
@@ -362,8 +363,9 @@ def test_web_element_keeps_unchanged(finder: FinderPage):
 def test_shadow_root_access(finder: FinderPage):
     finder.open("https://practice.expandtesting.com/shadowdom")
     shadow_host = finder.find("#shadow-host")
-    my_btn = shadow_host.find("#my-btn")
-    my_btn.expect.text.be("This button is inside a Shadow DOM.")
+    for i in range(2):
+        my_btn = shadow_host.find("#my-btn")
+        my_btn.expect.text.be("This button is inside a Shadow DOM.")
 
 def teardown_module():
     inject.instance(WebDriverManager).shutdown_all()
