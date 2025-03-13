@@ -271,3 +271,4 @@ def test_event_firing_webdriver(page_factory: PageFactory):
 
 def teardown_module():
     inject.instance(WebDriverManager).shutdown_all()
+    inject.clear_and_configure(paf.config.inject)
