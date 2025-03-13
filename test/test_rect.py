@@ -14,6 +14,7 @@ def test_rect(finder: FinderPage):
 
     assert point.x > 10
     assert point.y > 20
+    assert isinstance(point.__dict__(), dict)
 
 
 def teardown_module():

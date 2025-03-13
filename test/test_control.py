@@ -46,3 +46,7 @@ def test_change_second():
 def test_execution_speed(finder: FinderPage):
     with change(execution_speed=ExecutionSpeed.fast):
         test_form(finder)
+
+def test_execution_speed_random():
+    execution_speed = ExecutionSpeed(min=1)
+    assert execution_speed.get_random() == 1
