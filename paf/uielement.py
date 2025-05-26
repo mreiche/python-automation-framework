@@ -435,8 +435,9 @@ class DefaultUiElement(AbstractUiElement):
 
     def click(self):
         def _action(web_element: WebElement):
-            actions = self.__create_action_chain()
-            actions.click(web_element).perform()
+            web_element.click()
+            #actions = self.__create_action_chain()
+            #actions.click(web_element).perform()
 
         self.__web_element_action_sequence(_action, "click")
         return self
