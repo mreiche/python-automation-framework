@@ -1,0 +1,42 @@
+name: Publish Python Package
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+
+      - name: Install build tools
+        run: |
+          pip install setuptools wheel twine
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          TAG=${GITHUB_REF##*/}
+          echo "PACKAGE_VERSION=${TAG#v}" >> $GITHUB_ENV
+
+      - name: Build the package
+        run: |
+          python setup.py sdist bdist_wheel
+        env:
+          PACKAGE_VERSION: ${{ env.PACKAGE_VERSION }}
+
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          twine upload dist/*

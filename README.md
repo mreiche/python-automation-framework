@@ -151,19 +151,7 @@ snapshot = document.evaluate(xpath, document.body, null, XPathResult.ORDERED_NOD
 snapshot.snapshotItem(0).textContent
 ```
 
-### Release update
-1. Update version in `setup.py`
-2. Package library
-    ```shell
-    python setup.py sdist
-    ```
-3. Publish library
-    ```shell
-    twine upload dist/python_automation_framework-[version].tar.gz
-    ```
-
 ### References
-- https://stackoverflow.com/questions/64033686/how-can-i-use-private-docker-image-in-github-actions
 - https://tecadmin.net/setup-selenium-chromedriver-on-ubuntu/
 - https://stackoverflow.com/questions/46052736/python-proxy-class
 - https://chromedriver.chromium.org/
