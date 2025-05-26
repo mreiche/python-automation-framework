@@ -36,11 +36,12 @@ jobs:
 #        password: ${{  secrets.DOCKER_CONTAINER_REGISTRY_TOKEN }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v5
       with:
         python-version: "3.13"
+        cache: "pip"
     - name: Install dependencies of all modules
       run: pip install -r requirements.txt
     - name: Test with pytest
