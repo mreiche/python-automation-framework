@@ -1,5 +1,5 @@
 selenium==4.23.1
-pytest==7.3.1
+pytest==9.2.0
 is_empty==1.0.1
 inject==4.3.1
 pytest-xdist==3.2.1
