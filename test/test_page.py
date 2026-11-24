@@ -14,19 +14,18 @@ from test import finder, page_factory
 
 
 def test_assertions(finder: FinderPage):
-    finder.open("https://testpages.herokuapp.com")
-    assert finder.wait_for.url.be("https://testpages.eviltester.com/styled/index.html")
+    finder.open("https://testpages.eviltester.com")
 
-    expected_title = "Web Testing and Automation Practice Application Pages"
+    expected_title = "Software Testing Practice Pages, Apps, and Challenges"
 
     finder.expect.title.be(expected_title)
     assert finder.name == "FinderPage"
     assert str(finder) == finder.name
     assert finder.webdriver.title == expected_title
 
-    with pytest.raises(AssertionError, match=re.escape("Expected FinderPage.url [https://testpages.eviltester.com/styled/index.html] ends with [index.html] to be [False]")):
+    with pytest.raises(AssertionError, match=re.escape("Expected FinderPage.url [https://testpages.eviltester.com/] ends with [com/] to be [False]")):
         with change(retry_count=0):
-            finder.expect.url.ends_with("index.html").be(False)
+            finder.expect.url.ends_with("com/").be(False)
 
 
 def test_create_page_from_page(page_factory: PageFactory):
@@ -47,7 +46,7 @@ def test_create_page_without_webdriver(page_factory: PageFactory):
 
 
 def test_scroll_until_visible(finder: FinderPage):
-    finder.open("https://testpages.herokuapp.com/styled/find-by-playground-test.html")
+    finder.open("https://testpages.eviltester.com/challenges/locators/find-by-playground/")
     p = finder._find("#p41")
     height = p.expect.bounds.actual.height
     while p.wait_for.fully_visible(False):

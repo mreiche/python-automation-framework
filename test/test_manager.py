@@ -234,7 +234,7 @@ def test_event_firing_webdriver(page_factory: PageFactory):
             return EventFiringWebDriver(webdriver, self)
 
         def after_navigate_to(self, url: str, webdriver: WebDriver):
-            assert "testpages.herokuapp.com" in url
+            assert "testpages.eviltester.com" in url
             self.get_called = True
 
         def before_quit(self, driver) -> None:

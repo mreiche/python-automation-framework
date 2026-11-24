@@ -14,7 +14,7 @@ from test import finder
 
 
 def test_basics(finder: FinderPage):
-    finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
+    finder.open("https://testpages.eviltester.com/pages/basics/basic-web-page/")
 
     p = finder.find(By.id("para1"))
     assert p.name_path == 'UiElement(By.id(para1))[0]'
@@ -32,18 +32,8 @@ def test_basics(finder: FinderPage):
     assert len(p2.get_path()) == 2
 
 
-# def test_rect():
-#     finder = page_factory.create_page(FinderPage, create_webdriver())
-#     finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
-#
-#     p = finder.find(By.id("para1"))
-#     rect = p._get_bounds()
-#     assert isinstance(rect, Rect)
-#     assert rect.width == 962
-#     assert rect.height == 27
-
 def test_assertions(finder: FinderPage):
-    finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
+    finder.open("https://testpages.eviltester.com/pages/basics/basic-web-page/")
 
     p = finder.find("#para1")
 
@@ -78,18 +68,18 @@ def test_assertions(finder: FinderPage):
 
 def test_text_assertion_fails(finder: FinderPage):
     with pytest.raises(AssertionError, match=re.escape("Expected UiElement(By.css selector(#para1))[0].attribute(data) *undefined* to be [null] after 3 retries")):
-        finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
+        finder.open("https://testpages.eviltester.com/pages/basics/basic-web-page/")
         p = finder.find("#para1")
         p.expect.attribute("data").be("null")
 
 
 def test_untested_assertion_raises(finder: FinderPage):
-    finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
+    finder.open("https://testpages.eviltester.com/pages/basics/basic-web-page/")
     title = finder.expect.title
 
 
 def test_wait(finder: FinderPage):
-    finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
+    finder.open("https://testpages.eviltester.com/pages/basics/basic-web-page/")
 
     p = finder.find("#para1")
 
@@ -98,7 +88,7 @@ def test_wait(finder: FinderPage):
 
 
 def test_highlight(finder: FinderPage):
-    finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
+    finder.open("https://testpages.eviltester.com/pages/basics/basic-web-page/")
 
     p = finder.find(By.id("para1"))
     p.highlight(color=Color.from_string("#0f0"))
@@ -106,7 +96,7 @@ def test_highlight(finder: FinderPage):
 
 
 def test_scroll_to_visible(finder: FinderPage):
-    finder.open("https://testpages.herokuapp.com/styled/find-by-playground-test.html")
+    finder.open("https://testpages.eviltester.com/challenges/locators/find-by-playground/")
 
     p = finder.find(By.id("pre1").unique)
     p.expect.visible(False)
@@ -122,7 +112,7 @@ def test_scroll_to_visible(finder: FinderPage):
 
 
 def test_find_sub_elements_list(finder: FinderPage):
-    finder.open("https://testpages.herokuapp.com/styled/find-by-playground-test.html")
+    finder.open("https://testpages.eviltester.com/challenges/locators/find-by-playground/")
 
     # Sub elements
     div = finder.find("#div1")
@@ -148,7 +138,7 @@ def test_find_sub_elements_list(finder: FinderPage):
 
 
 def test_inexistent_sub_element(finder: FinderPage):
-    finder.open("https://testpages.herokuapp.com/styled/find-by-playground-test.html")
+    finder.open("https://testpages.eviltester.com/challenges/locators/find-by-playground/")
 
     # Sub elements
     div = finder.find("#div1")
@@ -157,7 +147,7 @@ def test_inexistent_sub_element(finder: FinderPage):
 
 
 def test_form(finder: FinderPage):
-    finder.open("https://testpages.herokuapp.com/styled/basic-html-form-test.html")
+    finder.open("https://testpages.eviltester.com/pages/forms/html-form/")
 
     checkbox = finder.find(XPath.at("input").name("checkboxes[]").attribute("value").be("cb3"))
     checkbox.expect.selected(True)
@@ -183,7 +173,7 @@ def test_form(finder: FinderPage):
 
 
 def test_screenshot(finder: FinderPage):
-    finder.open("https://testpages.herokuapp.com/styled/find-by-playground-test.html")
+    finder.open("https://testpages.eviltester.com/challenges/locators/find-by-playground/")
     p = finder.find(By.id("pre1").unique)
 
     path = p.take_screenshot()
@@ -197,7 +187,7 @@ def test_screenshot(finder: FinderPage):
 
 
 def test_retry(finder: FinderPage):
-    finder.open("https://testpages.herokuapp.com/styled/key-click-display-test.html")
+    finder.open("https://testpages.eviltester.com/pages/basics/key-click/")
     btn = finder.find(By.id("button").unique)
     clicks = finder.find(XPath.at("div").id("events").select("p"))
     btn.click()
@@ -207,7 +197,7 @@ def test_retry(finder: FinderPage):
 
 
 def test_actions(finder: FinderPage):
-    finder.open("https://testpages.herokuapp.com/styled/events/javascript-events.html")
+    finder.open("https://testpages.eviltester.com/pages/interaction/javascript-events/")
 
     click_btn = finder.find("#onclick")
     click_status = finder.find("#onclickstatus")
@@ -241,7 +231,7 @@ def test_actions(finder: FinderPage):
 
 
 def test_drag_and_drop(finder: FinderPage):
-    finder.open("https://testpages.herokuapp.com/styled/drag-drop-javascript.html")
+    finder.open("https://testpages.eviltester.com/pages/interaction/drag-drop/")
 
     drag = finder.find(".drag.left")
     drop = finder.find("#droppable1")
@@ -251,19 +241,19 @@ def test_drag_and_drop(finder: FinderPage):
 
 
 def test_frames(finder: FinderPage):
-    finder.open("https://testpages.herokuapp.com/styled/frames/frames-test.html")
+    finder.open("https://testpages.eviltester.com/pages/embedded-pages/frames/")
     left = finder.find(By.name("left"))
     left.expect.tag_name.be("frame")
     left.find("li").expect.count.be(30)
     left.expect.tag_name.be("frame")
 
     top = finder.find(By.name("top"))
-    exp = top.find(By.class_name("explanation"))
-    exp.expect.text.starts_with("This page").be(True)
+    exp = top.find(By.class_name("pageinfo"))
+    exp.expect.text.starts_with("This page has a set of nested frames").be(True)
 
 
 def test_locate_displayed(finder: FinderPage):
-    finder.open("https://testpages.herokuapp.com/styled/alerts/fake-alert-test.html")
+    finder.open("https://testpages.eviltester.com/pages/basics/alerts-not-javascript/")
     ok = finder.find(By.id("dialog-ok").displayed)
     btn = finder.find("#fakealert")
 
@@ -281,7 +271,7 @@ def test_uninitialized_ui_element_fails(finder: FinderPage):
 
 
 def test_action_on_non_interactable_fails(finder: FinderPage):
-    finder.open("https://testpages.herokuapp.com/styled/alerts/fake-alert-test.html")
+    finder.open("https://testpages.eviltester.com/pages/basics/alerts-not-javascript/")
     ok = finder.find("#dialog-ok")
     with pytest.raises(Exception, match=re.escape("Message: element not interactable")):
         with change(retry_count=0):
@@ -289,7 +279,7 @@ def test_action_on_non_interactable_fails(finder: FinderPage):
 
 
 def test_fail_message(finder: FinderPage):
-    finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
+    finder.open("https://testpages.eviltester.com/pages/basics/basic-web-page/")
     p1 = finder.find("#para1")
     with pytest.raises(AssertionError, match=re.escape("Expected UiElement(By.css selector(#para1))[0].text [A paragraph of text] mapped ends with [Katze] to be [True]")):
         with change(retry_count=0):
@@ -297,7 +287,7 @@ def test_fail_message(finder: FinderPage):
 
 
 def test_not_unique_fails(finder: FinderPage):
-    finder.open("https://testpages.herokuapp.com/styled/key-click-display-test.html")
+    finder.open("https://testpages.eviltester.com/pages/basics/key-click/")
     btn = finder.find(By.id("button").unique)
     btn.click()
     btn.click()
@@ -310,7 +300,7 @@ def test_not_unique_fails(finder: FinderPage):
 
 
 def test_highlight_nonexistent_fails(finder: FinderPage):
-    finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
+    finder.open("https://testpages.eviltester.com/pages/basics/basic-web-page/")
 
     with pytest.raises(Exception, match=re.escape("Not found UiElement(By.css selector(#unkown))[0] after 0 retries")):
         with change(retry_count=0):
@@ -319,7 +309,7 @@ def test_highlight_nonexistent_fails(finder: FinderPage):
 
 
 def test_count_nonexistent_fails(finder: FinderPage):
-    finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
+    finder.open("https://testpages.eviltester.com/pages/basics/basic-web-page/")
 
     with pytest.raises(Exception, match=re.escape("Expected UiElement(By.css selector(#unkown))[0] count [0] to be [1] after 0 retries")):
         with change(retry_count=0):
@@ -352,7 +342,7 @@ def test_inexistent_ui_element_wrapper():
 
 
 def test_web_element_keeps_unchanged(finder: FinderPage):
-    finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
+    finder.open("https://testpages.eviltester.com/pages/basics/basic-web-page/")
     p = finder.find("#para1")
     with p.find_web_element() as web_element:
         id_before = web_element.id
