@@ -5,4 +5,4 @@ inject==5.5.0
 pytest-xdist==3.2.1
 pytest-cov==4.0.0
 pytest-asyncio==1.5.0
-setuptools==76.0.0
+setuptools==84.2.1
