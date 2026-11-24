@@ -45,7 +45,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       - name: Build and push
         id: push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           file: ubuntu-base.Dockerfile
           push: ${{ github.event.name == 'pull_request' && 'false' || 'true' }}
