@@ -46,7 +46,7 @@ def test_create_page_without_webdriver(page_factory: PageFactory):
 
 
 def test_scroll_until_visible(finder: FinderPage):
-    finder.open("https://testpages.herokuapp.com/styled/find-by-playground-test.html")
+    finder.open("https://testpages.eviltester.com/challenges/locators/find-by-playground/")
     p = finder._find("#p41")
     height = p.expect.bounds.actual.height
     while p.wait_for.fully_visible(False):
