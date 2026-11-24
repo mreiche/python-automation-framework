@@ -19,11 +19,11 @@ def test_viewport():
     assert viewport.top == 0
     assert viewport.left == 0
     assert viewport.width == 1024
-    assert viewport.height >= 600
+    assert viewport.height >= 568  # Viewport is way smaller with info bars
 
 
 def test_set_attribute(finder: FinderPage):
-    finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
+    finder.open("https://testpages.eviltester.com/pages/basics/basic-web-page/")
     p = finder.find("#para1")
     with p.find_web_element() as web_element:
         javascript.set_attribute(p.webdriver, web_element, "data-katze", "affe")

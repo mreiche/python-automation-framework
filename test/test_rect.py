@@ -7,7 +7,7 @@ from test import finder
 
 
 def test_rect(finder: FinderPage):
-    finder.open("https://testpages.herokuapp.com/styled/basic-web-page-test.html")
+    finder.open("https://testpages.eviltester.com/pages/basics/basic-web-page/")
     p = finder.find("#para1")
     rect = p.expect.bounds.actual
     point = rect.origin + Point(10, 20)

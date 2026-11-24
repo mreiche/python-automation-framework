@@ -13,7 +13,7 @@ from test import get_webdriver
 @pytest.fixture
 def finder():
     finder = inject.instance(PageFactory).create_page(FinderPage, get_webdriver())
-    finder.open("https://testpages.herokuapp.com/styled/key-click-display-test.html")
+    finder.open("https://testpages.eviltester.com/pages/basics/key-click/")
     yield finder
 
 
@@ -70,7 +70,7 @@ def test_highlight_failed_assertion(finder: FinderPage, assertion_listener: Asse
 
 def test_highlight_passed_assertion(finder: FinderPage, assertion_listener: AssertionListener):
     btn = finder.find("#button")
-    btn.expect.value.be("click me")
+    btn.expect.text.be("click me")
     btn.expect.css("outline").be("rgb(0, 255, 0) solid 5px")
 
 

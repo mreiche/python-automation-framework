@@ -34,7 +34,7 @@ class MyComponent(Component["MyComponent"]):
         return self._find(By.id("input"))
 
     def goto_page(self) -> ComponentsPage:
-        return self._create_page(ComponentsPage).open("https://testpages.herokuapp.com/styled/tag/dynamic-table.html")
+        return self._create_page(ComponentsPage).open("https://testpages.eviltester.com/apps/html-table-generator/")
 
 
 class TableCell(Component["TableCell"]):
@@ -68,7 +68,7 @@ def test_component_list_name(components_page: ComponentsPage):
 
 
 def test_component_list(components_page: ComponentsPage):
-    components_page.open("https://testpages.herokuapp.com/styled/tag/dynamic-table.html")
+    components_page.open("https://testpages.eviltester.com/apps/html-table-generator/")
     rows = components_page.table_row
     assert rows.name_path == "ComponentsPage > TableRow > UiElement(By.xpath(//table[@id='dynamictable']//tr))[0]"
     rows.expect.count.be(3)
@@ -85,7 +85,7 @@ def test_component_list(components_page: ComponentsPage):
 
 
 def test_component_scrolling(components_page: ComponentsPage):
-    components_page.open("https://testpages.herokuapp.com/styled/tag/dynamic-table.html")
+    components_page.open("https://testpages.eviltester.com/apps/html-table-generator/")
     rows = components_page.table_row
     json_data = components_page._find("#jsondata")
     details = components_page._find("details")
